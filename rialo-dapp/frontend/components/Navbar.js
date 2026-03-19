@@ -319,19 +319,8 @@ export default function Navbar() {
 
           {/* Right: Socials + Wallet */}
           <div className="nav-right">
-            <div className="nav-socials">
-              {socialLinks.map(({ label, href, Icon }) => (
-                <a
-                  key={label}
-                  href={href}
-                  aria-label={label}
-                  className={`social-icon ${isDarkTheme ? 'dark' : 'light'}`}
-                >
-                  <Icon />
-                </a>
-              ))}
-              <div className={`nav-divider ${isDarkTheme ? 'dark' : 'light'}`} />
-            </div>
+
+
 
             {isConnected ? (
               <button
