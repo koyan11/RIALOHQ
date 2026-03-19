@@ -297,7 +297,6 @@ export default function Navbar() {
               alt="Rialo Logo"
               className={`logo-img ${isDarkTheme ? 'dark' : 'light'}`}
             />
-            Rialo
           </Link>
 
           {/* Center: Pill Nav */}
