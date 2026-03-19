@@ -6,16 +6,23 @@ import { useWallet } from '../hooks/useWallet';
 import { stakeTokens, unstakeTokens, fetchPools } from '../lib/api';
 
 const DEFAULT_POOLS = [
-  { id: 'rlo-eth', name: 'RLO/ETH', description: 'Stake Rialo paired with Ethereum liquidity', apy: '18.4%', totalStaked: '850M RLO', tvl: '$942M', minStake: '100 RLO' },
-  { id: 'rlo-usdc', name: 'RLO/USDC', description: 'Stable liquidity provision for USDC pairs', apy: '12.1%', totalStaked: '120M RLO', tvl: '$133M', minStake: '50 RLO' },
-  { id: 'rlo-single', name: 'RLO Single Stake', description: 'Pure RLO staking for protocol governance', apy: '8.7%', totalStaked: '450M RLO', tvl: '$499M', minStake: '10 RLO' },
+  { id: 'rlo-eth', name: 'RLO/ETH', description: 'Stake Rialo paired with Ethereum liquidity', apy: '18.4%', totalStaked: '850M RLO', tvl: '$942M', minStake: '100 RLO', type: 'Active' },
+  { id: 'rlo-usdc', name: 'RLO/USDC', description: 'Stable liquidity provision for USDC pairs', apy: '12.1%', totalStaked: '120M RLO', tvl: '$133M', minStake: '50 RLO', type: 'Active' },
+  { id: 'rlo-single', name: 'RLO Single Stake', description: 'Pure RLO staking for protocol governance', apy: '8.7%', totalStaked: '450M RLO', tvl: '$499M', minStake: '10 RLO', type: 'Active' },
+];
+
+const LEGACY_POOLS = [
+  { id: 'rlo-v1', name: 'RLO V1 Legacy', description: 'Original staking pool for V1 adopters. Withdrawals only.', apy: '4.2%', totalStaked: '45M RLO', tvl: '$49M', minStake: '0 RLO', type: 'Legacy' },
 ];
 
 function StakeModal({ pool, action, onClose, onConfirm, loading }) {
   const [amount, setAmount] = useState('');
 
+  const minStakeValue = parseFloat(pool.minStake.split(' ')[0]) || 0;
+  const isAmountTooLow = action === 'Stake' && amount && parseFloat(amount) < minStakeValue;
+
   const handleConfirm = () => {
-    if (!amount || parseFloat(amount) <= 0) return;
+    if (!amount || parseFloat(amount) <= 0 || isAmountTooLow) return;
     onConfirm(amount, pool.id);
   };
 
@@ -29,18 +36,25 @@ function StakeModal({ pool, action, onClose, onConfirm, loading }) {
           </button>
         </div>
         <p className="text-sm text-on-surface/60 mb-6">APY: <strong>{pool.apy}</strong> · Min: <strong>{pool.minStake}</strong></p>
-        <input
-          type="text"
-          placeholder="Amount in RLO"
-          value={amount}
-          onChange={e => setAmount(e.target.value.replace(/[^0-9.]/g, ''))}
-          className="w-full bg-surface-container-low border border-outline-variant/20 rounded-xl px-4 py-3 text-xl font-headline font-bold focus:ring-1 focus:ring-primary focus:border-primary mb-6"
-          autoFocus
-        />
+        <div className="mb-6">
+          <input
+            type="text"
+            placeholder="Amount in RLO"
+            value={amount}
+            onChange={e => setAmount(e.target.value.replace(/[^0-9.]/g, ''))}
+            className={`w-full bg-surface-container-low border ${isAmountTooLow ? 'border-error' : 'border-outline-variant/20'} rounded-xl px-4 py-3 text-xl font-headline font-bold focus:ring-1 focus:ring-primary focus:border-primary`}
+            autoFocus
+          />
+          {isAmountTooLow && (
+            <p className="text-error text-[10px] mt-2 font-bold uppercase tracking-wider">
+              Minimum staking amount is {pool.minStake}
+            </p>
+          )}
+        </div>
         <button
           onClick={handleConfirm}
-          disabled={loading || !amount || parseFloat(amount) <= 0}
-          className="w-full bg-primary text-on-primary py-4 rounded-xl font-bold text-base hover:bg-primary-container transition-all disabled:opacity-50"
+          disabled={loading || !amount || parseFloat(amount) <= 0 || isAmountTooLow}
+          className="w-full bg-primary text-on-primary py-4 rounded-xl font-bold text-base hover:bg-primary-container transition-all disabled:opacity-30"
         >
           {loading ? (
             <span className="flex items-center justify-center gap-2">
@@ -64,9 +78,18 @@ export default function StakingPage() {
   // Load pool data
   useEffect(() => {
     fetchPools()
-      .then(data => { if (data.pools) setPools(data.pools); })
-      .catch(() => {});
+      .then(data => { 
+        if (data.pools) {
+          const augmented = data.pools.map(p => ({ ...p, type: 'Active' }));
+          setPools([...augmented, ...LEGACY_POOLS]); 
+        } 
+      })
+      .catch(() => {
+        setPools([...DEFAULT_POOLS, ...LEGACY_POOLS]);
+      });
   }, []);
+
+  const displayedPools = pools.filter(p => p.type === activeTab);
 
   const handleStakeAction = useCallback(async (amount, poolId) => {
     if (!isConnected) { connect(); return; }
@@ -152,7 +175,7 @@ export default function StakingPage() {
 
         {/* Staking Pool Cards */}
         <div className="space-y-6">
-          {pools.map(pool => (
+          {displayedPools.map(pool => (
             <div
               key={pool.id}
               className="bg-[#0c0c0c] rounded-2xl p-10 shadow-2xl flex flex-col md:flex-row items-start md:items-center gap-6 md:gap-10 justify-between border border-white/5 hover:border-white/10 transition-colors"
@@ -188,7 +211,8 @@ export default function StakingPage() {
               <div className="flex gap-4 flex-shrink-0 w-full md:w-auto">
                 <button
                   onClick={() => openModal(pool, 'Stake')}
-                  className="flex-1 md:flex-none px-10 py-5 bg-white text-black rounded-2xl font-bold text-sm hover:bg-white/90 active:scale-95 transition-all shadow-2xl"
+                  disabled={pool.type === 'Legacy'}
+                  className="flex-1 md:flex-none px-10 py-5 bg-white text-black rounded-2xl font-bold text-sm hover:bg-white/90 active:scale-95 transition-all shadow-2xl disabled:opacity-20 disabled:cursor-not-allowed"
                 >
                   Stake
                 </button>
