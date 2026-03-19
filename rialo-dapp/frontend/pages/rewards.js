@@ -5,7 +5,7 @@ import Toast from '../components/Toast';
 import { useWallet } from '../hooks/useWallet';
 import { fetchRewards, claimRewards } from '../lib/api';
 
-const HISTORY = [
+const INITIAL_HISTORY = [
   { amount: '+240.15 RIALO', date: 'Nov 24, 2024', status: 'Success' },
   { amount: '+189.40 RIALO', date: 'Oct 31, 2024', status: 'Success' },
   { amount: '+412.57 RIALO', date: 'Sep 30, 2024', status: 'Success' },
@@ -14,6 +14,7 @@ const HISTORY = [
 export default function RewardsPage() {
   const { isConnected, address, connect, updateBalance } = useWallet();
   const [rewards, setRewards] = useState({ totalEarned: '12,482.50', claimable: '842.12', apy: 8.42 });
+  const [history, setHistory] = useState(INITIAL_HISTORY);
   const [loading, setLoading] = useState(false);
   const [claiming, setClaiming] = useState(false);
   const [toast, setToast] = useState(null);
@@ -24,10 +25,18 @@ export default function RewardsPage() {
     setLoading(true);
     try {
       const data = await fetchRewards(address);
-      setRewards({
-        totalEarned: parseFloat(data.totalEarned).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
-        claimable: parseFloat(data.claimable).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
-        apy: parseFloat(data.apy).toFixed(2),
+      setRewards(prev => {
+        // Skip updating claimable if it was recently reset to 0.00 by a claim
+        if (prev.claimable === '0.00') return {
+          ...prev,
+          totalEarned: parseFloat(data.totalEarned).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+          apy: parseFloat(data.apy).toFixed(2),
+        };
+        return {
+          totalEarned: parseFloat(data.totalEarned).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+          claimable: parseFloat(data.claimable).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+          apy: parseFloat(data.apy).toFixed(2),
+        };
       });
     } catch (err) {
       // Use default values on error (e.g. contract not deployed)
@@ -51,7 +60,20 @@ export default function RewardsPage() {
       const res = await claimRewards({ userAddress: address });
       setToast({ message: `Rewards claimed successfully!`, type: 'success', txHash: res.txHash });
       // Update balance (simulated)
-      updateBalance('RIALO', parseFloat(rewards.claimable.replace(/,/g, '')));
+      const claimAmount = parseFloat(rewards.claimable.replace(/,/g, ''));
+      updateBalance('RIALO', claimAmount);
+      
+      // Update local state (simulated)
+      setRewards(prev => ({ ...prev, claimable: '0.00' }));
+      setHistory(prev => [
+        { 
+          amount: `+${claimAmount.toFixed(2)} RIALO`, 
+          date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }), 
+          status: 'Success' 
+        },
+        ...prev
+      ]);
+
       // Refresh
       setTimeout(loadRewards, 2000);
     } catch (err) {
@@ -197,7 +219,7 @@ export default function RewardsPage() {
               </button>
             </div>
             <div className="space-y-4">
-              {isConnected ? HISTORY.map((row, i) => (
+              {isConnected ? history.map((row, i) => (
                 <div key={i} className="bg-surface-container-lowest p-5 rounded-xl flex items-center justify-between border border-outline-variant/5">
                   <div className="flex items-center gap-4">
                     <div className="w-10 h-10 rounded-full bg-surface-container-low flex items-center justify-center">
