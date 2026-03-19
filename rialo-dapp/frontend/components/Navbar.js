@@ -45,8 +45,16 @@ export default function Navbar() {
 
     // Run on mount + route change + scroll
     detect();
-    window.addEventListener('scroll', detect, { passive: true });
-    return () => window.removeEventListener('scroll', detect);
+    let rafId = null;
+    const onScroll = () => {
+      if (rafId) cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(detect);
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      if (rafId) cancelAnimationFrame(rafId);
+    };
   }, [router.pathname]);
 
   const links = [
@@ -96,7 +104,6 @@ export default function Navbar() {
         .logo-img {
           height: 28px;
           width: auto;
-          transition: filter 0.3s ease;
         }
         /* dark bg → white logo | light bg → black logo */
         .logo-img.on-dark  { filter: brightness(0) invert(1); }
