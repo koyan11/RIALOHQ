@@ -13,7 +13,7 @@ const TOKENS = [
 ];
 
 export default function SwapPage() {
-  const { isConnected, address, connect } = useWallet();
+  const { isConnected, address, connect, balances, updateBalance } = useWallet();
   const [fromToken, setFromToken] = useState('ETH');
   const [toToken, setToToken] = useState('RIALO');
   const [amountIn, setAmountIn] = useState('');
@@ -50,6 +50,12 @@ export default function SwapPage() {
     try {
       const res = await swapTokens({ amount: amountIn, fromToken, toToken, userAddress: address });
       setToast({ message: `Swap successful! ${amountIn} ${fromToken} → ${toToken}`, type: 'success', txHash: res.txHash });
+      
+      // Update balances
+      updateBalance(fromToken, -parseFloat(amountIn));
+      const rate = getRate(fromToken, toToken);
+      updateBalance(toToken, parseFloat(amountIn) * rate);
+      
       setAmountIn('');
     } catch (err) {
       const msg = err.response?.data?.error || err.message || 'Swap failed';
@@ -125,7 +131,7 @@ export default function SwapPage() {
             <div className="bg-[#161616] rounded-2xl p-6 mb-2 transition-all border border-white/5 focus-within:border-white/20">
               <div className="flex justify-between items-center mb-4">
                 <span className="font-label text-xs uppercase tracking-widest text-white/30 font-bold">You pay</span>
-                <span className="font-label text-xs text-white/40">Balance: 1.24 ETH</span>
+                <span className="font-label text-xs text-white/40">Balance: {balances[fromToken]?.toFixed(2) || '0.00'} {fromToken}</span>
               </div>
               <div className="flex justify-between items-center gap-4">
                 <input
@@ -159,7 +165,7 @@ export default function SwapPage() {
             <div className="bg-[#161616] rounded-2xl p-6 mb-8 transition-all border border-white/5 focus-within:border-white/20">
               <div className="flex justify-between items-center mb-4">
                 <span className="font-label text-xs uppercase tracking-widest text-white/30 font-bold">You receive</span>
-                <span className="font-label text-xs text-white/40">Balance: 0 RIALO</span>
+                <span className="font-label text-xs text-white/40">Balance: {balances[toToken]?.toFixed(2) || '0.00'} {toToken}</span>
               </div>
               <div className="flex justify-between items-center gap-4">
                 <input

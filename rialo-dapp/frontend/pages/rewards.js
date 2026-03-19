@@ -12,7 +12,7 @@ const HISTORY = [
 ];
 
 export default function RewardsPage() {
-  const { isConnected, address, connect } = useWallet();
+  const { isConnected, address, connect, updateBalance } = useWallet();
   const [rewards, setRewards] = useState({ totalEarned: '12,482.50', claimable: '842.12', apy: 8.42 });
   const [loading, setLoading] = useState(false);
   const [claiming, setClaiming] = useState(false);
@@ -50,6 +50,8 @@ export default function RewardsPage() {
     try {
       const res = await claimRewards({ userAddress: address });
       setToast({ message: `Rewards claimed successfully!`, type: 'success', txHash: res.txHash });
+      // Update balance (simulated)
+      updateBalance('RIALO', parseFloat(rewards.claimable.replace(/,/g, '')));
       // Refresh
       setTimeout(loadRewards, 2000);
     } catch (err) {

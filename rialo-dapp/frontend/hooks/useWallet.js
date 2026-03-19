@@ -10,6 +10,25 @@ export function WalletProvider({ children }) {
   const [connecting, setConnecting] = useState(false);
   const [error, setError] = useState(null);
 
+  const [balances, setBalances] = useState({
+    'ETH': 1.24,
+    'RIALO': 0,
+    'USDC': 1000.00,
+    'USDT': 500.00
+  });
+  const [stakedBalance, setStakedBalance] = useState(0);
+
+  const updateBalance = useCallback((symbol, delta) => {
+    setBalances(prev => ({
+      ...prev,
+      [symbol]: Math.max(0, (prev[symbol] || 0) + delta)
+    }));
+  }, []);
+
+  const updateStakedBalance = useCallback((delta) => {
+    setStakedBalance(prev => Math.max(0, prev + delta));
+  }, []);
+
   const connect = useCallback(async () => {
     setConnecting(true);
     setError(null);
@@ -81,7 +100,21 @@ export function WalletProvider({ children }) {
 
   return (
     <WalletContext.Provider
-      value={{ address, provider, chainId, connecting, error, connect, disconnect, shortAddress, isConnected: !!address }}
+      value={{ 
+        address, 
+        provider, 
+        chainId, 
+        connecting, 
+        error, 
+        connect, 
+        disconnect, 
+        shortAddress, 
+        isConnected: !!address,
+        balances,
+        stakedBalance,
+        updateBalance,
+        updateStakedBalance
+      }}
     >
       {children}
     </WalletContext.Provider>

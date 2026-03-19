@@ -54,13 +54,12 @@ function StakeModal({ pool, action, onClose, onConfirm, loading }) {
 }
 
 export default function StakingPage() {
-  const { isConnected, address, connect } = useWallet();
+  const { isConnected, address, connect, balances, stakedBalance, updateBalance, updateStakedBalance } = useWallet();
   const [pools, setPools] = useState(DEFAULT_POOLS);
   const [activeTab, setActiveTab] = useState('Active');
   const [modal, setModal] = useState(null); // { pool, action: 'Stake'|'Unstake' }
   const [loading, setLoading] = useState(false);
   const [toast, setToast] = useState(null);
-  const [userStaked, setUserStaked] = useState('0.00');
 
   // Load pool data
   useEffect(() => {
@@ -82,11 +81,9 @@ export default function StakingPage() {
         : `Successfully unstaked ${amount} RLO from ${poolId}`;
       setToast({ message: msg, type: 'success', txHash: res.txHash });
       setModal(null);
-      // Auto-refresh staked balance (demo increment/decrement)
-      setUserStaked(prev => {
-        const n = parseFloat(prev) + (isStake ? parseFloat(amount) : -parseFloat(amount));
-        return Math.max(0, n).toFixed(2);
-      });
+      // Auto-refresh balances (simulated)
+      updateBalance('RIALO', isStake ? -parseFloat(amount) : parseFloat(amount));
+      updateStakedBalance(isStake ? parseFloat(amount) : -parseFloat(amount));
     } catch (err) {
       const msg = err.response?.data?.error || err.message || `${modal.action} failed`;
       setToast({ message: msg, type: 'error' });
@@ -121,7 +118,7 @@ export default function StakingPage() {
             <h3 className="font-label text-[10px] uppercase tracking-[0.2em] text-black/40 font-bold">Personal Staked</h3>
             <div className="flex flex-col gap-1">
               <p className="font-headline text-3xl lg:text-4xl font-extrabold tracking-tighter text-black">
-                {isConnected ? `${userStaked} RLO` : '0.00 RLO'}
+                {isConnected ? `${stakedBalance.toFixed(2)} RLO` : '0.00 RLO'}
               </p>
               <button
                 onClick={connect}

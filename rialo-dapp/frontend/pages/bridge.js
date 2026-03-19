@@ -13,8 +13,8 @@ const CHAINS = [
 ];
 
 export default function BridgePage() {
-  const { isConnected, address, connect } = useWallet();
-  const [fromChain, setFromChain] = useState('1');
+  const { isConnected, address, connect, balances, updateBalance } = useWallet();
+   const [fromChain, setFromChain] = useState('1');
   const [amount, setAmount] = useState('');
   const [loading, setLoading] = useState(false);
   const [toast, setToast] = useState(null);
@@ -36,6 +36,8 @@ export default function BridgePage() {
         type: 'success',
         txHash: res.txHash,
       });
+      // Update balance (simulated)
+      updateBalance('ETH', -parseFloat(amount));
       setAmount('');
     } catch (err) {
       const msg = err.response?.data?.error || err.message || 'Bridge failed';
@@ -61,7 +63,7 @@ export default function BridgePage() {
           <div className="space-y-4 mb-6">
             <div className="flex justify-between items-center">
               <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/30 font-label">From</span>
-              <span className="text-xs font-medium text-white/20">Balance: 0.00</span>
+              <span className="text-xs font-medium text-white/20">Balance: {balances['ETH']?.toFixed(2) || '0.00'} ETH</span>
             </div>
             <div className="bg-[#161616] rounded-2xl p-6 flex items-center justify-between border border-white/5 focus-within:border-white/20 transition-all">
               <div className="flex items-center gap-4">
