@@ -69,13 +69,13 @@ export default function Navbar() {
           transition: background 0.35s ease, box-shadow 0.35s ease;
         }
         .rialo-nav.light {
-          background: #0e0e0f;
-          border-bottom: 1px solid rgba(255,255,255,0.06);
-          box-shadow: 0 1px 0 rgba(255,255,255,0.04);
+          background: transparent;
+          border-bottom: 1px solid transparent;
+          box-shadow: none;
         }
         .rialo-nav.dark {
-          background: #0e0e0f;
-          border-bottom: 1px solid rgba(255,255,255,0.06);
+          background: transparent;
+          border-bottom: 1px solid transparent;
           box-shadow: none;
         }
 
