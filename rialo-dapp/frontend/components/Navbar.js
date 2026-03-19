@@ -88,6 +88,7 @@ export default function Navbar() {
           display: flex;
           justify-content: space-between;
           align-items: center;
+          position: relative;
           padding: 14px 36px;
           max-width: 1440px;
           margin: 0 auto;
@@ -114,7 +115,12 @@ export default function Navbar() {
           display: none;
         }
         @media (min-width: 768px) {
-          .nav-pill-wrap { display: flex; }
+          .nav-pill-wrap {
+            display: flex;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+          }
         }
         .nav-pill {
           display: flex;
@@ -129,7 +135,8 @@ export default function Navbar() {
           position: relative;
           display: flex;
           align-items: center;
-          padding: 8px 17px;
+          /* Match tighter Figma spacing: 10px horizontal padding. Letter-spacing optical center fix kept on left limit. */
+          padding: 8px 10px 8px calc(10px + 0.16em);
           border-radius: 9999px;
           font-size: 10.5px;
           font-weight: 700;
