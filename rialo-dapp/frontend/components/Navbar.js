@@ -273,6 +273,19 @@ export default function Navbar() {
 
         </div>
       </nav>
+
+      {/* Decorative divider below navbar */}
+      <div style={{ width: '100%', lineHeight: 0, overflow: 'hidden', backgroundColor: '#ffffff' }}>
+        <img
+          src="/divider.png"
+          alt=""
+          style={{
+            width: '100%',
+            height: 'auto',
+            display: 'block',
+          }}
+        />
+      </div>
     </>
   );
 }
