@@ -69,15 +69,13 @@ export default function Navbar() {
           transition: background 0.35s ease, box-shadow 0.35s ease;
         }
         .rialo-nav.light {
-          background: rgba(248, 248, 246, 0.82);
-          backdrop-filter: blur(16px);
-          -webkit-backdrop-filter: blur(16px);
-          border-bottom: 1px solid rgba(0,0,0,0.05);
-          box-shadow: 0 1px 24px rgba(0,0,0,0.04);
+          background: #0e0e0f;
+          border-bottom: 1px solid rgba(255,255,255,0.06);
+          box-shadow: 0 1px 0 rgba(255,255,255,0.04);
         }
         .rialo-nav.dark {
-          background: transparent;
-          border-bottom: 1px solid transparent;
+          background: #0e0e0f;
+          border-bottom: 1px solid rgba(255,255,255,0.06);
           box-shadow: none;
         }
 
@@ -147,14 +145,14 @@ export default function Navbar() {
           transition: opacity 0.2s;
         }
         .logo-text:hover { opacity: 0.8; }
-        .logo-text.light { color: #0e0e0f; }
+        .logo-text.light { color: #ffffff; }
         .logo-text.dark  { color: #ffffff; }
         .logo-img {
           height: 28px;
           width: auto;
           transition: filter 0.3s;
         }
-        .logo-img.light { filter: brightness(0); }
+        .logo-img.light { filter: brightness(0) invert(1); }
         .logo-img.dark  { filter: brightness(0) invert(1); }
 
         /* Social icons */
@@ -169,7 +167,7 @@ export default function Navbar() {
           text-decoration: none;
         }
         .social-icon.light {
-          color: rgba(0,0,0,0.38);
+          color: rgba(255,255,255,0.45);
         }
         .social-icon.dark {
           color: rgba(255,255,255,0.45);
@@ -178,8 +176,8 @@ export default function Navbar() {
           transform: scale(1.12);
         }
         .social-icon.light:hover {
-          color: rgba(0,0,0,0.85);
-          background: rgba(0,0,0,0.06);
+          color: rgba(255,255,255,0.95);
+          background: rgba(255,255,255,0.10);
         }
         .social-icon.dark:hover {
           color: rgba(255,255,255,0.95);
@@ -193,7 +191,7 @@ export default function Navbar() {
           margin: 0 6px;
           border-radius: 2px;
         }
-        .nav-divider.light { background: rgba(0,0,0,0.10); }
+        .nav-divider.light { background: rgba(255,255,255,0.12); }
         .nav-divider.dark  { background: rgba(255,255,255,0.12); }
 
         /* Wallet button */
@@ -217,13 +215,13 @@ export default function Navbar() {
         .wallet-btn:not(:disabled):hover { transform: translateY(-1px); }
 
         .wallet-btn.light {
-          background: #0e0e0f;
-          color: #ffffff;
-          box-shadow: 0 2px 12px rgba(0,0,0,0.18);
+          background: #ffffff;
+          color: #0e0e0f;
+          box-shadow: 0 2px 12px rgba(255,255,255,0.12);
         }
         .wallet-btn.light:not(:disabled):hover {
-          background: #1c1c1e;
-          box-shadow: 0 4px 20px rgba(0,0,0,0.28);
+          background: #f0f0f0;
+          box-shadow: 0 4px 20px rgba(255,255,255,0.2);
         }
         .wallet-btn.dark {
           background: #ffffff;
@@ -236,7 +234,7 @@ export default function Navbar() {
         }
 
         .wallet-btn.connected.light {
-          background: #0e0e0f;
+          background: rgba(255,255,255,0.12);
           color: #ffffff;
         }
         .wallet-btn.connected.dark {
