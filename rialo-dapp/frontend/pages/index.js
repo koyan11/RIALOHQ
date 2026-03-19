@@ -8,7 +8,7 @@ export default function Home() {
   const router = useRouter();
 
   return (
-    <div className="bg-surface font-body text-on-surface antialiased">
+    <div className="bg-black font-body text-on-surface antialiased">
       <Navbar />
       <main>
         {/* Hero Section */}
