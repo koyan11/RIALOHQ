@@ -14,7 +14,7 @@ const getAiResponse = (input) => {
       insight: `Optimal route found for ${amount} ${fromToken} to ${toToken}.`,
       options: ["1. Aggregator Route (Executed)"],
       recommendation: "Swap has been optimized and processed.",
-      action: `Transaksi berhasil. ${amount} ${fromToken} -> ${toToken} telah selesai.`
+      action: `Transaction successful. ${amount} ${fromToken} -> ${toToken} has been completed.`
     };
   }
 
@@ -27,14 +27,14 @@ const getAiResponse = (input) => {
         insight: "Bridge requirements not met.",
         options: ["1. Increase amount to 0.01 ETH or more"],
         recommendation: "Minimal bridge amount is 0.01 ETH.",
-        action: "Gagal: Minimal bridge adalah 0.01 ETH."
+        action: "Failed: Minimal bridge is 0.01 ETH."
       };
     }
     return {
       insight: `Rialo Bridge is clear. ETH -> RIALO migration processed.`,
       options: ["1. Native Rialo Bridge (Executed)"],
       recommendation: "Bridge protocol completed successfully.",
-      action: `Transaksi berhasil. ${amount} ETH -> RIALO telah selesai.`
+      action: `Transaction successful. ${amount} ETH -> RIALO has been completed.`
     };
   }
 
@@ -47,7 +47,7 @@ const getAiResponse = (input) => {
       insight: `${token} staking pool processed.`,
       options: ["1. Standard Staking Pool (Active)"],
       recommendation: "Funds are now earning rewards.",
-      action: `Transaksi berhasil. Staking ${amount} ${token} telah aktif.`
+      action: `Transaction successful. Staking ${amount} ${token} is now active.`
     };
   }
 
@@ -57,7 +57,7 @@ const getAiResponse = (input) => {
       insight: "Liquidity is strong and gas is currently reasonable on Layer 2s.",
       options: ["1. Swap on Ethereum mainnet (higher gas, deeper liquidity)", "2. Swap via Arbitrum (lower fees)"],
       recommendation: "Use Arbitrum for lower fees unless you're swapping a large amount.",
-      action: "Provide amount and preferred chain (e.g., 'swap 100 RIALO to ETH')."
+      action: "Provide amount and preferred tokens (e.g., 'swap 100 RIALO to ETH')."
     };
   }
   
@@ -82,7 +82,7 @@ const getAiResponse = (input) => {
   }
 
   return {
-    raw: "I am ready to optimize your next DeFi move. Contoh: 'swap 100 RIALO to ETH', 'bridge 0.5 ETH to RIALO', atau 'stake 100 RIALO'."
+    raw: "I am ready to optimize your next DeFi move. Example: 'swap 100 RIALO to ETH', 'bridge 0.5 ETH to RIALO', or 'stake 100 RIALO'."
   };
 };
 
