@@ -4,35 +4,79 @@ import { useState, useRef, useEffect } from 'react';
 const getAiResponse = (input) => {
   const lower = input.toLowerCase();
   
-  if (lower.includes('swap')) {
+  // Direct swap execution (e.g., "swap 100 rialo to eth")
+  const swapMatch = lower.match(/(?:swap|tukar)\s+([\d.]+)\s+([a-z0-9]+)\s+(?:to|ke)\s+([a-z0-9]+)/i);
+  if (swapMatch) {
+    const amount = swapMatch[1];
+    const fromToken = swapMatch[2].toUpperCase();
+    const toToken = swapMatch[3].toUpperCase();
+    return {
+      insight: `Optimal route found for ${amount} ${fromToken} to ${toToken}. Slippage is low (<0.5%).`,
+      options: ["1. Aggregator Route (Best price, lowest gas)"],
+      recommendation: "Execute swap via Aggregator.",
+      action: `Transaction prepared. Please confirm the swap of ${amount} ${fromToken} -> ${toToken} in your wallet.`
+    };
+  }
+
+  // Direct bridge execution (e.g., "bridge 50 usdc to arbitrum")
+  const bridgeMatch = lower.match(/(?:bridge|kirim)\s+([\d.]+)\s+([a-z0-9]+)\s+(?:to|ke)\s+([a-z0-9]+)/i);
+  if (bridgeMatch) {
+    const amount = bridgeMatch[1];
+    const token = bridgeMatch[2].toUpperCase();
+    const targetChain = bridgeMatch[3].toUpperCase();
+    return {
+      insight: `Fast Liquidity Network available for ${targetChain}. Estimated time: < 1 minute.`,
+      options: [`1. Instant route to ${targetChain}`],
+      recommendation: "Use the instant route for immediate transfer.",
+      action: `Transaction prepared. Please confirm bridging ${amount} ${token} to ${targetChain}.`
+    };
+  }
+
+  // Direct stake execution (e.g., "stake 1000 rialo")
+  const stakeMatch = lower.match(/(?:stake|staking)\s+([\d.]+)\s+([a-z0-9]+)/i);
+  if (stakeMatch) {
+    const amount = stakeMatch[1];
+    const token = stakeMatch[2].toUpperCase();
+    return {
+      insight: `${token} staking pool currently yielding high APY with low risk.`,
+      options: ["1. Standard Staking Pool"],
+      recommendation: "Lock in the current APY now.",
+      action: `Transaction prepared. Please confirm staking ${amount} ${token} in your wallet.`
+    };
+  }
+
+  // Generic Swap
+  if (lower.includes('swap') || lower.includes('tukar')) {
     return {
       insight: "Liquidity is strong and gas is currently reasonable on Layer 2s.",
       options: ["1. Swap on Ethereum mainnet (higher gas, deeper liquidity)", "2. Swap via Arbitrum (lower fees)"],
       recommendation: "Use Arbitrum for lower fees unless you're swapping a large amount.",
-      action: "Provide amount and preferred chain, or let me optimize it for you."
+      action: "Provide amount and preferred chain (e.g., 'swap 100 RIALO to ETH')."
     };
   }
   
-  if (lower.includes('bridge')) {
+  // Generic Bridge
+  if (lower.includes('bridge') || lower.includes('kirim')) {
     return {
       insight: "Cross-chain traffic is currently light, resulting in fast bridge times.",
       options: ["1. Official Rollup Bridge (Most secure, longer wait)", "2. Fast Liquidity Network (Cheaper, instant)"],
       recommendation: "Use a Fast Liquidity Network like Across or Stargate for immediate transfer.",
-      action: "Specify your source chain, destination chain, and amount."
+      action: "Specify your details (e.g., 'bridge 50 USDC to Arbitrum')."
     };
   }
 
+  // Generic Stake
   if (lower.includes('stake') || lower.includes('yield') || lower.includes('staking')) {
     return {
       insight: "Several stable pools currently offer strong APY with moderate risk.",
       options: ["1. Stablecoin pool (lower risk)", "2. ETH staking (moderate risk, long-term)"],
       recommendation: "Start with a stable pool if you want safer yield.",
-      action: "Tell me your token and risk preference so I can find the best pool."
+      action: "Specify your details (e.g., 'stake 1000 RIALO')."
     };
   }
 
   return {
-    raw: "I am ready to optimize your next DeFi move. Please provide your token, chain, and goal (swap / bridge / earn yield) so we can proceed with the execution."
+    raw: "I am ready to optimize your next DeFi move. Contoh: 'swap 100 RIALO to ETH', 'bridge 50 USDC to Arbitrum', atau 'stake 100 RIALO'."
   };
 };
 
