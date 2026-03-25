@@ -112,28 +112,28 @@ export default function DashboardPage() {
                           </span>
                         </div>
                         <div>
-                          <p className="font-headline font-bold text-sm text-white">{tx.type} Information</p>
-                          <p className="text-[10px] text-white/40 font-body uppercase tracking-wider">{new Date(tx.timestamp).toLocaleString()}</p>
+                          <p className="font-headline font-bold text-sm text-on-surface">{tx.type} Information</p>
+                          <p className="text-[10px] text-on-surface/40 font-body uppercase tracking-wider">{new Date(tx.timestamp).toLocaleString()}</p>
                         </div>
                       </div>
                       
                       <div className="flex flex-col md:items-center">
-                        <p className="font-headline font-extrabold text-white text-md">{tx.amount}</p>
-                        <p className="text-[10px] text-white/30 font-body">{tx.details}</p>
+                        <p className="font-headline font-extrabold text-on-surface text-md">{tx.amount}</p>
+                        <p className="text-[10px] text-on-surface/50 font-body">{tx.details}</p>
                       </div>
 
                       <div className="flex items-center gap-3">
                         {tx.source === 'AI Agent' && (
-                          <div className="flex items-center gap-1.5 px-3 py-1 bg-white/10 rounded-full border border-white/10">
+                          <div className="flex items-center gap-1.5 px-3 py-1 bg-primary/10 rounded-full border border-primary/20">
                             <span className="material-symbols-outlined text-[10px] text-primary">smart_toy</span>
-                            <span className="text-[9px] font-bold text-white uppercase tracking-widest">AI Agent</span>
+                            <span className="text-[9px] font-bold text-primary uppercase tracking-widest">AI Agent</span>
                           </div>
                         )}
                         <a 
                           href={`https://etherscan.io/tx/${tx.txHash}`} 
                           target="_blank" 
                           rel="noopener noreferrer"
-                          className="text-[10px] font-bold text-white/20 hover:text-white transition-colors flex items-center gap-1 uppercase tracking-widest"
+                          className="text-[10px] font-bold text-on-surface/40 hover:text-primary transition-colors flex items-center gap-1 uppercase tracking-widest"
                         >
                           Details <span className="material-symbols-outlined text-[12px]">open_in_new</span>
                         </a>
