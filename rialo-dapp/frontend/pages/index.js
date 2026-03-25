@@ -11,7 +11,7 @@ export default function Home() {
     <div className="bg-black font-body text-on-surface antialiased">
       <Navbar />
       <main>
-        {/* Hero Section */}
+        {/* Hero Section Updated */}
         <section className="relative overflow-hidden pt-20 pb-32 bg-black">
           <div className="max-w-[1200px] mx-auto px-8 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             <div className="z-10 text-white">
