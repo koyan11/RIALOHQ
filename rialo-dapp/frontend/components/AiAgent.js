@@ -88,7 +88,7 @@ const getAiResponse = (input) => {
 };
 
 export default function AiAgent() {
-  const { isConnected, addTransaction, updateBalance, updateStakedBalance } = useWallet();
+  const { isConnected, executeAiTransaction } = useWallet();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([
     { role: 'ai', content: { raw: "Rialo AI is online. How can I optimize your on-chain operations today?" } }
@@ -134,55 +134,15 @@ export default function AiAgent() {
         
         // Extract symbols or just show successful
         const detail = response.action.replace('Transaction successful. ', '').replace(' has been completed.', '').replace(' is now active.', '');
-        const txHash = '0x' + Math.random().toString(16).slice(2, 42); // Mock txHash
+        
+        // Use the centralized execution helper to ensure atomic updates
+        const txHash = executeAiTransaction(type, userMsg, detail);
 
         setToast({
           message: `${type} successful!`,
           detail: detail,
           txHash: txHash
         });
-
-        // Add to unified history
-        addTransaction({
-          type: type,
-          amount: detail, // Use the extracted detail as amount/details for AI agent
-          details: 'AI Optimized Strategy',
-          txHash: txHash,
-          source: 'AI Agent'
-        });
-
-        // Update real balances based on transaction type
-        try {
-          const lowerMsg = userMsg.toLowerCase();
-          const amountMatch = lowerMsg.match(/[\d.]+/);
-          const amount = amountMatch ? parseFloat(amountMatch[0]) : 0;
-          
-          if (amount > 0) {
-            if (type === "Swap") {
-              const tokens = lowerMsg.match(/(?:eth|rialo|usdc|usdt)/g);
-              if (tokens && tokens.length >= 2) {
-                const fromToken = tokens[0].toUpperCase();
-                const toToken = tokens[1].toUpperCase();
-                // Simple 1:1 or 1:240 simulation for demo
-                const rate = (fromToken === 'ETH' && toToken === 'RIALO') ? 2400 : 
-                             (fromToken === 'RIALO' && toToken === 'ETH') ? 1/2400 : 1;
-                updateBalance(fromToken, -amount);
-                updateBalance(toToken, amount * rate);
-              }
-            } else if (type === "Bridge") {
-              // Bridge is ETH -> RIALO only
-              updateBalance('ETH', -amount);
-              updateBalance('RIALO', amount); // 1:1 simulation for bridge
-            } else if (type === "Stake") {
-              const tokenMatch = lowerMsg.match(/rialo|eth|usdc|usdt/);
-              const token = tokenMatch ? tokenMatch[0].toUpperCase() : 'RIALO';
-              updateBalance(token, -amount);
-              if (token === 'RIALO') updateStakedBalance(amount);
-            }
-          }
-        } catch (e) {
-          console.error('Failed to update balances from AI agent', e);
-        }
       }
     }, 600);
   };

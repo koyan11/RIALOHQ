@@ -34,6 +34,7 @@ export function WalletProvider({ children }) {
   // Sync transactions to localStorage
   useEffect(() => {
     localStorage.setItem('rialo_transactions', JSON.stringify(transactions));
+    console.log('Transactions synced to localStorage:', transactions.length);
   }, [transactions]);
 
   const addTransaction = useCallback((tx) => {
@@ -43,6 +44,7 @@ export function WalletProvider({ children }) {
       status: 'Success', // Default to success for simulation
       ...tx
     };
+    console.log('Adding transaction:', newTx);
     setTransactions(prev => [newTx, ...prev]);
   }, []);
 
@@ -126,6 +128,52 @@ export function WalletProvider({ children }) {
     ? `${address.slice(0, 6)}...${address.slice(-4)}`
     : null;
 
+  const executeAiTransaction = useCallback((txType, userMsg, actionDetail) => {
+    const txHash = '0x' + Math.random().toString(16).slice(2, 42);
+    
+    // 1. Add to history
+    addTransaction({
+      type: txType,
+      amount: actionDetail,
+      details: 'AI Optimized Strategy',
+      txHash: txHash,
+      source: 'AI Agent'
+    });
+
+    // 2. Update balances
+    try {
+      const lowerMsg = userMsg.toLowerCase();
+      const amountMatch = lowerMsg.match(/[\d.]+/);
+      const amount = amountMatch ? parseFloat(amountMatch[0]) : 0;
+      
+      if (amount > 0) {
+        if (txType === "Swap") {
+          const tokens = lowerMsg.match(/(?:eth|rialo|usdc|usdt)/g);
+          if (tokens && tokens.length >= 2) {
+            const fromToken = tokens[0].toUpperCase();
+            const toToken = tokens[1].toUpperCase();
+            const rate = (fromToken === 'ETH' && toToken === 'RIALO') ? 2400 : 
+                         (fromToken === 'RIALO' && toToken === 'ETH') ? 1/2400 : 1;
+            updateBalance(fromToken, -amount);
+            updateBalance(toToken, amount * rate);
+          }
+        } else if (txType === "Bridge") {
+          updateBalance('ETH', -amount);
+          updateBalance('RIALO', amount);
+        } else if (txType === "Stake") {
+          const tokenMatch = lowerMsg.match(/rialo|eth|usdc|usdt/);
+          const token = tokenMatch ? tokenMatch[0].toUpperCase() : 'RIALO';
+          updateBalance(token, -amount);
+          if (token === 'RIALO') updateStakedBalance(amount);
+        }
+      }
+    } catch (e) {
+      console.error('Failed to update balances from AI agent', e);
+    }
+
+    return txHash;
+  }, [addTransaction, updateBalance, updateStakedBalance]);
+
   return (
     <WalletContext.Provider
       value={{ 
@@ -143,7 +191,8 @@ export function WalletProvider({ children }) {
         transactions,
         updateBalance,
         updateStakedBalance,
-        addTransaction
+        addTransaction,
+        executeAiTransaction
       }}
     >
       {children}
