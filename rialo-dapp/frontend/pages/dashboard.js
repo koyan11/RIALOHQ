@@ -96,47 +96,52 @@ export default function DashboardPage() {
               transactions.length > 0 ? (
                 <div className="divide-y divide-white/5">
                   {transactions.map((tx, i) => (
-                    <div key={tx.id} className="p-6 hover:bg-white/[0.02] transition-colors flex flex-col md:flex-row md:items-center justify-between gap-4">
-                      <div className="flex items-center gap-4">
-                        <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                          tx.type === 'Swap' ? 'bg-primary/20 text-primary' :
-                          tx.type === 'Bridge' ? 'bg-blue-500/20 text-blue-400' :
-                          tx.type === 'Stake' ? 'bg-green-500/20 text-green-400' :
-                          'bg-purple-500/20 text-purple-400'
-                        }`}>
-                          <span className="material-symbols-outlined text-[18px]">
-                            {tx.type === 'Swap' ? 'swap_horiz' :
-                             tx.type === 'Bridge' ? 'account_balance' :
-                             tx.type === 'Stake' ? 'lock' :
-                             'download'}
-                          </span>
-                        </div>
-                        <div>
-                          <p className="font-headline font-bold text-sm text-on-surface">{tx.type} Information</p>
-                          <p className="text-[10px] text-on-surface/40 font-body uppercase tracking-wider">{new Date(tx.timestamp).toLocaleString()}</p>
-                        </div>
-                      </div>
-                      
-                      <div className="flex flex-col md:items-center">
-                        <p className="font-headline font-extrabold text-on-surface text-md">{tx.amount}</p>
-                        <p className="text-[10px] text-on-surface/50 font-body">{tx.details}</p>
+                    <div key={tx.id} className="p-6 hover:bg-white/[0.02] transition-colors flex items-center gap-6">
+                      {/* Left: Icon */}
+                      <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${
+                        tx.type === 'Swap' ? 'bg-primary/10 text-primary' :
+                        tx.type === 'Bridge' ? 'bg-blue-500/10 text-blue-400' :
+                        tx.type === 'Stake' ? 'bg-green-500/10 text-green-400' :
+                        'bg-purple-500/10 text-purple-400'
+                      } border border-white/5`}>
+                        <span className="material-symbols-outlined text-xl">
+                          {tx.type === 'Swap' ? 'swap_horiz' :
+                           tx.type === 'Bridge' ? 'account_balance' :
+                           tx.type === 'Stake' ? 'lock' :
+                           'download'}
+                        </span>
                       </div>
 
-                      <div className="flex items-center gap-3">
-                        {tx.source === 'AI Agent' && (
-                          <div className="flex items-center gap-1.5 px-3 py-1 bg-primary/10 rounded-full border border-primary/20">
-                            <span className="material-symbols-outlined text-[10px] text-primary">smart_toy</span>
-                            <span className="text-[9px] font-bold text-primary uppercase tracking-widest">AI Agent</span>
-                          </div>
-                        )}
-                        <a 
-                          href={`https://etherscan.io/tx/${tx.txHash}`} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="text-[10px] font-bold text-on-surface/40 hover:text-primary transition-colors flex items-center gap-1 uppercase tracking-widest"
-                        >
-                          Details <span className="material-symbols-outlined text-[12px]">open_in_new</span>
-                        </a>
+                      {/* Middle: Info */}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <p className="font-headline font-bold text-sm text-on-surface truncate">{tx.type} Execution</p>
+                          {tx.source === 'AI Agent' && (
+                            <span className="flex items-center gap-1 px-1.5 py-0.5 bg-primary/10 rounded-md border border-primary/20 text-[8px] font-bold text-primary uppercase tracking-widest">
+                              <span className="material-symbols-outlined text-[10px]">smart_toy</span>
+                              AI
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-[10px] text-on-surface/40 font-body uppercase tracking-wider">
+                          {new Date(tx.timestamp).toLocaleString('en-US', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                        </p>
+                      </div>
+
+                      {/* Right: Amount & Details */}
+                      <div className="text-right flex-shrink-0">
+                        <p className="font-headline font-extrabold text-on-surface text-lg leading-tight mb-1">{tx.amount}</p>
+                        <div className="flex items-center justify-end gap-3 text-[10px] font-body">
+                          <span className="text-on-surface/50">{tx.details}</span>
+                          <a 
+                            href={`https://etherscan.io/tx/${tx.txHash}`} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="text-on-surface/30 hover:text-primary transition-colors flex items-center gap-1 uppercase tracking-widest font-bold"
+                          >
+                            <span className="material-symbols-outlined text-[14px]">open_in_new</span>
+                          </a>
+                        </div>
                       </div>
                     </div>
                   ))}
