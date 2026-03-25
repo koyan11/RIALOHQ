@@ -84,7 +84,7 @@ export default function DashboardPage() {
             {isConnected ? (
               transactions.length > 0 ? (
                 <div className="divide-y divide-white/5">
-                   {transactions.map((tx, i) => (
+                  {transactions.slice(0, 5).map((tx, i) => (
                     <div key={tx.id} className="p-6 hover:bg-white/[0.02] transition-colors border-b border-white/5 last:border-0">
                       <div className="grid grid-cols-[48px_1fr_auto] items-center gap-6">
                         {/* Left: Icon Block */}
@@ -141,6 +141,15 @@ export default function DashboardPage() {
                       </div>
                     </div>
                   ))}
+
+                  {transactions.length > 5 && (
+                    <div className="p-4 bg-white/[0.01] flex justify-center border-t border-white/5">
+                      <button className="text-[10px] font-bold text-on-surface/40 hover:text-primary uppercase tracking-[0.2em] transition-colors flex items-center gap-2">
+                        View Full History ({transactions.length - 5} more)
+                        <span className="material-symbols-outlined text-xs">keyboard_arrow_down</span>
+                      </button>
+                    </div>
+                  )}
                 </div>
               ) : (
                 <div className="p-20 text-center">
