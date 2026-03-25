@@ -88,7 +88,7 @@ const getAiResponse = (input) => {
 };
 
 export default function AiAgent() {
-  const { isConnected, addTransaction } = useWallet();
+  const { isConnected, addTransaction, updateBalance, updateStakedBalance } = useWallet();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([
     { role: 'ai', content: { raw: "Rialo AI is online. How can I optimize your on-chain operations today?" } }
@@ -150,6 +150,39 @@ export default function AiAgent() {
           txHash: txHash,
           source: 'AI Agent'
         });
+
+        // Update real balances based on transaction type
+        try {
+          const lowerMsg = userMsg.toLowerCase();
+          const amountMatch = lowerMsg.match(/[\d.]+/);
+          const amount = amountMatch ? parseFloat(amountMatch[0]) : 0;
+          
+          if (amount > 0) {
+            if (type === "Swap") {
+              const tokens = lowerMsg.match(/(?:eth|rialo|usdc|usdt)/g);
+              if (tokens && tokens.length >= 2) {
+                const fromToken = tokens[0].toUpperCase();
+                const toToken = tokens[1].toUpperCase();
+                // Simple 1:1 or 1:240 simulation for demo
+                const rate = (fromToken === 'ETH' && toToken === 'RIALO') ? 2400 : 
+                             (fromToken === 'RIALO' && toToken === 'ETH') ? 1/2400 : 1;
+                updateBalance(fromToken, -amount);
+                updateBalance(toToken, amount * rate);
+              }
+            } else if (type === "Bridge") {
+              // Bridge is ETH -> RIALO only
+              updateBalance('ETH', -amount);
+              updateBalance('RIALO', amount); // 1:1 simulation for bridge
+            } else if (type === "Stake") {
+              const tokenMatch = lowerMsg.match(/rialo|eth|usdc|usdt/);
+              const token = tokenMatch ? tokenMatch[0].toUpperCase() : 'RIALO';
+              updateBalance(token, -amount);
+              if (token === 'RIALO') updateStakedBalance(amount);
+            }
+          }
+        } catch (e) {
+          console.error('Failed to update balances from AI agent', e);
+        }
       }
     }, 600);
   };
