@@ -41,14 +41,15 @@ export default function BridgePage() {
         type: 'success',
         txHash: res.txHash,
       });
-      // Update balance (simulated)
+      // Update balances
       updateBalance('ETH', -parseFloat(amount));
-      updateBalance('RIALO', parseFloat(amount));
+      updateBalance('RIALO', parseFloat(amount) * 2400); // 1 ETH = 2400 RIALO peg
+      
       // Add to history
       addTransaction({
         type: 'Bridge',
-        amount: `${amount} ETH → ${amount} RIALO`,
-        details: `${fromChainName} to Rialo`,
+        amount: `${amount} ETH → ${parseFloat(amount) * 2400} RIALO`,
+        details: 'Native Rialo Bridge',
         txHash: res.txHash,
         source: 'Direct'
       });
