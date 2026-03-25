@@ -95,51 +95,58 @@ export default function DashboardPage() {
             {isConnected ? (
               transactions.length > 0 ? (
                 <div className="divide-y divide-white/5">
-                  {transactions.map((tx, i) => (
-                    <div key={tx.id} className="p-6 hover:bg-white/[0.02] transition-colors flex items-center gap-6">
-                      {/* Left: Icon */}
-                      <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${
-                        tx.type === 'Swap' ? 'bg-primary/10 text-primary' :
-                        tx.type === 'Bridge' ? 'bg-blue-500/10 text-blue-400' :
-                        tx.type === 'Stake' ? 'bg-green-500/10 text-green-400' :
-                        'bg-purple-500/10 text-purple-400'
-                      } border border-white/5`}>
-                        <span className="material-symbols-outlined text-xl">
-                          {tx.type === 'Swap' ? 'swap_horiz' :
-                           tx.type === 'Bridge' ? 'account_balance' :
-                           tx.type === 'Stake' ? 'lock' :
-                           'download'}
-                        </span>
-                      </div>
-
-                      {/* Middle: Info */}
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1">
-                          <p className="font-headline font-bold text-sm text-on-surface truncate">{tx.type} Execution</p>
-                          {tx.source === 'AI Agent' && (
-                            <span className="flex items-center gap-1 px-1.5 py-0.5 bg-primary/10 rounded-md border border-primary/20 text-[8px] font-bold text-primary uppercase tracking-widest">
-                              <span className="material-symbols-outlined text-[10px]">smart_toy</span>
-                              AI
-                            </span>
-                          )}
+                   {transactions.map((tx, i) => (
+                    <div key={tx.id} className="p-6 hover:bg-white/[0.02] transition-colors border-b border-white/5 last:border-0">
+                      <div className="grid grid-cols-[48px_1fr_auto] items-center gap-6">
+                        {/* Left: Icon Block */}
+                        <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${
+                          tx.type === 'Swap' ? 'bg-primary/10 text-primary' :
+                          tx.type === 'Bridge' ? 'bg-blue-500/10 text-blue-400' :
+                          tx.type === 'Stake' ? 'bg-green-500/10 text-green-400' :
+                          'bg-purple-500/10 text-purple-400'
+                        } border border-white/5 shadow-sm`}>
+                          <span className="material-symbols-outlined text-xl">
+                            {tx.type === 'Swap' ? 'swap_horiz' :
+                             tx.type === 'Bridge' ? 'account_balance' :
+                             tx.type === 'Stake' ? 'lock' :
+                             'download'}
+                          </span>
                         </div>
-                        <p className="text-[10px] text-on-surface/40 font-body uppercase tracking-wider">
-                          {new Date(tx.timestamp).toLocaleString('en-US', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
-                        </p>
-                      </div>
 
-                      {/* Right: Amount & Details */}
-                      <div className="text-right flex-shrink-0">
-                        <p className="font-headline font-extrabold text-on-surface text-lg leading-tight mb-1">{tx.amount}</p>
-                        <div className="flex items-center justify-end gap-3 text-[10px] font-body">
-                          <span className="text-on-surface/50">{tx.details}</span>
+                        {/* Middle: Type & Context */}
+                        <div className="flex flex-col gap-1 min-w-0">
+                          <div className="flex items-center gap-3">
+                            <p className="font-headline font-bold text-sm text-on-surface truncate">
+                              {tx.type} Execution
+                            </p>
+                            {tx.source === 'AI Agent' && (
+                              <div className="flex items-center gap-1.5 px-2 py-0.5 bg-primary/20 rounded border border-primary/30">
+                                <span className="material-symbols-outlined text-[10px] text-primary">smart_toy</span>
+                                <span className="text-[9px] font-bold text-primary uppercase tracking-widest">AI Agent</span>
+                              </div>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-[10px] text-on-surface/40 font-body uppercase tracking-wider">
+                              {new Date(tx.timestamp).toLocaleString('en-US', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                            </span>
+                            <span className="w-1 h-1 rounded-full bg-white/10"></span>
+                            <span className="text-[10px] text-on-surface/30 font-body italic truncate">{tx.details}</span>
+                          </div>
+                        </div>
+
+                        {/* Right: Financial Impact & Action */}
+                        <div className="flex flex-col items-end gap-1">
+                          <p className="font-headline font-black text-on-surface text-lg leading-none">
+                            {tx.amount}
+                          </p>
                           <a 
                             href={`https://etherscan.io/tx/${tx.txHash}`} 
                             target="_blank" 
                             rel="noopener noreferrer"
-                            className="text-on-surface/30 hover:text-primary transition-colors flex items-center gap-1 uppercase tracking-widest font-bold"
+                            className="text-[10px] font-bold text-primary/60 hover:text-primary transition-colors flex items-center gap-1 uppercase tracking-tighter"
                           >
-                            <span className="material-symbols-outlined text-[14px]">open_in_new</span>
+                            TXN Receipt <span className="material-symbols-outlined text-[14px]">open_in_new</span>
                           </a>
                         </div>
                       </div>
