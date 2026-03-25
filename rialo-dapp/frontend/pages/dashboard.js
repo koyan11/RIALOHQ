@@ -49,8 +49,17 @@ export default function DashboardPage() {
                   </h2>
                   <p className="text-white/20 text-xs mt-2 font-body font-normal">{token.symbol}</p>
                 </div>
-                <div className={`w-10 h-10 rounded-lg ${token.color}/20 flex items-center justify-center border border-white/5`}>
-                   <span className={`material-symbols-outlined text-sm ${token.symbol === 'RIALO' ? 'text-primary' : 'text-white/70'}`}>{token.icon}</span>
+                <div className="w-10 h-10 rounded-lg bg-surface-container-low flex items-center justify-center border border-white/5 overflow-hidden p-1">
+                   <img 
+                    src={
+                      token.symbol === 'RIALO' ? '/rialo-icon.png' :
+                      token.symbol === 'ETH' ? '/eth-icon.png' :
+                      token.symbol === 'USDC' ? '/usdc-icon.webp' :
+                      '/usdt-icon.png'
+                    } 
+                    alt={token.symbol} 
+                    className="w-full h-full object-contain"
+                   />
                 </div>
               </div>
               <div className="relative z-10 pt-6">
