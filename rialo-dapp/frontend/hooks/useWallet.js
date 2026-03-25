@@ -17,6 +17,34 @@ export function WalletProvider({ children }) {
     'USDT': 500.00
   });
   const [stakedBalance, setStakedBalance] = useState(0);
+  const [transactions, setTransactions] = useState([]);
+
+  // Load transactions from localStorage on mount
+  useEffect(() => {
+    const saved = localStorage.getItem('rialo_transactions');
+    if (saved) {
+      try {
+        setTransactions(JSON.parse(saved));
+      } catch (e) {
+        console.error('Failed to parse transactions', e);
+      }
+    }
+  }, []);
+
+  // Sync transactions to localStorage
+  useEffect(() => {
+    localStorage.setItem('rialo_transactions', JSON.stringify(transactions));
+  }, [transactions]);
+
+  const addTransaction = useCallback((tx) => {
+    const newTx = {
+      id: tx.txHash || `local-${Math.random().toString(16).slice(2, 10)}`,
+      timestamp: Date.now(),
+      status: 'Success', // Default to success for simulation
+      ...tx
+    };
+    setTransactions(prev => [newTx, ...prev]);
+  }, []);
 
   const updateBalance = useCallback((symbol, delta) => {
     setBalances(prev => ({
@@ -112,8 +140,10 @@ export function WalletProvider({ children }) {
         isConnected: !!address,
         balances,
         stakedBalance,
+        transactions,
         updateBalance,
-        updateStakedBalance
+        updateStakedBalance,
+        addTransaction
       }}
     >
       {children}

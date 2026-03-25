@@ -77,7 +77,7 @@ function StakeModal({ pool, action, onClose, onConfirm, loading, userBalance }) 
 }
 
 export default function StakingPage() {
-  const { isConnected, address, connect, balances, stakedBalance, updateBalance, updateStakedBalance } = useWallet();
+  const { isConnected, address, connect, balances, stakedBalance, updateBalance, updateStakedBalance, addTransaction } = useWallet();
   const [pools, setPools] = useState(DEFAULT_POOLS);
   const [activeTab, setActiveTab] = useState('Active');
   const [modal, setModal] = useState(null); // { pool, action: 'Stake'|'Unstake' }
@@ -116,6 +116,14 @@ export default function StakingPage() {
       // Auto-refresh balances (simulated)
       updateBalance('RIALO', isStake ? -parseFloat(amount) : parseFloat(amount));
       updateStakedBalance(isStake ? parseFloat(amount) : -parseFloat(amount));
+      // Add to history
+      addTransaction({
+        type: isStake ? 'Stake' : 'Unstake',
+        amount: `${amount} RIALO`,
+        details: poolId,
+        txHash: res.txHash,
+        source: 'Direct'
+      });
     } catch (err) {
       const msg = err.response?.data?.error || err.message || `${modal.action} failed`;
       setToast({ message: msg, type: 'error' });

@@ -5,7 +5,7 @@ import { useWallet } from '../hooks/useWallet';
 import Link from 'next/link';
 
 export default function DashboardPage() {
-  const { isConnected, address, balances, stakedBalance, connect } = useWallet();
+  const { isConnected, address, balances, stakedBalance, transactions, connect } = useWallet();
   const [rewards, setRewards] = useState({ totalEarned: '12,482.50', claimable: '842.12', apy: 18.4 });
   const [loading, setLoading] = useState(false);
 
@@ -83,6 +83,84 @@ export default function DashboardPage() {
             </Link>
           </div>
         </div>
+
+        {/* Unified History Section */}
+        <section className="mb-16">
+          <div className="flex justify-between items-center mb-8">
+            <h3 className="font-headline font-bold text-primary text-lg">Unified Transaction History</h3>
+            <span className="text-[10px] font-bold text-white/30 uppercase tracking-widest">{transactions.length} Total Operations</span>
+          </div>
+          
+          <div className="bg-surface-container-low rounded-xl border border-outline-variant/10 overflow-hidden">
+            {isConnected ? (
+              transactions.length > 0 ? (
+                <div className="divide-y divide-white/5">
+                  {transactions.map((tx, i) => (
+                    <div key={tx.id} className="p-6 hover:bg-white/[0.02] transition-colors flex flex-col md:flex-row md:items-center justify-between gap-4">
+                      <div className="flex items-center gap-4">
+                        <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                          tx.type === 'Swap' ? 'bg-primary/20 text-primary' :
+                          tx.type === 'Bridge' ? 'bg-blue-500/20 text-blue-400' :
+                          tx.type === 'Stake' ? 'bg-green-500/20 text-green-400' :
+                          'bg-purple-500/20 text-purple-400'
+                        }`}>
+                          <span className="material-symbols-outlined text-[18px]">
+                            {tx.type === 'Swap' ? 'swap_horiz' :
+                             tx.type === 'Bridge' ? 'account_balance' :
+                             tx.type === 'Stake' ? 'lock' :
+                             'download'}
+                          </span>
+                        </div>
+                        <div>
+                          <p className="font-headline font-bold text-sm text-white">{tx.type} Information</p>
+                          <p className="text-[10px] text-white/40 font-body uppercase tracking-wider">{new Date(tx.timestamp).toLocaleString()}</p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex flex-col md:items-center">
+                        <p className="font-headline font-extrabold text-white text-md">{tx.amount}</p>
+                        <p className="text-[10px] text-white/30 font-body">{tx.details}</p>
+                      </div>
+
+                      <div className="flex items-center gap-3">
+                        {tx.source === 'AI Agent' && (
+                          <div className="flex items-center gap-1.5 px-3 py-1 bg-white/10 rounded-full border border-white/10">
+                            <span className="material-symbols-outlined text-[10px] text-primary">smart_toy</span>
+                            <span className="text-[9px] font-bold text-white uppercase tracking-widest">AI Agent</span>
+                          </div>
+                        )}
+                        <a 
+                          href={`https://etherscan.io/tx/${tx.txHash}`} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="text-[10px] font-bold text-white/20 hover:text-white transition-colors flex items-center gap-1 uppercase tracking-widest"
+                        >
+                          Details <span className="material-symbols-outlined text-[12px]">open_in_new</span>
+                        </a>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="p-20 text-center">
+                  <span className="material-symbols-outlined text-white/10 text-6xl mb-4">history</span>
+                  <p className="text-white/30 font-body">No transactions recorded yet.</p>
+                </div>
+              )
+            ) : (
+              <div className="p-20 text-center">
+                <span className="material-symbols-outlined text-white/10 text-6xl mb-4">account_balance_wallet</span>
+                <p className="text-white/30 font-body mb-6">Connect your wallet to view transaction history.</p>
+                <button 
+                  onClick={connect}
+                  className="bg-white text-black px-8 py-3 rounded-xl font-bold hover:bg-white/90 transition-all"
+                >
+                  Connect Wallet
+                </button>
+              </div>
+            )}
+          </div>
+        </section>
 
         {/* Detailed Breakdown Section */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">

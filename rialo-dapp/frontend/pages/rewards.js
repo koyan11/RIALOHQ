@@ -12,9 +12,8 @@ const INITIAL_HISTORY = [
 ];
 
 export default function RewardsPage() {
-  const { isConnected, address, connect, updateBalance } = useWallet();
+  const { isConnected, address, connect, updateBalance, transactions, addTransaction } = useWallet();
   const [rewards, setRewards] = useState({ totalEarned: '12,482.50', claimable: '842.12', apy: 8.42 });
-  const [history, setHistory] = useState(INITIAL_HISTORY);
   const [loading, setLoading] = useState(false);
   const [claiming, setClaiming] = useState(false);
   const [toast, setToast] = useState(null);
@@ -65,14 +64,14 @@ export default function RewardsPage() {
       
       // Update local state (simulated)
       setRewards(prev => ({ ...prev, claimable: '0.00' }));
-      setHistory(prev => [
-        { 
-          amount: `+${claimAmount.toFixed(2)} RIALO`, 
-          date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }), 
-          status: 'Success' 
-        },
-        ...prev
-      ]);
+      // Update unified history
+      addTransaction({
+        type: 'Claim',
+        amount: `+${claimAmount.toFixed(2)} RIALO`,
+        details: 'Ecosystem Reward',
+        txHash: res.txHash,
+        source: 'Direct'
+      });
 
       // Refresh
       setTimeout(loadRewards, 2000);
@@ -219,23 +218,37 @@ export default function RewardsPage() {
               </button>
             </div>
             <div className="space-y-4">
-              {isConnected ? history.map((row, i) => (
-                <div key={i} className="bg-surface-container-lowest p-5 rounded-xl flex items-center justify-between border border-outline-variant/5">
-                  <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-full bg-surface-container-low flex items-center justify-center">
-                      <span className="material-symbols-outlined text-primary text-sm">download</span>
+              {isConnected ? (
+                (() => {
+                  const claimHistory = transactions.filter(tx => tx.type === 'Claim');
+                  // Combine with static history for demo purposes if empty
+                  const combinedHistory = claimHistory.length > 0 
+                    ? claimHistory.map(tx => ({
+                        amount: tx.amount,
+                        date: new Date(tx.timestamp).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+                        status: tx.status
+                      }))
+                    : INITIAL_HISTORY;
+
+                  return combinedHistory.map((row, i) => (
+                    <div key={i} className="bg-surface-container-lowest p-5 rounded-xl flex items-center justify-between border border-outline-variant/5">
+                      <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 rounded-full bg-surface-container-low flex items-center justify-center">
+                          <span className="material-symbols-outlined text-primary text-sm">download</span>
+                        </div>
+                        <div>
+                          <p className="font-body font-semibold text-sm">Reward Claim</p>
+                          <p className="font-body text-[10px] text-on-surface/50">{row.date}</p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-headline font-bold text-sm">{row.amount}</p>
+                        <p className="font-body text-[10px] text-primary/60">{row.status}</p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="font-body font-semibold text-sm">Reward Claim</p>
-                      <p className="font-body text-[10px] text-on-surface/50">{row.date}</p>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-headline font-bold text-sm">{row.amount}</p>
-                    <p className="font-body text-[10px] text-primary/60">{row.status}</p>
-                  </div>
-                </div>
-              )) : (
+                  ));
+                })()
+              ) : (
                 <div className="bg-surface-container-lowest p-8 rounded-xl text-center border border-outline-variant/5">
                   <span className="material-symbols-outlined text-on-surface/20 text-4xl mb-2 block">account_balance_wallet</span>
                   <p className="text-sm text-on-surface/40">Connect wallet to see claim history</p>

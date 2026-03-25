@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { useWallet } from '../hooks/useWallet';
 
 // Mock logic matching the system prompt
 const getAiResponse = (input) => {
@@ -87,6 +88,7 @@ const getAiResponse = (input) => {
 };
 
 export default function AiAgent() {
+  const { isConnected, addTransaction } = useWallet();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([
     { role: 'ai', content: { raw: "Rialo AI is online. How can I optimize your on-chain operations today?" } }
@@ -131,10 +133,22 @@ export default function AiAgent() {
         if (userMsg.toLowerCase().includes('stake')) type = "Stake";
         
         // Extract symbols or just show successful
+        const detail = response.action.replace('Transaction successful. ', '').replace(' has been completed.', '').replace(' is now active.', '');
+        const txHash = '0x' + Math.random().toString(16).slice(2, 42); // Mock txHash
+
         setToast({
           message: `${type} successful!`,
-          detail: response.action.replace('Transaction successful. ', '').replace(' has been completed.', '').replace(' is now active.', ''),
-          txHash: '0x' + Math.random().toString(16).slice(2, 42) // Mock txHash
+          detail: detail,
+          txHash: txHash
+        });
+
+        // Add to unified history
+        addTransaction({
+          type: type,
+          amount: detail, // Use the extracted detail as amount/details for AI agent
+          details: 'AI Optimized Strategy',
+          txHash: txHash,
+          source: 'AI Agent'
         });
       }
     }, 600);

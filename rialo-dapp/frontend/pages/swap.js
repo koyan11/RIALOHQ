@@ -13,7 +13,7 @@ const TOKENS = [
 ];
 
 export default function SwapPage() {
-  const { isConnected, address, connect, balances, updateBalance } = useWallet();
+  const { isConnected, address, connect, balances, updateBalance, addTransaction } = useWallet();
   const [fromToken, setFromToken] = useState('ETH');
   const [toToken, setToToken] = useState('RIALO');
   const [amountIn, setAmountIn] = useState('');
@@ -60,6 +60,15 @@ export default function SwapPage() {
       updateBalance(fromToken, -parseFloat(amountIn));
       const rate = getRate(fromToken, toToken);
       updateBalance(toToken, parseFloat(amountIn) * rate);
+      
+      // Add to history
+      addTransaction({
+        type: 'Swap',
+        amount: `${amountIn} ${fromToken} → ${estimatedOut} ${toToken}`,
+        details: `${fromToken} to ${toToken}`,
+        txHash: res.txHash,
+        source: 'Direct'
+      });
       
       setAmountIn('');
     } catch (err) {

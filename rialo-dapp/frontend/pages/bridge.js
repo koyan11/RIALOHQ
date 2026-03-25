@@ -13,7 +13,7 @@ const CHAINS = [
 ];
 
 export default function BridgePage() {
-  const { isConnected, address, connect, balances, updateBalance } = useWallet();
+  const { isConnected, address, connect, balances, updateBalance, addTransaction } = useWallet();
    const [fromChain, setFromChain] = useState('1');
   const [amount, setAmount] = useState('');
   const [loading, setLoading] = useState(false);
@@ -44,6 +44,14 @@ export default function BridgePage() {
       // Update balance (simulated)
       updateBalance('ETH', -parseFloat(amount));
       updateBalance('RIALO', parseFloat(amount));
+      // Add to history
+      addTransaction({
+        type: 'Bridge',
+        amount: `${amount} ETH → ${amount} RIALO`,
+        details: `${fromChainName} to Rialo`,
+        txHash: res.txHash,
+        source: 'Direct'
+      });
       setAmount('');
     } catch (err) {
       const msg = err.response?.data?.error || err.message || 'Bridge failed';
