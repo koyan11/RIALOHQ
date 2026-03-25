@@ -5,6 +5,16 @@ import { useWallet } from '../hooks/useWallet';
 const getAiResponse = (input) => {
   const lower = input.toLowerCase();
   
+  // Scheduling detection (e.g., "in 5 minutes", "dalam 2 jam")
+  const delayMatch = lower.match(/(?:in|dalam)\s+([\d.]+)\s+(minute|minutes|menit|hour|hours|jam)/i);
+  let delaySec = 0;
+  if (delayMatch) {
+    const val = parseFloat(delayMatch[1]);
+    const unit = delayMatch[2].toLowerCase();
+    if (unit.startsWith('m')) delaySec = val * 60;
+    else if (unit.startsWith('h') || unit.startsWith('j')) delaySec = val * 3600;
+  }
+
   // Direct swap execution (e.g., "swap 100 rialo to eth")
   const swapMatch = lower.match(/(?:swap|tukar)\s+([\d.]+)\s+([a-z0-9]+)\s+(?:to|ke)\s+([a-z0-9]+)/i);
   if (swapMatch) {
@@ -12,10 +22,11 @@ const getAiResponse = (input) => {
     const fromToken = swapMatch[2].toUpperCase();
     const toToken = swapMatch[3].toUpperCase();
     return {
-      insight: `Optimal route found for ${amount} ${fromToken} to ${toToken}.`,
+      insight: `Optimal route found for ${amount} ${fromToken} to ${toToken}.${delaySec ? ` (Scheduled for ${delayMatch[1]} ${delayMatch[2]})` : ''}`,
       options: ["1. Aggregator Route (Executed)"],
-      recommendation: "Swap has been optimized and processed.",
-      action: `Transaction successful. ${amount} ${fromToken} -> ${toToken} has been completed.`
+      recommendation: delaySec ? "Transaction will be processed automatically." : "Swap has been optimized and processed.",
+      action: delaySec ? `Scheduled: ${amount} ${fromToken} -> ${toToken}` : `Transaction successful. ${amount} ${fromToken} -> ${toToken} has been completed.`,
+      delaySec: delaySec
     };
   }
 
@@ -32,10 +43,11 @@ const getAiResponse = (input) => {
       };
     }
     return {
-      insight: `Rialo Bridge is clear. ETH -> RIALO migration processed.`,
+      insight: `Rialo Bridge is clear. ETH -> RIALO migration processed.${delaySec ? ` (Scheduled in ${delayMatch[1]} ${delayMatch[2]})` : ''}`,
       options: ["1. Native Rialo Bridge (Executed)"],
       recommendation: "Bridge protocol completed successfully.",
-      action: `Transaction successful. ${amount} ETH -> RIALO has been completed.`
+      action: delaySec ? `Scheduled: ${amount} ETH -> RIALO` : `Transaction successful. ${amount} ETH -> RIALO has been completed.`,
+      delaySec: delaySec
     };
   }
 
@@ -45,10 +57,11 @@ const getAiResponse = (input) => {
     const amount = stakeMatch[1];
     const token = stakeMatch[2].toUpperCase();
     return {
-      insight: `${token} staking pool processed.`,
+      insight: `${token} staking pool processed.${delaySec ? ` (Scheduled in ${delayMatch[1]} ${delayMatch[2]})` : ''}`,
       options: ["1. Standard Staking Pool (Active)"],
       recommendation: "Funds are now earning rewards.",
-      action: `Transaction successful. Staking ${amount} ${token} is now active.`
+      action: delaySec ? `Scheduled Stake: ${amount} ${token}` : `Transaction successful. Staking ${amount} ${token} is now active.`,
+      delaySec: delaySec
     };
   }
 
@@ -95,6 +108,7 @@ export default function AiAgent() {
   ]);
   const [input, setInput] = useState('');
   const [toast, setToast] = useState(null); // { message, type, txHash }
+  const [scheduledTxs, setScheduledTxs] = useState([]); // Array of { id, type, userMsg, detail, remainingSec }
   const messagesEndRef = useRef(null);
 
   const scrollToBottom = () => {
@@ -104,6 +118,34 @@ export default function AiAgent() {
   useEffect(() => {
     if (isOpen) scrollToBottom();
   }, [messages, isOpen]);
+
+  // Timer effect for scheduled transactions
+  useEffect(() => {
+    if (scheduledTxs.length === 0) return;
+
+    const interval = setInterval(() => {
+      setScheduledTxs(prev => {
+        const next = [];
+        prev.forEach(tx => {
+          if (tx.remainingSec <= 1) {
+            // EXECUTE NOW
+            const txHash = executeAiTransaction(tx.type, tx.userMsg, tx.detail);
+            setToast({
+              message: `Auto ${tx.type} completed!`,
+              detail: tx.detail,
+              txHash: txHash
+            });
+            // Don't add to next
+          } else {
+            next.push({ ...tx, remainingSec: tx.remainingSec - 1 });
+          }
+        });
+        return next;
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [scheduledTxs, executeAiTransaction]);
 
   // Clear toast after 6 seconds
   useEffect(() => {
@@ -126,23 +168,33 @@ export default function AiAgent() {
       const response = getAiResponse(userMsg);
       setMessages(prev => [...prev, { role: 'ai', content: response }]);
       
-      // If successful transaction, trigger toast
-      if (response.action?.includes('successful') || response.action?.includes('active')) {
+      // If successful transaction, trigger toast or schedule
+      if (response.action?.includes('successful') || response.action?.includes('active') || response.action?.includes('Scheduled')) {
         let type = "Swap";
         if (userMsg.toLowerCase().includes('bridge')) type = "Bridge";
         if (userMsg.toLowerCase().includes('stake')) type = "Stake";
         
         // Extract symbols or just show successful
-        const detail = response.action.replace('Transaction successful. ', '').replace(' has been completed.', '').replace(' is now active.', '');
+        const detail = response.action.replace('Transaction successful. ', '').replace(' has been completed.', '').replace(' is now active.', '').replace('Scheduled: ', '').replace('Scheduled Stake: ', '');
         
-        // Use the centralized execution helper to ensure atomic updates
-        const txHash = executeAiTransaction(type, userMsg, detail);
-
-        setToast({
-          message: `${type} successful!`,
-          detail: detail,
-          txHash: txHash
-        });
+        if (response.delaySec > 0) {
+          // SCHEDULE IT
+          setScheduledTxs(prev => [...prev, {
+            id: Math.random().toString(16).slice(2, 8),
+            type: type,
+            userMsg: userMsg,
+            detail: detail,
+            remainingSec: response.delaySec
+          }]);
+        } else {
+          // EXECUTE IMMEDIATELY
+          const txHash = executeAiTransaction(type, userMsg, detail);
+          setToast({
+            message: `${type} successful!`,
+            detail: detail,
+            txHash: txHash
+          });
+        }
       }
     }, 600);
   };
@@ -403,6 +455,54 @@ export default function AiAgent() {
             bottom: 72px;
           }
         }
+        .ai-scheduled-list {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+          margin-bottom: 20px;
+        }
+        .ai-scheduled-item {
+          background: #1a1a1b;
+          border: 1px solid rgba(255,165,0,0.2);
+          border-radius: 12px;
+          padding: 12px 16px;
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          animation: slideInUp 0.3s ease;
+        }
+        .ai-scheduled-timer {
+          width: 32px;
+          height: 32px;
+          border: 2px solid #ffa500;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 10px;
+          font-weight: 700;
+          color: #ffa500;
+          flex-shrink: 0;
+        }
+        .ai-scheduled-info {
+          flex: 1;
+        }
+        .ai-scheduled-title {
+          font-size: 11px;
+          font-weight: 800;
+          color: #ffa500;
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+        }
+        .ai-scheduled-detail {
+          font-size: 12px;
+          color: #fff;
+          margin-top: 1px;
+        }
+        @keyframes slideInUp {
+          from { opacity: 0; transform: translateY(10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
       `}</style>
 
       <div className="ai-widget">
@@ -446,6 +546,28 @@ export default function AiAgent() {
           </div>
           
           <div className="ai-body">
+            {scheduledTxs.length > 0 && (
+              <div className="ai-scheduled-list">
+                {scheduledTxs.map(tx => (
+                  <div key={tx.id} className="ai-scheduled-item">
+                    <div className="ai-scheduled-timer">
+                      {tx.remainingSec > 60 ? `${Math.ceil(tx.remainingSec/60)}m` : `${tx.remainingSec}s`}
+                    </div>
+                    <div className="ai-scheduled-info">
+                      <div className="ai-scheduled-title">Scheduled {tx.type}</div>
+                      <div className="ai-scheduled-detail">{tx.detail}</div>
+                    </div>
+                    <button 
+                      onClick={() => setScheduledTxs(prev => prev.filter(t => t.id !== tx.id))}
+                      className="text-white/20 hover:text-red-400 transition-colors"
+                    >
+                      <span className="material-symbols-outlined text-sm">cancel</span>
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+
             {messages.map((m, i) => (
               <div key={i} className={`ai-msg ${m.role}`}>
                 {m.role === 'user' ? (
