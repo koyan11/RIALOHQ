@@ -109,7 +109,9 @@ export default function AiAgent() {
   const [input, setInput] = useState('');
   const [toast, setToast] = useState(null); // { message, type, txHash }
   const [scheduledTxs, setScheduledTxs] = useState([]); // Array of { id, type, userMsg, detail, remainingSec }
-  const messagesEndRef = useRef(null);
+  const [showSchedulePanel, setShowSchedulePanel] = useState(false);
+  const [schedData, setSchedData] = useState({ type: 'Swap', amount: '10', fromToken: 'USDC', toToken: 'RIALO', timeVal: '5', timeUnit: 'minutes' });
+  const messagesEndRefRef = useRef(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -197,6 +199,21 @@ export default function AiAgent() {
         }
       }
     }, 600);
+  };
+
+  const submitScheduledForm = (e) => {
+    e.preventDefault();
+    let cmd = "";
+    if (schedData.type === 'Swap') {
+      cmd = `swap ${schedData.amount} ${schedData.fromToken} to ${schedData.toToken} in ${schedData.timeVal} ${schedData.timeUnit}`;
+    } else if (schedData.type === 'Bridge') {
+      cmd = `bridge ${schedData.amount} ETH to RIALO in ${schedData.timeVal} ${schedData.timeUnit}`;
+    } else {
+      cmd = `stake ${schedData.amount} ${schedData.fromToken} in ${schedData.timeVal} ${schedData.timeUnit}`;
+    }
+    setInput(cmd);
+    setShowSchedulePanel(false);
+    // Automatically trigger sending if you want, but letting user see the generated command is safer/better for demo
   };
 
   return (
@@ -499,6 +516,64 @@ export default function AiAgent() {
           color: #fff;
           margin-top: 1px;
         }
+        
+        /* Advanced Schedule Panel */
+        .ai-sched-panel {
+          background: #111;
+          border-top: 1px solid rgba(255,255,255,0.1);
+          padding: 20px;
+          animation: slideInUp 0.3s ease;
+        }
+        .ai-sched-grid {
+          display: grid;
+          grid-template-cols: 1fr 1fr;
+          gap: 12px;
+          margin-bottom: 16px;
+        }
+        .ai-sched-field {
+          display: flex;
+          flex-direction: column;
+          gap: 6px;
+        }
+        .ai-sched-label {
+          font-size: 10px;
+          font-weight: 800;
+          color: rgba(255,255,255,0.3);
+          text-transform: uppercase;
+          letter-spacing: 0.1em;
+        }
+        .ai-sched-input, .ai-sched-select {
+          background: #1a1a1b;
+          border: 1px solid rgba(255,255,255,0.05);
+          border-radius: 8px;
+          padding: 8px 12px;
+          color: #fff;
+          font-size: 13px;
+          font-weight: 600;
+          outline: none;
+        }
+        .ai-sched-input:focus, .ai-sched-select:focus {
+          border-color: #ffa500;
+        }
+        .ai-sched-btn {
+          width: 100%;
+          background: #ffa500;
+          color: #000;
+          border: none;
+          border-radius: 12px;
+          padding: 12px;
+          font-weight: 800;
+          font-size: 12px;
+          text-transform: uppercase;
+          letter-spacing: 0.1em;
+          cursor: pointer;
+          transition: all 0.2s;
+        }
+        .ai-sched-btn:hover {
+          background: #ffb733;
+          transform: translateY(-1px);
+        }
+
         @keyframes slideInUp {
           from { opacity: 0; transform: translateY(10px); }
           to { opacity: 1; transform: translateY(0); }
@@ -636,10 +711,98 @@ export default function AiAgent() {
           </div>
 
           <div className="ai-footer">
+            {showSchedulePanel && (
+              <div className="ai-sched-panel">
+                <form onSubmit={submitScheduledForm}>
+                  <div className="ai-sched-grid">
+                    <div className="ai-sched-field">
+                      <label className="ai-sched-label">Action</label>
+                      <select 
+                        className="ai-sched-select"
+                        value={schedData.type}
+                        onChange={e => setSchedData({...schedData, type: e.target.value})}
+                      >
+                        <option>Swap</option>
+                        <option>Bridge</option>
+                        <option>Stake</option>
+                      </select>
+                    </div>
+                    <div className="ai-sched-field">
+                      <label className="ai-sched-label">Amount</label>
+                      <input 
+                        type="number" 
+                        className="ai-sched-input" 
+                        value={schedData.amount}
+                        onChange={e => setSchedData({...schedData, amount: e.target.value})}
+                      />
+                    </div>
+                    {schedData.type !== 'Bridge' && (
+                      <div className="ai-sched-field">
+                        <label className="ai-sched-label">Token</label>
+                        <select 
+                          className="ai-sched-select"
+                          value={schedData.fromToken}
+                          onChange={e => setSchedData({...schedData, fromToken: e.target.value})}
+                        >
+                          <option>RIALO</option>
+                          <option>USDC</option>
+                          <option>USDT</option>
+                          <option>ETH</option>
+                        </select>
+                      </div>
+                    )}
+                    {schedData.type === 'Swap' && (
+                      <div className="ai-sched-field">
+                        <label className="ai-sched-label">To Token</label>
+                        <select 
+                          className="ai-sched-select"
+                          value={schedData.toToken}
+                          onChange={e => setSchedData({...schedData, toToken: e.target.value})}
+                        >
+                          <option>RIALO</option>
+                          <option>ETH</option>
+                          <option>USDC</option>
+                          <option>USDT</option>
+                        </select>
+                      </div>
+                    )}
+                    <div className="ai-sched-field">
+                      <label className="ai-sched-label">Time Value</label>
+                      <input 
+                        type="number" 
+                        className="ai-sched-input" 
+                        value={schedData.timeVal}
+                        onChange={e => setSchedData({...schedData, timeVal: e.target.value})}
+                      />
+                    </div>
+                    <div className="ai-sched-field">
+                      <label className="ai-sched-label">Unit</label>
+                      <select 
+                        className="ai-sched-select"
+                        value={schedData.timeUnit}
+                        onChange={e => setSchedData({...schedData, timeUnit: e.target.value})}
+                      >
+                        <option value="minutes">Minutes</option>
+                        <option value="hours">Hours</option>
+                      </select>
+                    </div>
+                  </div>
+                  <button type="submit" className="ai-sched-btn">Generate Command</button>
+                </form>
+              </div>
+            )}
+
             <div className="ai-quick-commands">
-              <button onClick={() => setInput("swap 10 USDC to RIALO in 1 minute")} className="ai-command-chip">Schedule Swap (1m)</button>
-              <button onClick={() => setInput("stake 100 RIALO in 5 minutes")} className="ai-command-chip">Schedule Stake (5m)</button>
-              <button onClick={() => setInput("bridge 0.05 ETH to RIALO")} className="ai-command-chip">Bridge ETH</button>
+              <button 
+                onClick={() => setShowSchedulePanel(!showSchedulePanel)} 
+                className={`ai-command-chip ${showSchedulePanel ? 'border-[#ffa500] text-[#ffa500]' : ''}`}
+                style={{ background: showSchedulePanel ? 'rgba(255,165,0,0.1)' : '' }}
+              >
+                <span className="material-symbols-outlined text-[12px] align-middle mr-1">schedule</span>
+                Advanced Schedule
+              </button>
+              <button onClick={() => setInput("swap 10 USDC to RIALO in 1 minute")} className="ai-command-chip">Swap 10 (1m)</button>
+              <button onClick={() => setInput("stake 100 RIALO in 5 minutes")} className="ai-command-chip">Stake 100 (5m)</button>
             </div>
             <form className="ai-form" onSubmit={handleSend}>
               <input 
