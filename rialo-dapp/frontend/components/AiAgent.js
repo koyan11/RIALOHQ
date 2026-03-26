@@ -113,8 +113,46 @@ const getAiResponse = (input) => {
     };
   }
 
+  // Rialo General Knowledge Base Matches
+  if (lower.includes('what is rialo') || lower.includes('about rialo') || lower.includes('who are you') || lower.includes('apa itu') || lower.includes('tentang')) {
+    return {
+      insight: "Rialo is a blockchain built for the real world.",
+      options: ["Rialo Omni Account", "Rialo Execution Engine", "Rialo VM"],
+      recommendation: "Rialo enables event-driven execution, native real-world data streams (without traditional oracles), and gas-less transactions with 50ms block times.",
+      action: "I can help you utilize Rialo's DeFi ecosystem. Try 'swap', 'bridge', or 'stake'."
+    };
+  }
+
+  if (lower.includes('speed') || lower.includes('fast') || lower.includes('tps') || lower.includes('latency') || lower.includes('cepat') || lower.includes('kecepatan')) {
+    return {
+      insight: "Rialo Consensus achieves high-throughput parallel execution.",
+      options: ["50ms block time", "Nanosecond execution latency"],
+      recommendation: "Rialo is engineered to be >10x faster than top bridges and >40x faster than top oracles.",
+      action: "You can experience it now by executing a 'swap'."
+    };
+  }
+
+  if (lower.includes('rwa') || lower.includes('real world') || lower.includes('web2') || lower.includes('integration') || lower.includes('dunia nyata')) {
+    return {
+      insight: "Rialo natively integrates Real World Finance and Data.",
+      options: ["Rialo Stream (Data)", "Rialo Edge (Web2 APIs)"],
+      recommendation: "Apps on Rialo can send encrypted messages to real people, and fetch asset pricing natively onchain.",
+      action: "Ready to explore? Try 'stake 100 RIALO'."
+    };
+  }
+
+  if (lower.includes('oracle') || lower.includes('trigger') || lower.includes('event') || lower.includes('automation') || lower.includes('otomatis')) {
+    return {
+      insight: "Rialo removes the need for traditional middleware and oracles.",
+      options: ["Rialo Execution Engine", "Rialo Stream"],
+      recommendation: "It supports native event-driven automation (like trigger orders) and reacts instantly to real-world data.",
+      action: "Set up a trigger now by saying 'swap 1 ETH to USDC at 3000'."
+    };
+  }
+
+  // Generic Fallback for off-topic or unknown queries
   return {
-    raw: "I am ready to optimize your next DeFi move. Example: 'swap 100 RIALO to ETH', 'bridge 0.5 ETH to RIALO', or 'stake 100 RIALO'."
+    raw: "I specialize in Rialo technology and its DeFi operations. I can optimize your on-chain moves or answer questions about Rialo's real-world blockchain capabilities. Try asking 'what is rialo' or run a command like 'swap 10 USDC to RIALO'."
   };
 };
 
