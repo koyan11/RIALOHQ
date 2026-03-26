@@ -93,7 +93,7 @@ export default function Home() {
                 <div className="max-w-md">
                   <h3 className="font-headline text-2xl font-bold mb-4 text-primary">Decentralized Network</h3>
                   <p className="text-on-surface/70 mb-8">Join thousands of validator nodes worldwide. Our unique consensus algorithm ensures that no single entity holds governing power over the architectural flow.</p>
-                  <button className="text-primary font-bold flex items-center gap-2 group">
+                  <button onClick={() => router.push('/staking')} className="text-primary font-bold flex items-center gap-2 group">
                     View Network Map <span className="material-symbols-outlined group-hover:translate-x-1 transition-transform">arrow_forward</span>
                   </button>
                 </div>
