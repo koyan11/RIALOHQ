@@ -111,7 +111,7 @@ export default function AiAgent() {
   const [scheduledTxs, setScheduledTxs] = useState([]); // Array of { id, type, userMsg, detail, remainingSec }
   const [showSchedulePanel, setShowSchedulePanel] = useState(false);
   const [schedData, setSchedData] = useState({ type: 'Swap', amount: '10', fromToken: 'USDC', toToken: 'RIALO', timeVal: '5', timeUnit: 'minutes' });
-  const messagesEndRefRef = useRef(null);
+  const messagesEndRef = useRef(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
