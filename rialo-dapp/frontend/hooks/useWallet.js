@@ -247,6 +247,10 @@ export function WalletProvider({ children }) {
     setScheduledTxs(prev => prev.filter(t => t.id !== id));
   }, []);
 
+  const removeTriggerOrder = useCallback((id) => {
+    setTriggerOrders(prev => prev.filter(order => order.id !== id));
+  }, []);
+
   const showToast = useCallback((toastData) => {
     setToast(toastData);
   }, []);
@@ -344,6 +348,7 @@ export function WalletProvider({ children }) {
         scheduledTxs,
         addScheduledTx,
         removeScheduledTx,
+        removeTriggerOrder,
         toast,
         showToast
       }}

@@ -5,7 +5,7 @@ import { useWallet } from '../hooks/useWallet';
 import Link from 'next/link';
 
 export default function DashboardPage() {
-  const { isConnected, address, balances, stakedBalance, transactions, triggerOrders = [], connect } = useWallet();
+  const { isConnected, address, balances, stakedBalance, transactions, triggerOrders = [], removeTriggerOrder, connect } = useWallet();
   const [rewards, setRewards] = useState({ totalEarned: '12,482.50', claimable: '842.12', apy: 18.4 });
   const [loading, setLoading] = useState(false);
 
@@ -124,11 +124,14 @@ export default function DashboardPage() {
                         <p className="font-headline font-black text-on-surface text-lg leading-none">
                           {order.status === 'Executed' ? `${(parseFloat(order.amountIn) * order.executedRate).toFixed(4)} ${order.toToken}` : 'Pending Fill'}
                         </p>
-                        {order.status === 'Pending' && (
-                           <button className="text-[10px] font-bold text-red-400 hover:text-red-300 transition-colors uppercase tracking-tighter mt-1">
-                             Cancel Order
-                           </button>
-                        )}
+                         {order.status === 'Pending' && (
+                            <button 
+                              onClick={() => removeTriggerOrder(order.id)}
+                              className="text-[10px] font-bold text-red-400 hover:text-red-300 transition-colors uppercase tracking-tighter mt-1"
+                            >
+                              Cancel Order
+                            </button>
+                         )}
                         {order.status === 'Executed' && (
                            <span className="text-[10px] font-bold text-primary/60 uppercase tracking-tighter mt-1">
                              Filled at {order.executedRate?.toFixed(4)}
