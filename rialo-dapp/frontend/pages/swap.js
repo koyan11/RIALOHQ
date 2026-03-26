@@ -166,17 +166,17 @@ export default function SwapPage() {
           <div className="bg-[#0c0c0c] rounded-2xl shadow-2xl p-8 relative overflow-hidden border border-white/5">
             {/* Top Actions */}
             <div className="flex justify-between items-center mb-6">
-              <div className="flex gap-6">
+              <div className="flex gap-1 bg-[#161616] p-1 rounded-full border border-white/5">
                 <button 
                   onClick={() => setOrderType('swap')}
-                  className={`font-headline font-bold text-sm tracking-tight transition-colors ${orderType === 'swap' ? 'text-primary' : 'text-on-surface/40 hover:text-white'}`}
+                  className={`font-headline font-bold text-sm tracking-tight transition-all px-4 py-1.5 rounded-full ${orderType === 'swap' ? 'bg-white text-black shadow-md' : 'text-white/40 hover:text-white'}`}
                 >Swap</button>
                 <button 
                   onClick={() => setOrderType('limit')}
-                  className={`font-headline font-bold text-sm tracking-tight transition-colors ${orderType === 'limit' ? 'text-primary' : 'text-on-surface/40 hover:text-white'}`}
+                  className={`font-headline font-bold text-sm tracking-tight transition-all px-4 py-1.5 rounded-full ${orderType === 'limit' ? 'bg-white text-black shadow-md' : 'text-white/40 hover:text-white'}`}
                 >Limit</button>
               </div>
-              <button className="text-on-surface/40 hover:text-primary transition-colors">
+              <button className="text-on-surface/40 hover:text-white transition-colors">
                 <span className="material-symbols-outlined">settings</span>
               </button>
             </div>
