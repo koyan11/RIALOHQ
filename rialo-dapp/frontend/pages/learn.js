@@ -115,12 +115,13 @@ export default function LearnPage() {
           <p className="max-w-[1000px] mx-auto text-black/70 mb-20 text-lg leading-relaxed font-body">
             Our contributors comprise experienced builders and researchers from leading organizations across blockchain infrastructure and hyper-growth companies. Collectively, we have contributed to some of the most foundational projects in the ecosystem. Today, we are focused on designing the next-generation of decentralized networks that transcend incremental innovation.
           </p>
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-x-8 gap-y-16 items-center opacity-70 font-headline font-bold text-xl tracking-tight">
-            {['Meta', 'NETFLIX', 'Google', 'Apple', 'Microsoft', 'Amazon', 'Uber', 'Robinhood', 'VMware', 'Mysten Labs', 'Pantera', 'Solana', 'Magic Eden', 'EigenLayer', 'Near', 'Linera', 'Parity', 'Diem', 'Citadel', 'Chainlink', 'MoonPay', 'Red Hat', 'Gensyn', 'zkSync'].map(brand => (
-              <div key={brand} className="flex items-center justify-center hover:opacity-100 transition-opacity cursor-default grayscale hover:grayscale-0">
-                {brand}
-              </div>
-            ))}
+          <div className="mt-16 w-full flex justify-center px-4">
+            {/* Please save the logos design block as contributors.png in the public folder */}
+            <img 
+              src="/contributors.png" 
+              alt="Rialo Contributors" 
+              className="w-full max-w-[1000px] h-auto object-contain mix-blend-multiply opacity-80 hover:opacity-100 transition-opacity" 
+            />
           </div>
         </section>
 
