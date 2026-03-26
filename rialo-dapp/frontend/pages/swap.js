@@ -26,6 +26,8 @@ export default function SwapPage() {
   const [targetPrice, setTargetPrice] = useState('');
   const [expiration, setExpiration] = useState('1 Day');
   const [showExpirationList, setShowExpirationList] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
+  const [slippage, setSlippage] = useState('0.5');
 
   const getRate = (from, to) => globalRates?.[from]?.[to] ?? 1;
   const currentRateValue = getRate(fromToken, toToken);
@@ -176,9 +178,37 @@ export default function SwapPage() {
                   className={`font-headline font-bold text-sm tracking-tight transition-all px-4 py-1.5 rounded-full ${orderType === 'limit' ? 'bg-white text-black shadow-md' : 'text-white/40 hover:text-white'}`}
                 >Limit</button>
               </div>
-              <button className="text-on-surface/40 hover:text-white transition-colors">
-                <span className="material-symbols-outlined">settings</span>
-              </button>
+              <div className="relative">
+                <button 
+                  onClick={() => setShowSettings(!showSettings)}
+                  className={`transition-colors flex items-center justify-center w-8 h-8 rounded-full ${showSettings ? 'bg-white/10 text-white' : 'text-on-surface/40 hover:text-white hover:bg-white/5'}`}
+                >
+                  <span className="material-symbols-outlined text-[20px]">settings</span>
+                </button>
+                {showSettings && (
+                  <div className="absolute right-0 top-full mt-2 w-72 bg-[#161616] border border-white/10 rounded-2xl shadow-2xl p-5 z-50">
+                    <h3 className="font-headline font-bold text-sm text-white mb-4">Transaction Settings</h3>
+                    <div>
+                      <label className="font-label text-xs uppercase tracking-widest text-white/30 font-bold mb-3 block">Slippage Tolerance</label>
+                      <div className="flex gap-2">
+                        {['Auto', '0.1', '0.5', '1.0'].map(val => (
+                          <button
+                            key={val}
+                            onClick={() => setSlippage(val === 'Auto' ? 'Auto' : val)}
+                            className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all border ${
+                              (val === 'Auto' && slippage === 'Auto') || val === slippage 
+                                ? 'bg-white text-black border-white' 
+                                : 'bg-[#0c0c0c] text-white/60 hover:text-white border-white/5'
+                            }`}
+                          >
+                            {val === 'Auto' ? 'Auto' : `${val}%`}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Input — You Pay */}
@@ -300,7 +330,7 @@ export default function SwapPage() {
               </div>
               <div className="flex justify-between items-center text-sm">
                 <span className="text-white/30 font-body">Max Slippage</span>
-                <span className="font-headline font-bold text-white/80">0.5%</span>
+                <span className="font-headline font-bold text-white/80">{slippage === 'Auto' ? '0.5%' : `${slippage}%`}</span>
               </div>
             </div>
 
