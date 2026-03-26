@@ -57,7 +57,7 @@ export default function Footer() {
             <a href="https://discord.com/invite/RialoProtocol" target="_blank" rel="noopener noreferrer" className="font-headline text-[10px] text-[#A1A1AA]/80 hover:text-white transition-colors">
               Discord
             </a>
-            <a href="#" className="font-headline text-[10px] text-[#A1A1AA]/80 hover:text-white transition-colors">
+            <a href="https://t.me/rialoprotocol" target="_blank" rel="noopener noreferrer" className="font-headline text-[10px] text-[#A1A1AA]/80 hover:text-white transition-colors">
               Telegram
             </a>
           </div>
