@@ -110,9 +110,9 @@ export default function LearnPage() {
         </section>
 
         {/* Contributors Section */}
-        <section className="bg-[#EAE6D7] rounded-3xl p-12 md:p-24 text-center mb-32 shadow-xl text-[#111111]">
+        <section className="p-12 md:p-24 text-center mb-32 text-[#111111]">
           <h2 className="font-headline text-[3.5rem] font-medium mb-6 tracking-tight">Contributors</h2>
-          <p className="max-w-[1000px] mx-auto text-black/70 mb-20 text-lg leading-relaxed font-body">
+          <p className="max-w-[1000px] mx-auto text-on-surface/50 mb-20 text-lg leading-relaxed font-body">
             Our contributors comprise experienced builders and researchers from leading organizations across blockchain infrastructure and hyper-growth companies. Collectively, we have contributed to some of the most foundational projects in the ecosystem. Today, we are focused on designing the next-generation of decentralized networks that transcend incremental innovation.
           </p>
           <div className="mt-20 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-x-12 gap-y-16 items-center w-full max-w-[1000px] mx-auto">
@@ -126,7 +126,7 @@ export default function LearnPage() {
                 <img 
                   src={`/contributors/${filename}`} 
                   alt="Contributor Logo" 
-                  className="max-h-[32px] w-auto h-auto object-contain mix-blend-multiply opacity-80 contrast-125 brightness-75"
+                  className="max-h-[32px] w-auto h-auto object-contain mix-blend-multiply grayscale brightness-0 opacity-60 hover:opacity-100 transition-opacity"
                 />
               </div>
             ))}
