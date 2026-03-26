@@ -1,7 +1,8 @@
-import { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, Fragment } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useWallet } from '../hooks/useWallet';
+import AiAgent from './AiAgent';
 
 export default function Navbar() {
   const { isConnected, shortAddress, connecting, connect, disconnect } = useWallet();
@@ -243,13 +244,15 @@ export default function Navbar() {
               {links.map(({ href, label }) => {
                 const active = router.pathname === href;
                 return (
-                  <Link
-                    key={href}
-                    href={href}
-                    className={`nav-link ${active ? 'active' : ''}`}
-                  >
-                    {label}
-                  </Link>
+                  <Fragment key={href}>
+                    <Link
+                      href={href}
+                      className={`nav-link ${active ? 'active' : ''}`}
+                    >
+                      {label}
+                    </Link>
+                    {label === 'Dashboard' && <AiAgent />}
+                  </Fragment>
                 );
               })}
             </div>

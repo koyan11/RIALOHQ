@@ -1,7 +1,6 @@
 import '../styles/globals.css';
 import { WalletProvider } from '../hooks/useWallet';
 import Head from 'next/head';
-import AiAgent from '../components/AiAgent'; // <-- Added AiAgent
 
 export default function App({ Component, pageProps }) {
   return (
@@ -15,7 +14,6 @@ export default function App({ Component, pageProps }) {
         <title>Rialo | The Architectural Void of Layer 1</title>
       </Head>
       <Component {...pageProps} />
-      <AiAgent /> 
     </WalletProvider>
   );
 }

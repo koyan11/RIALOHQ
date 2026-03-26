@@ -220,19 +220,19 @@ export default function AiAgent() {
     <>
       <style>{`
         .ai-widget {
-          position: fixed;
-          bottom: 24px;
-          right: 24px;
-          z-index: 9999;
-          font-family: 'Inter', sans-serif;
-          display: flex;
-          flex-direction: column;
-          align-items: flex-end;
-          gap: 12px;
+          position: relative;
+          display: inline-flex;
+          height: 100%;
+          align-items: center;
+          font-family: inherit;
         }
 
         /* ── Toast Styled to match screenshot ── */
         .ai-toast {
+          position: fixed;
+          bottom: 24px;
+          right: 24px;
+          z-index: 10000;
           display: flex;
           align-items: center;
           gap: 12px;
@@ -284,31 +284,34 @@ export default function AiAgent() {
         .ai-btn-wrap {
           display: flex;
           align-items: center;
-          gap: 12px;
         }
         
         .ai-btn {
-          width: 56px;
-          height: 56px;
-          border-radius: 50%;
-          background: #0e0e0f;
-          border: 1px solid rgba(255,255,255,0.15);
-          box-shadow: 0 8px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1);
-          color: #fff;
+          position: relative;
           display: flex;
           align-items: center;
-          justify-content: center;
+          padding: 8px 10px 8px calc(10px + 0.16em);
+          border-radius: 9999px;
+          font-family: inherit;
+          font-size: 10.5px;
+          font-weight: 700;
+          letter-spacing: 0.16em;
+          text-transform: uppercase;
+          color: rgba(255,255,255,0.35);
+          background: transparent;
+          border: none;
           cursor: pointer;
-          transition: transform 0.2s, box-shadow 0.2s;
+          transition: color 0.18s, background 0.18s;
+          white-space: nowrap;
         }
-        .ai-btn:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 12px 40px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.2);
+        .ai-btn.active, .ai-btn:hover {
+          color: rgba(255,255,255,1);
+          background: rgba(255,255,255,0.07);
         }
         .ai-window {
           position: absolute;
-          bottom: 80px;
-          right: 0;
+          top: calc(100% + 15px);
+          left: 50%;
           width: 360px;
           height: 500px;
           background: #0e0e0f;
@@ -320,13 +323,14 @@ export default function AiAgent() {
           overflow: hidden;
           opacity: 0;
           pointer-events: none;
-          transform: translateY(10px);
+          transform: translateX(-50%) translateY(-10px);
           transition: opacity 0.3s, transform 0.3s;
+          z-index: 1000;
         }
         .ai-window.open {
           opacity: 1;
           pointer-events: auto;
-          transform: translateY(0);
+          transform: translateX(-50%) translateY(0);
         }
         .ai-header {
           padding: 16px 20px;
@@ -622,16 +626,9 @@ export default function AiAgent() {
         )}
 
         <div className="ai-btn-wrap">
-          <button className="ai-btn" onClick={() => setIsOpen(!isOpen)} aria-label="Toggle AI Agent">
-            {isOpen ? (
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M18 6L6 18M6 6l12 12" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            ) : (
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10z" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            )}
+          <button className={`ai-btn ${isOpen ? 'active' : ''}`} onClick={() => setIsOpen(!isOpen)} aria-label="Toggle AI Agent">
+            <span className="ai-status-dot" style={{ display: 'inline-block', width: '6px', height: '6px', marginRight: '6px', boxShadow: '0 0 8px #22c55e' }}></span> 
+            RIALO AI
           </button>
         </div>
 
