@@ -115,18 +115,18 @@ export default function LearnPage() {
           <p className="max-w-[1000px] mx-auto text-black/70 mb-20 text-lg leading-relaxed font-body">
             Our contributors comprise experienced builders and researchers from leading organizations across blockchain infrastructure and hyper-growth companies. Collectively, we have contributed to some of the most foundational projects in the ecosystem. Today, we are focused on designing the next-generation of decentralized networks that transcend incremental innovation.
           </p>
-          <div className="mt-16 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-x-12 gap-y-16 items-center w-full max-w-[1000px] mx-auto opacity-70">
+          <div className="mt-20 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-x-12 gap-y-16 items-center w-full max-w-[1000px] mx-auto">
             {[
-              "download (7).png", "download (8).png", "download (9).png", "download (10).png", "download (11).png", "download (12).png",
-              "download (13).png", "download (14).png", "download (15).png", "download (16).png", "download (17).png", "download (18).png",
-              "download (19).png", "download (20).png", "download (21).png", "download (22).png", "download (23).png", "download (24).png",
-              "download (25).png", "download (26).png", "download (27).png", "download.jpeg", "download.png", "images.png"
+              "download.png", "download (7).png", "download (8).png", "download (9).png", "download (10).png", "download (11).png",
+              "download (12).png", "download (13).png", "download (14).png", "download (15).png", "download (16).png", "download (17).png",
+              "download (18).png", "download (19).png", "download.jpeg", "download (20).png", "download (21).png", "download (22).png",
+              "download (23).png", "download (24).png", "download (25).png", "images.png", "download (26).png", "download (27).png"
             ].map((filename, i) => (
-              <div key={i} className="flex items-center justify-center hover:opacity-100 transition-opacity grayscale hover:grayscale-0 cursor-default">
+              <div key={i} className="flex items-center justify-center transition-all duration-300 hover:scale-110 cursor-default px-2">
                 <img 
                   src={`/contributors/${filename}`} 
                   alt="Contributor Logo" 
-                  className="max-h-8 max-w-[120px] w-auto h-auto object-contain mix-blend-multiply"
+                  className="max-h-[32px] w-auto h-auto object-contain mix-blend-multiply opacity-80 contrast-125 brightness-75"
                 />
               </div>
             ))}
