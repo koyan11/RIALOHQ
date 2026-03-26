@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import Toast from '../components/Toast';
@@ -13,7 +13,7 @@ const TOKENS = [
 ];
 
 export default function SwapPage() {
-  const { isConnected, address, connect, balances, updateBalance, addTransaction } = useWallet();
+  const { isConnected, address, connect, balances, updateBalance, addTransaction, globalRates, addTriggerOrder } = useWallet();
   const [fromToken, setFromToken] = useState('ETH');
   const [toToken, setToToken] = useState('RIALO');
   const [amountIn, setAmountIn] = useState('');
@@ -22,16 +22,20 @@ export default function SwapPage() {
   const [showFromTokenList, setShowFromTokenList] = useState(false);
   const [showToTokenList, setShowToTokenList] = useState(false);
 
-  const RATES = {
-    'ETH': { 'RIALO': 2400, 'USDC': 2400, 'USDT': 2400 },
-    'RIALO': { 'ETH': 1/2400, 'USDC': 1, 'USDT': 1 },
-    'USDC': { 'ETH': 1/2400, 'RIALO': 1, 'USDT': 1 },
-    'USDT': { 'ETH': 1/2400, 'RIALO': 1, 'USDC': 1 },
-  };
+  const [orderType, setOrderType] = useState('swap');
+  const [targetPrice, setTargetPrice] = useState('');
+  const [expiration, setExpiration] = useState('1 Day');
+  const [showExpirationList, setShowExpirationList] = useState(false);
 
-  const getRate = (from, to) => RATES[from]?.[to] ?? 1;
-  const estimatedOut = amountIn ? (parseFloat(amountIn) * getRate(fromToken, toToken)).toFixed(4) : '';
-  const displayRate = `1 ${fromToken} ≈ ${getRate(fromToken, toToken).toFixed(fromToken === 'RIALO' ? 8 : 2)} ${toToken}`;
+  const getRate = (from, to) => globalRates?.[from]?.[to] ?? 1;
+  const currentRateValue = getRate(fromToken, toToken);
+  const activeRate = orderType === 'limit' && targetPrice ? parseFloat(targetPrice) : currentRateValue;
+  const estimatedOut = amountIn ? (parseFloat(amountIn) * activeRate).toFixed(4) : '';
+  const displayRate = `1 ${fromToken} ≈ ${activeRate.toFixed(fromToken === 'RIALO' ? 8 : 2)} ${toToken}`;
+
+  useEffect(() => {
+    setTargetPrice('');
+  }, [fromToken, toToken]);
 
   const handleSwapTokens = () => {
     setFromToken(toToken);
@@ -39,7 +43,7 @@ export default function SwapPage() {
     setAmountIn(estimatedOut);
   };
 
-  const handleSwap = async () => {
+  const handleAction = async () => {
     if (!isConnected) { connect(); return; }
     if (!amountIn || parseFloat(amountIn) <= 0) {
       setToast({ message: 'Enter an amount greater than 0', type: 'error' });
@@ -50,6 +54,33 @@ export default function SwapPage() {
       setToast({ message: `Insufficient ${fromToken} balance`, type: 'error' });
       return;
     }
+
+    if (orderType === 'limit') {
+      const tp = parseFloat(targetPrice || currentRateValue);
+      if (tp <= 0) {
+         setToast({ message: 'Enter a valid trigger price', type: 'error' }); return;
+      }
+      
+      const condition = tp >= currentRateValue ? '>=' : '<=';
+      
+      // Lock balance
+      updateBalance(fromToken, -parseFloat(amountIn));
+      
+      addTriggerOrder({
+        fromToken,
+        toToken,
+        amountIn,
+        targetPrice: tp,
+        condition,
+        expiration
+      });
+      
+      setToast({ message: `Limit order placed: ${amountIn} ${fromToken} at ${tp} ${toToken}`, type: 'success' });
+      setAmountIn('');
+      setTargetPrice('');
+      return;
+    }
+
     setLoading(true);
     setToast({ message: 'Submitting swap…', type: 'loading' });
     try {
@@ -135,7 +166,16 @@ export default function SwapPage() {
           <div className="bg-[#0c0c0c] rounded-2xl shadow-2xl p-8 relative overflow-hidden border border-white/5">
             {/* Top Actions */}
             <div className="flex justify-between items-center mb-6">
-              <span className="font-headline font-bold text-sm tracking-tight">Select Pair</span>
+              <div className="flex gap-6">
+                <button 
+                  onClick={() => setOrderType('swap')}
+                  className={`font-headline font-bold text-sm tracking-tight transition-colors ${orderType === 'swap' ? 'text-primary' : 'text-on-surface/40 hover:text-white'}`}
+                >Swap</button>
+                <button 
+                  onClick={() => setOrderType('limit')}
+                  className={`font-headline font-bold text-sm tracking-tight transition-colors ${orderType === 'limit' ? 'text-primary' : 'text-on-surface/40 hover:text-white'}`}
+                >Limit</button>
+              </div>
               <button className="text-on-surface/40 hover:text-primary transition-colors">
                 <span className="material-symbols-outlined">settings</span>
               </button>
@@ -176,7 +216,7 @@ export default function SwapPage() {
             </div>
 
             {/* Output — You Receive */}
-            <div className="bg-[#161616] rounded-2xl p-6 mb-8 transition-all border border-white/5 focus-within:border-white/20">
+            <div className={`bg-[#161616] rounded-2xl p-6 transition-all border border-white/5 focus-within:border-white/20 ${orderType === 'limit' ? 'mb-2' : 'mb-8'}`}>
               <div className="flex justify-between items-center mb-4">
                 <span className="font-label text-xs uppercase tracking-widest text-white/30 font-bold">You receive</span>
                 <span className="font-label text-xs text-white/40">Balance: {balances[toToken]?.toFixed(2) || '0.00'} {toToken}</span>
@@ -199,6 +239,55 @@ export default function SwapPage() {
               </div>
             </div>
 
+            {/* Limit Order Condition block */}
+            {orderType === 'limit' && (
+              <div className="bg-[#161616] rounded-2xl p-6 mb-8 transition-all border border-white/5 space-y-4">
+                <div>
+                  <div className="flex justify-between flex-wrap gap-2 mb-2">
+                    <span className="font-label text-xs uppercase tracking-widest text-white/30 font-bold">Trigger Price</span>
+                    <span className="font-label text-xs text-white/40">Current: {currentRateValue.toFixed(4)} {toToken}</span>
+                  </div>
+                  <div className="flex items-center gap-2 bg-[#0c0c0c] p-3 rounded-xl border border-white/5">
+                    <span className="font-headline font-bold text-sm text-white/50">1 {fromToken} =</span>
+                    <input
+                      type="text"
+                      placeholder={currentRateValue.toFixed(4)}
+                      value={targetPrice}
+                      onChange={e => setTargetPrice(e.target.value.replace(/[^0-9.]/g, ''))}
+                      className="bg-transparent border-none p-0 text-xl font-headline font-extrabold w-full focus:ring-0 text-white text-right placeholder:text-white/10"
+                    />
+                    <span className="font-headline font-bold text-sm text-white/50">{toToken}</span>
+                  </div>
+                </div>
+                
+                <div>
+                  <span className="font-label text-xs uppercase tracking-widest text-white/30 font-bold mb-2 block">Expiration</span>
+                  <div className="relative">
+                    <button
+                      onClick={() => setShowExpirationList(!showExpirationList)}
+                      className="w-full flex items-center justify-between bg-[#0c0c0c] p-3 rounded-xl border border-white/5 hover:border-white/10 transition-colors"
+                    >
+                      <span className="font-headline font-bold text-sm">{expiration}</span>
+                      <span className="material-symbols-outlined text-sm">expand_more</span>
+                    </button>
+                    {showExpirationList && (
+                      <div className="absolute left-0 top-full mt-2 w-full bg-surface-container-lowest rounded-xl shadow-xl border border-outline-variant/10 z-20">
+                        {['1 Hour', '1 Day', '1 Week', '30 Days'].map(opt => (
+                          <button
+                            key={opt}
+                            onClick={() => { setExpiration(opt); setShowExpirationList(false); }}
+                            className="w-full text-left px-4 py-3 hover:bg-surface-container-low font-headline font-bold text-sm transition-colors first:rounded-t-xl last:rounded-b-xl"
+                          >
+                            {opt}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Details */}
             <div className="space-y-4 mb-8 px-2">
               <div className="flex justify-between items-center text-sm">
@@ -217,7 +306,7 @@ export default function SwapPage() {
 
             {/* CTA */}
             <button
-              onClick={handleSwap}
+              onClick={handleAction}
               disabled={loading || (isConnected && amountIn && parseFloat(amountIn) > (balances[fromToken] || 0))}
               className="w-full bg-white text-black py-5 rounded-2xl font-headline font-extrabold text-lg tracking-tight hover:bg-white/90 active:scale-[0.98] transition-all shadow-2xl disabled:opacity-50"
             >
@@ -229,6 +318,8 @@ export default function SwapPage() {
                 'Connect Wallet'
               ) : amountIn && parseFloat(amountIn) > (balances[fromToken] || 0) ? (
                 `Insufficient ${fromToken} Balance`
+              ) : orderType === 'limit' ? (
+                `Place Limit Order`
               ) : (
                 `Swap ${fromToken} → ${toToken}`
               )}

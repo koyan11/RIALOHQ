@@ -10,6 +10,13 @@ export function WalletProvider({ children }) {
   const [connecting, setConnecting] = useState(false);
   const [error, setError] = useState(null);
 
+  const INIT_RATES = {
+    'ETH': { 'RIALO': 2400, 'USDC': 2400, 'USDT': 2400 },
+    'RIALO': { 'ETH': 1/2400, 'USDC': 1, 'USDT': 1 },
+    'USDC': { 'ETH': 1/2400, 'RIALO': 1, 'USDT': 1 },
+    'USDT': { 'ETH': 1/2400, 'RIALO': 1, 'USDC': 1 },
+  };
+
   const [balances, setBalances] = useState({
     'ETH': 1.24,
     'RIALO': 0,
@@ -18,24 +25,26 @@ export function WalletProvider({ children }) {
   });
   const [stakedBalance, setStakedBalance] = useState(0);
   const [transactions, setTransactions] = useState([]);
+  const [globalRates, setGlobalRates] = useState(INIT_RATES);
+  const [triggerOrders, setTriggerOrders] = useState([]);
 
-  // Load transactions from localStorage on mount
+  // Load transactions and limit orders from localStorage on mount
   useEffect(() => {
     const saved = localStorage.getItem('rialo_transactions');
     if (saved) {
-      try {
-        setTransactions(JSON.parse(saved));
-      } catch (e) {
-        console.error('Failed to parse transactions', e);
-      }
+      try { setTransactions(JSON.parse(saved)); } catch (e) { console.error(e); }
+    }
+    const savedOrders = localStorage.getItem('rialo_trigger_orders');
+    if (savedOrders) {
+      try { setTriggerOrders(JSON.parse(savedOrders)); } catch(e) { console.error(e); }
     }
   }, []);
 
-  // Sync transactions to localStorage
+  // Sync to localStorage
   useEffect(() => {
     localStorage.setItem('rialo_transactions', JSON.stringify(transactions));
-    console.log('Transactions synced to localStorage:', transactions.length);
-  }, [transactions]);
+    localStorage.setItem('rialo_trigger_orders', JSON.stringify(triggerOrders));
+  }, [transactions, triggerOrders]);
 
   const addTransaction = useCallback((tx) => {
     const newTx = {
@@ -44,8 +53,17 @@ export function WalletProvider({ children }) {
       status: 'Success', // Default to success for simulation
       ...tx
     };
-    console.log('Adding transaction:', newTx);
     setTransactions(prev => [newTx, ...prev]);
+  }, []);
+
+  const addTriggerOrder = useCallback((order) => {
+    const newOrder = {
+      id: `to-${Math.random().toString(16).slice(2, 10)}`,
+      timestamp: Date.now(),
+      status: 'Pending',
+      ...order
+    };
+    setTriggerOrders(prev => [newOrder, ...prev]);
   }, []);
 
   const updateBalance = useCallback((symbol, delta) => {
@@ -179,6 +197,66 @@ export function WalletProvider({ children }) {
     return txHash;
   }, [addTransaction, updateBalance, updateStakedBalance]);
 
+  // Simulate global real-time price monitoring
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setGlobalRates(prev => {
+        const next = { ...prev };
+        // Randomly fluctuate ETH price by roughly ±0.5% each tick
+        const fluctuation = 1 + (Math.random() * 0.01 - 0.005);
+        const newEthPrice = prev['ETH']['USDC'] * fluctuation;
+        
+        next['ETH'] = { 'RIALO': newEthPrice, 'USDC': newEthPrice, 'USDT': newEthPrice };
+        next['RIALO'] = { 'ETH': 1/newEthPrice, 'USDC': 1, 'USDT': 1 };
+        next['USDC'] = { 'ETH': 1/newEthPrice, 'RIALO': 1, 'USDT': 1 };
+        next['USDT'] = { 'ETH': 1/newEthPrice, 'RIALO': 1, 'USDC': 1 };
+        
+        return next;
+      });
+    }, 5000); 
+    return () => clearInterval(interval);
+  }, []);
+
+  // Monitor pending trigger orders against real-time globalRates
+  useEffect(() => {
+    if (triggerOrders.length === 0) return;
+
+    let updated = false;
+    const newOrders = triggerOrders.map(order => {
+      if (order.status !== 'Pending') return order;
+
+      const { fromToken, toToken, targetPrice, amountIn, condition } = order;
+      const currentRate = globalRates[fromToken]?.[toToken] || 1;
+      
+      let triggered = false;
+      if (condition === '>=') triggered = currentRate >= targetPrice;
+      else if (condition === '<=') triggered = currentRate <= targetPrice;
+
+      if (triggered) {
+        updated = true;
+        
+        const received = parseFloat(amountIn) * currentRate;
+        // Balance of `fromToken` is assumed locked during `addTriggerOrder` inside UI
+        updateBalance(toToken, received);
+        
+        addTransaction({
+          type: 'Trigger Swap',
+          amount: `${amountIn} ${fromToken} → ${received.toFixed(4)} ${toToken}`,
+          details: `Auto Executed at ${currentRate.toFixed(4)}`,
+          txHash: `0x${Math.random().toString(16).slice(2, 42)}`,
+          source: 'System'
+        });
+
+        return { ...order, status: 'Executed', executedRate: currentRate, executedAt: Date.now() };
+      }
+      return order;
+    });
+
+    if (updated) {
+      setTriggerOrders(newOrders);
+    }
+  }, [globalRates, triggerOrders, updateBalance, addTransaction]);
+
   return (
     <WalletContext.Provider
       value={{ 
@@ -194,9 +272,12 @@ export function WalletProvider({ children }) {
         balances,
         stakedBalance,
         transactions,
+        globalRates,
+        triggerOrders,
         updateBalance,
         updateStakedBalance,
         addTransaction,
+        addTriggerOrder,
         executeAiTransaction
       }}
     >

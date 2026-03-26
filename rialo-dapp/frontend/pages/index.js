@@ -23,7 +23,7 @@ export default function Home() {
               </p>
               <div className="flex flex-wrap gap-4">
                 <button
-                  onClick={() => router.push('/staking')}
+                  onClick={() => router.push('/swap')}
                   className="bg-white text-black px-8 py-4 rounded-full font-bold hover:bg-white/90 transition-all flex items-center gap-2"
                 >
                   Get Started <span className="material-symbols-outlined text-sm">arrow_forward</span>

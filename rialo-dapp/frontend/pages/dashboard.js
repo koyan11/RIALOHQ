@@ -5,7 +5,7 @@ import { useWallet } from '../hooks/useWallet';
 import Link from 'next/link';
 
 export default function DashboardPage() {
-  const { isConnected, address, balances, stakedBalance, transactions, connect } = useWallet();
+  const { isConnected, address, balances, stakedBalance, transactions, triggerOrders = [], connect } = useWallet();
   const [rewards, setRewards] = useState({ totalEarned: '12,482.50', claimable: '842.12', apy: 18.4 });
   const [loading, setLoading] = useState(false);
 
@@ -72,6 +72,76 @@ export default function DashboardPage() {
             </div>
           ))}
         </div>
+
+        {/* Trigger Orders Section */}
+        {isConnected && triggerOrders?.length > 0 && (
+          <section className="mb-16">
+            <div className="flex justify-between items-center mb-8">
+              <h3 className="font-headline font-bold text-primary text-lg">Trigger Orders</h3>
+              <span className="text-[10px] font-bold text-white/30 uppercase tracking-widest">{triggerOrders.filter(o => o.status === 'Pending').length} Pending</span>
+            </div>
+            
+            <div className="bg-surface-container-low rounded-xl border border-outline-variant/10 overflow-hidden">
+              <div className="divide-y divide-white/5">
+                {triggerOrders.slice(0, 5).map((order) => (
+                  <div key={order.id} className="p-6 hover:bg-white/[0.02] transition-colors border-b border-white/5 last:border-0">
+                    <div className="grid grid-cols-[48px_1fr_auto] items-center gap-6">
+                      <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${
+                        order.status === 'Pending' ? 'bg-yellow-500/10 text-yellow-500' :
+                        order.status === 'Executed' ? 'bg-green-500/10 text-green-500' :
+                        'bg-red-500/10 text-red-500'
+                      } border border-white/5 shadow-sm`}>
+                        <span className="material-symbols-outlined text-xl">
+                          {order.status === 'Pending' ? 'schedule' : order.status === 'Executed' ? 'check_circle' : 'cancel'}
+                        </span>
+                      </div>
+
+                      <div className="flex flex-col gap-1 min-w-0">
+                        <div className="flex items-center gap-3">
+                          <p className="font-headline font-bold text-sm text-on-surface truncate">
+                            Limit: {order.fromToken} → {order.toToken}
+                          </p>
+                          <div className={`flex items-center gap-1.5 px-2 py-0.5 rounded border ${
+                            order.status === 'Pending' ? 'bg-yellow-500/20 border-yellow-500/30 text-yellow-500' :
+                            order.status === 'Executed' ? 'bg-green-500/20 border-green-500/30 text-green-500' :
+                            'bg-red-500/20 border-red-500/30 text-red-500'
+                          }`}>
+                            <span className="text-[9px] font-bold uppercase tracking-widest">{order.status}</span>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-[10px] text-on-surface/40 font-body uppercase tracking-wider">
+                            Amount: {order.amountIn} {order.fromToken}
+                          </span>
+                          <span className="w-1 h-1 rounded-full bg-white/10"></span>
+                          <span className="text-[10px] text-on-surface/30 font-body italic truncate">
+                            Trigger: {order.condition} {order.targetPrice.toFixed(4)} {order.toToken} (Exp: {order.expiration})
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="flex flex-col items-end gap-1">
+                        <p className="font-headline font-black text-on-surface text-lg leading-none">
+                          {order.status === 'Executed' ? `${(parseFloat(order.amountIn) * order.executedRate).toFixed(4)} ${order.toToken}` : 'Pending Fill'}
+                        </p>
+                        {order.status === 'Pending' && (
+                           <button className="text-[10px] font-bold text-red-400 hover:text-red-300 transition-colors uppercase tracking-tighter mt-1">
+                             Cancel Order
+                           </button>
+                        )}
+                        {order.status === 'Executed' && (
+                           <span className="text-[10px] font-bold text-primary/60 uppercase tracking-tighter mt-1">
+                             Filled at {order.executedRate?.toFixed(4)}
+                           </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
 
         {/* Unified History Section */}
         <section className="mb-16">
