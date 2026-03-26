@@ -286,7 +286,6 @@ export default function SwapPage() {
                       onChange={e => setTargetPrice(e.target.value.replace(/[^0-9.]/g, ''))}
                       className="bg-transparent border-none p-0 text-2xl font-headline font-extrabold flex-1 focus:ring-0 text-white text-right placeholder:text-white/20 tracking-tight"
                     />
-                    <span className="font-headline font-black text-sm text-white/50 flex-shrink-0 tracking-widest">{toToken}</span>
                   </div>
                 </div>
                 
