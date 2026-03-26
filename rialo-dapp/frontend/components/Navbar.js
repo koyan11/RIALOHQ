@@ -64,7 +64,7 @@ export default function Navbar() {
     { href: '/staking', label: 'Staking' },
     { href: '/rewards', label: 'Reward' },
     { href: '/dashboard', label: 'Dashboard' },
-    { href: '/ai', label: 'Rialo AI' },
+    { href: '/ai', label: 'AI Agent' },
     { href: '/learn', label: 'Learn' },
   ];
 
@@ -137,12 +137,12 @@ export default function Navbar() {
           position: relative;
           display: flex;
           align-items: center;
-          /* Match tighter Figma spacing: 10px horizontal padding. Letter-spacing optical center fix kept on left limit. */
-          padding: 8px 10px 8px calc(10px + 0.16em);
+          /* Match tighter Figma spacing: 8px-12px horizontal padding. Letter-spacing optical center fix kept on left limit. */
+          padding: 8px 8px 8px calc(8px + 0.12em);
           border-radius: 9999px;
-          font-size: 10.5px;
+          font-size: 10px;
           font-weight: 700;
-          letter-spacing: 0.16em;
+          letter-spacing: 0.12em;
           text-transform: uppercase;
           color: rgba(255,255,255,0.35);
           text-decoration: none;
