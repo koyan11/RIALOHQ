@@ -15,12 +15,30 @@ const getAiResponse = (input) => {
     else if (unit.startsWith('h') || unit.startsWith('j')) delaySec = val * 3600;
   }
 
-  // Direct swap execution (e.g., "swap 100 rialo to eth")
-  const swapMatch = lower.match(/(?:swap|tukar)\s+([\d.]+)\s+([a-z0-9]+)\s+(?:to|ke)\s+([a-z0-9]+)/i);
+  // Direct swap execution (e.g., "swap 100 rialo to eth" or "buy 10 eth for usdc at 2500")
+  const swapMatch = lower.match(/(?:swap|tukar|buy|sell|beli|jual)\s+([\d.]+)\s+([a-z0-9]+)\s+(?:to|ke|for)\s+([a-z0-9]+)/i);
   if (swapMatch) {
     const amount = swapMatch[1];
     const fromToken = swapMatch[2].toUpperCase();
     const toToken = swapMatch[3].toUpperCase();
+    
+    // Check for trigger order
+    const triggerMatch = lower.match(/(?:at|when|if|saat|jika)\s*(?:price|harga)?\s*(?:hits|is|reaches|<=|>=|<|>|=|menyentuh|-)?\s*([\d.]+)/i);
+    const targetPrice = triggerMatch ? parseFloat(triggerMatch[1]) : 0;
+
+    if (targetPrice > 0) {
+      return {
+        insight: `Trigger condition recognized for ${amount} ${fromToken} to ${toToken} at target price ${targetPrice}.`,
+        options: ["1. Limit Order (Pending Execution)"],
+        recommendation: "System will automatically execute the swap when the price target is met.",
+        action: `Trigger Order Placed: ${amount} ${fromToken} -> ${toToken} at ${targetPrice}`,
+        targetPrice: targetPrice,
+        fromToken: fromToken,
+        toToken: toToken,
+        amount: amount
+      };
+    }
+
     return {
       insight: `Optimal route found for ${amount} ${fromToken} to ${toToken}.${delaySec ? ` (Scheduled for ${delayMatch[1]} ${delayMatch[2]})` : ''}`,
       options: ["1. Aggregator Route (Executed)"],
@@ -101,7 +119,7 @@ const getAiResponse = (input) => {
 };
 
 export default function AiAgent() {
-  const { isConnected, executeAiTransaction } = useWallet();
+  const { isConnected, executeAiTransaction, addTriggerOrder, globalRates } = useWallet();
   const [messages, setMessages] = useState([
     { role: 'ai', content: { raw: "Rialo AI is online. How can I optimize your on-chain operations today?" } }
   ]);
@@ -170,15 +188,32 @@ export default function AiAgent() {
       setMessages(prev => [...prev, { role: 'ai', content: response }]);
       
       // If successful transaction, trigger toast or schedule
-      if (response.action?.includes('successful') || response.action?.includes('active') || response.action?.includes('Scheduled')) {
+      if (response.action?.includes('successful') || response.action?.includes('active') || response.action?.includes('Scheduled') || response.action?.includes('Trigger Order Placed')) {
         let type = "Swap";
         if (userMsg.toLowerCase().includes('bridge')) type = "Bridge";
         if (userMsg.toLowerCase().includes('stake')) type = "Stake";
+        if (response.action?.includes('Trigger Order')) type = "Trigger";
         
         // Extract symbols or just show successful
-        const detail = response.action.replace('Transaction successful. ', '').replace(' has been completed.', '').replace(' is now active.', '').replace('Scheduled: ', '').replace('Scheduled Stake: ', '');
+        const detail = response.action.replace('Transaction successful. ', '').replace(' has been completed.', '').replace(' is now active.', '').replace('Scheduled: ', '').replace('Scheduled Stake: ', '').replace('Trigger Order Placed: ', '');
         
-        if (response.delaySec > 0) {
+        if (type === "Trigger") {
+          const currentRate = globalRates[response.fromToken]?.[response.toToken] || 1;
+          const condition = response.targetPrice >= currentRate ? '>=' : '<=';
+          addTriggerOrder({
+            fromToken: response.fromToken,
+            toToken: response.toToken,
+            amountIn: response.amount,
+            targetPrice: response.targetPrice,
+            condition: condition,
+            expiration: '1 Day'
+          });
+          setToast({
+            message: `Limit Order Placed!`,
+            detail: detail,
+            txHash: '0x' + Math.random().toString(16).slice(2, 42)
+          });
+        } else if (response.delaySec > 0) {
           // SCHEDULE IT
           setScheduledTxs(prev => [...prev, {
             id: Math.random().toString(16).slice(2, 8),
@@ -751,6 +786,7 @@ export default function AiAgent() {
                 Advanced Schedule
               </button>
               <button onClick={() => setInput("swap 10 USDC to RIALO in 1 minute")} className="ai-command-chip">Swap 10 (1m)</button>
+              <button onClick={() => setInput("swap 1 ETH to USDC at 2500")} className="ai-command-chip">Auto Buy/Sell</button>
               <button onClick={() => setInput("stake 100 RIALO in 5 minutes")} className="ai-command-chip">Stake 100 (5m)</button>
             </div>
             <form className="ai-form" onSubmit={handleSend}>
