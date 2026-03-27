@@ -204,17 +204,9 @@ const getAiResponse = (input, globalRates) => {
 
 export default function AiAgent() {
   const { isConnected, executeAiTransaction, addTriggerOrder, globalRates, scheduledTxs, addScheduledTx, removeScheduledTx, toast, showToast } = useWallet();
-  const [messages, setMessages] = useState(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('rialo_ai_messages');
-      if (saved) {
-        try { return JSON.parse(saved); } catch(e) { console.error(e); }
-      }
-    }
-    return [
-      { role: 'ai', content: { raw: "Rialo AI is online. How can I optimize your on-chain operations today?" } }
-    ];
-  });
+  const [messages, setMessages] = useState([
+    { role: 'ai', content: { raw: "Rialo AI is online. How can I optimize your on-chain operations today?" } }
+  ]);
   const [input, setInput] = useState('');
   const [isThinking, setIsThinking] = useState(false);
   const [showSchedulePanel, setShowSchedulePanel] = useState(false);
@@ -227,7 +219,6 @@ export default function AiAgent() {
 
   useEffect(() => {
     scrollToBottom();
-    localStorage.setItem('rialo_ai_messages', JSON.stringify(messages));
   }, [messages, scheduledTxs]);
 
 
