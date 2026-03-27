@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useCallback, useEffect } from 'react';
+import { createContext, useContext, useState, useCallback, useEffect, useMemo } from 'react';
 import { ethers } from 'ethers';
 
 const WalletContext = createContext(null);
@@ -10,15 +10,27 @@ export function WalletProvider({ children }) {
   const [connecting, setConnecting] = useState(false);
   const [error, setError] = useState(null);
 
-  const INIT_RATES = {
-    'ETH': { 'RIALO': 2400, 'USDC': 2400, 'USDT': 2400 },
-    'RIALO': { 'ETH': 1/2400, 'USDC': 1, 'USDT': 1 },
-    'USDC': { 'ETH': 1/2400, 'RIALO': 1, 'USDT': 1 },
-    'USDT': { 'ETH': 1/2400, 'RIALO': 1, 'USDC': 1 },
-  };
+  const [basePrices, setBasePrices] = useState({
+    ETH: 3500, BTC: 65000, SOL: 150, BNB: 600, RIALO: 1, USDC: 1, USDT: 1
+  });
+
+  const globalRates = useMemo(() => {
+    const rates = {};
+    const tokens = Object.keys(basePrices);
+    for (const t1 of tokens) {
+      rates[t1] = {};
+      for (const t2 of tokens) {
+        rates[t1][t2] = basePrices[t1] / basePrices[t2];
+      }
+    }
+    return rates;
+  }, [basePrices]);
 
   const [balances, setBalances] = useState({
     'ETH': 1.24,
+    'BTC': 0.15,
+    'SOL': 45.5,
+    'BNB': 10.2,
     'RIALO': 0,
     'USDC': 1000.00,
     'USDT': 500.00
@@ -31,7 +43,6 @@ export function WalletProvider({ children }) {
     }
     return [];
   });
-  const [globalRates, setGlobalRates] = useState(INIT_RATES);
   const [triggerOrders, setTriggerOrders] = useState(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('rialo_trigger_orders');
@@ -178,17 +189,11 @@ export function WalletProvider({ children }) {
       
       if (amount > 0) {
         if (txType === "Swap") {
-          const tokens = lowerMsg.match(/(?:eth|rialo|usdc|usdt)/g);
+          const tokens = lowerMsg.match(/(?:eth|rialo|usdc|usdt|btc|sol|bnb)/g);
           if (tokens && tokens.length >= 2) {
             const fromToken = tokens[0].toUpperCase();
             const toToken = tokens[1].toUpperCase();
-            const rate = 
-              (fromToken === 'ETH' && toToken === 'RIALO') ? 2400 : 
-              (fromToken === 'RIALO' && toToken === 'ETH') ? 1/2400 :
-              (fromToken === 'ETH' && (toToken === 'USDC' || toToken === 'USDT')) ? 2400 :
-              ((fromToken === 'USDC' || fromToken === 'USDT') && toToken === 'ETH') ? 1/2400 :
-              ((fromToken === 'USDC' || fromToken === 'USDT') && toToken === 'RIALO') ? 1 :
-              (fromToken === 'RIALO' && (toToken === 'USDC' || toToken === 'USDT')) ? 1 : 1;
+            const rate = globalRates[fromToken]?.[toToken] || 1;
             updateBalance(fromToken, -amount);
             updateBalance(toToken, amount * rate);
           }
@@ -196,7 +201,7 @@ export function WalletProvider({ children }) {
           updateBalance('ETH', -amount);
           updateBalance('RIALO', amount);
         } else if (txType === "Stake") {
-          const tokenMatch = lowerMsg.match(/rialo|eth|usdc|usdt/);
+          const tokenMatch = lowerMsg.match(/rialo|eth|usdc|usdt|btc|sol|bnb/);
           const token = tokenMatch ? tokenMatch[0].toUpperCase() : 'RIALO';
           updateBalance(token, -amount);
           if (token === 'RIALO') updateStakedBalance(amount);
@@ -266,19 +271,13 @@ export function WalletProvider({ children }) {
   // Simulate global real-time price monitoring
   useEffect(() => {
     const interval = setInterval(() => {
-      setGlobalRates(prev => {
-        const next = { ...prev };
-        // Randomly fluctuate ETH price by roughly ±0.5% each tick
-        const fluctuation = 1 + (Math.random() * 0.01 - 0.005);
-        const newEthPrice = prev['ETH']['USDC'] * fluctuation;
-        
-        next['ETH'] = { 'RIALO': newEthPrice, 'USDC': newEthPrice, 'USDT': newEthPrice };
-        next['RIALO'] = { 'ETH': 1/newEthPrice, 'USDC': 1, 'USDT': 1 };
-        next['USDC'] = { 'ETH': 1/newEthPrice, 'RIALO': 1, 'USDT': 1 };
-        next['USDT'] = { 'ETH': 1/newEthPrice, 'RIALO': 1, 'USDC': 1 };
-        
-        return next;
-      });
+      setBasePrices(prev => ({
+        ...prev,
+        ETH: prev.ETH * (1 + (Math.random() * 0.01 - 0.005)),
+        BTC: prev.BTC * (1 + (Math.random() * 0.01 - 0.005)),
+        SOL: prev.SOL * (1 + (Math.random() * 0.01 - 0.005)),
+        BNB: prev.BNB * (1 + (Math.random() * 0.01 - 0.005)),
+      }));
     }, 5000); 
     return () => clearInterval(interval);
   }, []);

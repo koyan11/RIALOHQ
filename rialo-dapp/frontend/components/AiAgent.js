@@ -85,13 +85,13 @@ const getAiResponse = (input, globalRates) => {
 
   // Price Inquiry
   if (lower.includes('price') || lower.includes('harga') || lower.includes('berapa') || lower.includes('how much')) {
-    const coinMatch = lower.match(/\b(eth|rialo|usdc|usdt)\b/i);
+    const coinMatch = lower.match(/\b(eth|rialo|usdc|usdt|btc|sol|bnb)\b/i);
     // Ignore if it's a swap/buy/sell command which is handled above, but technically those return early anyway.
     if (coinMatch && !lower.includes('swap') && !lower.includes('buy') && !lower.includes('sell') && !lower.includes('stake') && !lower.includes('bridge')) {
        const token = coinMatch[1].toUpperCase();
        
        let target = 'USDC';
-       const inMatch = lower.match(/\b(?:in|dalam|ke)\s+(eth|rialo|usdc|usdt)\b/i);
+       const inMatch = lower.match(/\b(?:in|dalam|ke)\s+(eth|rialo|usdc|usdt|btc|sol|bnb)\b/i);
        if (inMatch) {
          target = inMatch[1].toUpperCase();
        } else if (token === 'USDC' || token === 'USDT') {
@@ -721,6 +721,9 @@ export default function AiAgent() {
                           <option>USDC</option>
                           <option>USDT</option>
                           <option>ETH</option>
+                          <option>BTC</option>
+                          <option>SOL</option>
+                          <option>BNB</option>
                         </select>
                       </div>
                     )}
@@ -736,6 +739,9 @@ export default function AiAgent() {
                           <option>ETH</option>
                           <option>USDC</option>
                           <option>USDT</option>
+                          <option>BTC</option>
+                          <option>SOL</option>
+                          <option>BNB</option>
                         </select>
                       </div>
                     )}
