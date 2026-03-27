@@ -331,6 +331,7 @@ export default function AiAgent() {
         }
         .ai-msg {
           max-width: 85%;
+          font-family: 'Inter', sans-serif;
           font-size: 13px;
           line-height: 1.5;
         }
@@ -356,6 +357,7 @@ export default function AiAgent() {
           gap: 12px;
         }
         .ai-section-title {
+          font-family: 'Inter', sans-serif;
           font-size: 11px;
           font-weight: 700;
           text-transform: uppercase;

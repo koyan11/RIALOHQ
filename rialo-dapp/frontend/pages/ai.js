@@ -11,27 +11,16 @@ export default function AiPage() {
       </Head>
       <Navbar />
       
-      <main style={{ padding: '60px 20px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-        <h1 style={{ 
-          fontSize: '32px', 
-          fontWeight: '800', 
-          marginBottom: '12px', 
-          letterSpacing: '0.05em', 
-          textAlign: 'center',
+      <main className="min-h-[819px] flex flex-col items-center justify-center px-6 py-20">
+        <h1 className="font-headline text-5xl font-extrabold tracking-tighter text-center mb-4" style={{ 
           background: 'linear-gradient(to right, #fff, #ffa500)',
           WebkitBackgroundClip: 'text',
-          WebkitTextFillColor: 'transparent'
+          WebkitTextFillColor: 'transparent',
+          fontSize: '3.5rem'
         }}>
           Rialo AI Assistant
         </h1>
-        <p style={{ 
-          color: 'rgba(255,255,255,0.6)', 
-          marginBottom: '40px', 
-          textAlign: 'center', 
-          fontSize: '15px',
-          maxWidth: '500px',
-          lineHeight: '1.5'
-        }}>
+        <p className="font-body text-on-surface/60 text-lg text-center max-w-md mx-auto mb-12">
           Execute highly optimized on-chain operations using natural language. Fast, secure, and intent-driven.
         </p>
 
