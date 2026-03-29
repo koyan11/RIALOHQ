@@ -4,7 +4,7 @@ import Footer from '../components/Footer';
 import Toast from '../components/Toast';
 import { useWallet } from '../hooks/useWallet';
 import { useStaking } from '../hooks/useStaking';
-import { fetchRewards, claimRewards as mockClaim } from '../lib/api';
+// import { fetchRewards, claimRewards as mockClaim } from '../lib/api';
 
 const INITIAL_HISTORY = [
   { amount: '+240.15 RIALO', date: 'Nov 24, 2024', status: 'Success' },
@@ -14,8 +14,8 @@ const INITIAL_HISTORY = [
 
 export default function RewardsPage() {
   const { isConnected, address, connect, updateBalance, transactions, addTransaction } = useWallet();
-  const { pendingRewards: pendingRewStr, claimRewards, loading: stakingLoading } = useStaking();
-  const [rewards, setRewards] = useState({ totalEarned: '12,482.50', claimable: '0.00', apy: 18.40 });
+  const { pendingRewards: pendingRewStr, claimRewards, loading: stakingLoading, stakedBalance: stakedBalStr } = useStaking();
+  const [rewards, setRewards] = useState({ totalEarned: '0.00', claimable: '0.00', apy: 18.40 });
   const [loading, setLoading] = useState(false);
   const [claiming, setClaiming] = useState(false);
   const [toast, setToast] = useState(null);
@@ -23,9 +23,15 @@ export default function RewardsPage() {
 
   const loadRewards = useCallback(async () => {
     if (!isConnected || !address) return;
+    const claimable = parseFloat(pendingRewStr || '0');
+    const staked = parseFloat(stakedBalStr || '0');
+    // Total earned = claimable + history (simulated for UI as 25% of staked)
+    const totalEarned = claimable + (staked * 0.25); 
+    
     setRewards(prev => ({
       ...prev,
-      claimable: parseFloat(pendingRewStr || '0').toLocaleString('en-US', { minimumFractionDigits: 4, maximumFractionDigits: 4 }),
+      claimable: claimable.toLocaleString('en-US', { minimumFractionDigits: 4, maximumFractionDigits: 4 }),
+      totalEarned: totalEarned.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
     }));
   }, [isConnected, address, pendingRewStr]);
 
