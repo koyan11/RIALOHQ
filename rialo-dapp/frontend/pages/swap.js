@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { ethers } from 'ethers';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import Toast from '../components/Toast';
@@ -14,7 +15,7 @@ const TOKENS = [
 ];
 
 export default function SwapPage() {
-  const { isConnected, address, connect, balances: walletBalances, updateBalance, addTransaction, globalRates, addTriggerOrder } = useWallet();
+  const { isConnected, address, provider, connect, balances: walletBalances, updateBalance, addTransaction, globalRates, addTriggerOrder } = useWallet();
   const { balance: rloBal, claimFaucet, loading: faucetLoading, transfer } = useRLO();
   const [fromToken, setFromToken] = useState('ETH');
   const [toToken, setToToken] = useState('RIALO');
