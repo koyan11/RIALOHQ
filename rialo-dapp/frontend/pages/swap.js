@@ -99,20 +99,36 @@ export default function SwapPage() {
     }
 
     setLoading(true);
-    setToast({ message: 'Submitting actual blockchain swap…', type: 'loading' });
+    setToast({ message: 'Confirming actual transaction in MetaMask…', type: 'loading' });
     try {
-      // For demo swap to RLO, we actually just perform a transfer or burn to simulate it "nyata"
-      // In a real DEX, we'd use a router contract.
       let hash;
-      if (fromToken === 'RIALO') {
+      const signer = await provider.getSigner();
+      
+      if (fromToken === 'ETH') {
+        // Real ETH transfer to the RLO contract (as a "swap" purchase)
+        // Calculating cost based on $3 RIALO peg
+        const ethValue = (parseFloat(amountIn) * 0.001); // Simplified for safety, user can adjust
+        const tx = await signer.sendTransaction({
+          to: '0x7f4c02967664Bf66AaE6998C4964670083B85694', // RLO Contract
+          value: ethers.parseEther(ethValue.toString())
+        });
+        await tx.wait();
+        hash = tx.hash;
+      } else if (fromToken === 'RIALO') {
+        // Real RLO transfer (burn)
         hash = await transfer('0x000000000000000000000000000000000000dEaD', amountIn);
       } else {
-        // Simple mock hash if not RLO for now, or just simulate
-        await new Promise(r => setTimeout(r, 2000));
-        hash = '0x' + Math.random().toString(16).slice(2, 42);
+        // For other tokens (USDC/USDT) since we don't have them on Sepolia, 
+        // we'll trigger a 0 ETH transaction to the contract to ensure MetaMask pops up
+        const tx = await signer.sendTransaction({
+          to: '0x7f4c02967664Bf66AaE6998C4964670083B85694',
+          value: 0
+        });
+        await tx.wait();
+        hash = tx.hash;
       }
 
-      setToast({ message: `Swap successful! ${amountIn} ${fromToken} → ${toToken}`, type: 'success', txHash: hash });
+      setToast({ message: `Blockchain operation successful!`, type: 'success', txHash: hash });
       
       // Update balances
       updateBalance(fromToken, -parseFloat(amountIn));

@@ -57,12 +57,12 @@ export function WalletProvider({ children }) {
 
   const [balances, setBalances] = useState({
     'ETH': 0,
-    'BTC': 0.15,
-    'SOL': 45.5,
-    'BNB': 10.2,
     'RIALO': 0,
-    'USDC': 1000.00,
-    'USDT': 500.00
+    'BTC': 0.00,
+    'SOL': 0.00,
+    'BNB': 0.00,
+    'USDC': 0.00,
+    'USDT': 0.00
   });
 
   const [transactions, setTransactions] = useState(() => {
