@@ -27,9 +27,9 @@ export function WalletProvider({ children }) {
           BTC: data.bitcoin?.usd || prev.BTC,
           SOL: data.solana?.usd || prev.SOL,
           BNB: data.binancecoin?.usd || prev.BNB,
-          USDC: data['usd-coin']?.usd || 1,
-          USDT: data.tether?.usd || 1,
-          RIALO: 3, // Real value as per user request
+          RIALO: 3, // Real value fixed as per user request
+          USDC: 1, 
+          USDT: 1
         }));
       }
     } catch (err) {

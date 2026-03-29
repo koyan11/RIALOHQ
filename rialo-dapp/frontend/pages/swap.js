@@ -36,7 +36,15 @@ export default function SwapPage() {
   const [showSettings, setShowSettings] = useState(false);
   const [slippage, setSlippage] = useState('0.5');
 
-  const getRate = (from, to) => globalRates?.[from]?.[to] ?? 1;
+  const getRate = (from, to) => {
+    if (globalRates?.[from]?.[to]) return globalRates[from][to];
+    
+    // Robust fallback for the $3 RIALO peg
+    const prices = { ETH: 3500, RIALO: 3, USDC: 1, USDT: 1 };
+    const p1 = prices[from] || 1;
+    const p2 = prices[to] || 1;
+    return p1 / p2;
+  };
   const currentRateValue = getRate(fromToken, toToken);
   const activeRate = orderType === 'limit' && targetPrice ? parseFloat(targetPrice) : currentRateValue;
   const estimatedOut = amountIn ? (parseFloat(amountIn) * activeRate).toFixed(4) : '';
