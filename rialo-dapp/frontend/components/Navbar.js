@@ -4,7 +4,7 @@ import { useRouter } from 'next/router';
 import { useWallet } from '../hooks/useWallet';
 
 export default function Navbar() {
-  const { isConnected, shortAddress, connecting, connect, disconnect } = useWallet();
+  const { isConnected, shortAddress, connecting, connect, disconnect, isWrongNetwork, switchNetwork } = useWallet();
   const router = useRouter();
   const navRef = useRef(null);
 
@@ -260,14 +260,25 @@ export default function Navbar() {
           {/* Right: Wallet Button */}
           <div className="nav-right">
             {isConnected ? (
-              <button
-                id="disconnect-wallet-btn"
-                onClick={disconnect}
-                className={`wallet-btn ${isDark ? 'on-dark' : 'on-light'}`}
-              >
-                <span className="wallet-dot" />
-                {shortAddress}
-              </button>
+              isWrongNetwork ? (
+                <button
+                  id="switch-network-btn"
+                  onClick={switchNetwork}
+                  className="wallet-btn on-dark"
+                  style={{ background: '#ef4444', color: '#fff', border: 'none' }}
+                >
+                  Switch to Sepolia
+                </button>
+              ) : (
+                <button
+                  id="disconnect-wallet-btn"
+                  onClick={disconnect}
+                  className={`wallet-btn ${isDark ? 'on-dark' : 'on-light'}`}
+                >
+                  <span className="wallet-dot" />
+                  {shortAddress}
+                </button>
+              )
             ) : (
               <button
                 id="connect-wallet-btn"

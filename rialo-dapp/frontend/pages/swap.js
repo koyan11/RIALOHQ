@@ -3,6 +3,7 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import Toast from '../components/Toast';
 import { useWallet } from '../hooks/useWallet';
+import { useRLO } from '../hooks/useRLO';
 import { swapTokens } from '../lib/api';
 
 const TOKENS = [
@@ -13,7 +14,8 @@ const TOKENS = [
 ];
 
 export default function SwapPage() {
-  const { isConnected, address, connect, balances, updateBalance, addTransaction, globalRates, addTriggerOrder } = useWallet();
+  const { isConnected, address, connect, balances: walletBalances, updateBalance, addTransaction, globalRates, addTriggerOrder } = useWallet();
+  const { balance: rloBal, claimFaucet, loading: faucetLoading } = useRLO();
   const [fromToken, setFromToken] = useState('ETH');
   const [toToken, setToToken] = useState('RIALO');
   const [amountIn, setAmountIn] = useState('');
@@ -21,6 +23,11 @@ export default function SwapPage() {
   const [toast, setToast] = useState(null);
   const [showFromTokenList, setShowFromTokenList] = useState(false);
   const [showToTokenList, setShowToTokenList] = useState(false);
+
+  const balances = {
+    ...walletBalances,
+    RIALO: parseFloat(rloBal || '0')
+  };
 
   const [orderType, setOrderType] = useState('swap');
   const [targetPrice, setTargetPrice] = useState('');
@@ -161,7 +168,26 @@ export default function SwapPage() {
           {/* Header */}
           <div className="mb-8 text-center">
             <h1 className="font-headline font-extrabold tracking-tighter text-primary mb-2" style={{ fontSize: '3.5rem' }}>Swap.</h1>
-            <p className="font-body text-on-surface/50">Seamless trading across the unified ecosystem</p>
+            <p className="font-body text-on-surface/50 mb-6">Seamless trading across the unified ecosystem</p>
+            
+            {isConnected && (
+              <button 
+                onClick={async () => {
+                  try {
+                    setToast({ message: 'Requesting RLO from faucet...', type: 'loading' });
+                    const hash = await claimFaucet();
+                    setToast({ message: '100 RLO claimed successfully!', type: 'success', txHash: hash });
+                  } catch (e) {
+                    setToast({ message: e.reason || e.message || 'Faucet claim failed', type: 'error' });
+                  }
+                }}
+                disabled={faucetLoading}
+                className="inline-flex items-center gap-2 bg-primary/10 text-primary border border-primary/20 px-4 py-2 rounded-full text-[10px] font-bold uppercase tracking-widest hover:bg-primary/20 transition-all"
+              >
+                <span className="material-symbols-outlined text-sm">water_drop</span>
+                {faucetLoading ? 'Claiming...' : 'Claim 100 RLO Faucet'}
+              </button>
+            )}
           </div>
 
           {/* Swap Card */}

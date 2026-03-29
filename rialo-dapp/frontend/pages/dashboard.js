@@ -2,20 +2,32 @@ import { useState, useEffect } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { useWallet } from '../hooks/useWallet';
+import { useRLO } from '../hooks/useRLO';
+import { useStaking } from '../hooks/useStaking';
 import Link from 'next/link';
 
 export default function DashboardPage() {
-  const { isConnected, address, balances, stakedBalance, transactions, triggerOrders = [], removeTriggerOrder, connect } = useWallet();
-  const [rewards, setRewards] = useState({ totalEarned: '12,482.50', claimable: '842.12', apy: 18.4 });
+  const { isConnected, address, balances, transactions, triggerOrders = [], removeTriggerOrder, connect } = useWallet();
+  const { balance: rialoBalance } = useRLO();
+  const { stakedBalance: stakedBalStr, pendingRewards, fetchStakingData } = useStaking();
+  
   const [loading, setLoading] = useState(false);
 
-  const rialoBalance = balances['RIALO'] || 0;
-  const totalValue = rialoBalance + stakedBalance;
+  const stakedBalance = parseFloat(stakedBalStr || '0');
+  const availableRialo = parseFloat(rialoBalance || '0');
+  const totalValue = availableRialo + stakedBalance;
+
+  // Manual override for asset mapping to show real balances
+  const displayBalances = {
+    ...balances,
+    RIALO: availableRialo,
+    ETH: balances['ETH'] || 0
+  };
 
   // Mock data for the chart
   const portfolioData = [
     { label: 'Staked', value: stakedBalance, color: 'bg-primary' },
-    { label: 'Wallet', value: rialoBalance, color: 'bg-white/20' },
+    { label: 'Wallet', value: availableRialo, color: 'bg-white/20' },
   ];
 
   return (
@@ -45,7 +57,7 @@ export default function DashboardPage() {
                 <div>
                   <span className="font-label text-[10px] text-white/30 uppercase tracking-[0.2em] font-bold mb-2 block">{token.label}</span>
                   <h2 className="font-headline text-3xl font-extrabold text-white leading-none tracking-tighter">
-                    {isConnected ? (balances[token.symbol] || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0.00'}
+                    {isConnected ? (displayBalances[token.symbol] || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0.00'}
                   </h2>
                   <p className="text-white/20 text-xs mt-2 font-body font-normal">{token.symbol}</p>
                 </div>

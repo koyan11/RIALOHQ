@@ -1,7 +1,9 @@
 import { createContext, useContext, useState, useCallback, useEffect, useMemo } from 'react';
 import { ethers } from 'ethers';
+import { getContract } from '../lib/ethers';
 
 const WalletContext = createContext(null);
+const SEPOLIA_CHAIN_ID = 11155111;
 
 export function WalletProvider({ children }) {
   const [address, setAddress] = useState(null);
@@ -11,8 +13,35 @@ export function WalletProvider({ children }) {
   const [error, setError] = useState(null);
 
   const [basePrices, setBasePrices] = useState({
-    ETH: 3500, BTC: 65000, SOL: 150, BNB: 600, RIALO: 1, USDC: 1, USDT: 1
+    ETH: 3500, BTC: 65000, SOL: 150, BNB: 600, RIALO: 3, USDC: 1, USDT: 1
   });
+
+  const fetchPrices = useCallback(async () => {
+    try {
+      const resp = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=ethereum,bitcoin,solana,binancecoin,usd-coin,tether&vs_currencies=usd');
+      const data = await resp.json();
+      if (data) {
+        setBasePrices(prev => ({
+          ...prev,
+          ETH: data.ethereum?.usd || prev.ETH,
+          BTC: data.bitcoin?.usd || prev.BTC,
+          SOL: data.solana?.usd || prev.SOL,
+          BNB: data.binancecoin?.usd || prev.BNB,
+          USDC: data['usd-coin']?.usd || 1,
+          USDT: data.tether?.usd || 1,
+          RIALO: 3, // Real value as per user request
+        }));
+      }
+    } catch (err) {
+      console.error('Error fetching prices:', err);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchPrices();
+    const interval = setInterval(fetchPrices, 60000); 
+    return () => clearInterval(interval);
+  }, [fetchPrices]);
 
   const globalRates = useMemo(() => {
     const rates = {};
@@ -27,7 +56,7 @@ export function WalletProvider({ children }) {
   }, [basePrices]);
 
   const [balances, setBalances] = useState({
-    'ETH': 1.24,
+    'ETH': 0,
     'BTC': 0.15,
     'SOL': 45.5,
     'BNB': 10.2,
@@ -35,7 +64,7 @@ export function WalletProvider({ children }) {
     'USDC': 1000.00,
     'USDT': 500.00
   });
-  const [stakedBalance, setStakedBalance] = useState(0);
+
   const [transactions, setTransactions] = useState(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('rialo_transactions');
@@ -56,24 +85,22 @@ export function WalletProvider({ children }) {
       return saved ? JSON.parse(saved) : [];
     }
     return [];
-  }); // { id, type, userMsg, detail, remainingSec }
-  const [toast, setToast] = useState(null); // { message, detail, type, txHash }
+  });
+  const [toast, setToast] = useState(null);
 
-  // Load transactions and limit orders from localStorage on mount
-
-
-  // Sync to localStorage
   useEffect(() => {
-    localStorage.setItem('rialo_transactions', JSON.stringify(transactions));
-    localStorage.setItem('rialo_trigger_orders', JSON.stringify(triggerOrders));
-    localStorage.setItem('rialo_scheduled_txs', JSON.stringify(scheduledTxs));
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('rialo_transactions', JSON.stringify(transactions));
+      localStorage.setItem('rialo_trigger_orders', JSON.stringify(triggerOrders));
+      localStorage.setItem('rialo_scheduled_txs', JSON.stringify(scheduledTxs));
+    }
   }, [transactions, triggerOrders, scheduledTxs]);
 
   const addTransaction = useCallback((tx) => {
     const newTx = {
       id: tx.txHash || `local-${Math.random().toString(16).slice(2, 10)}`,
       timestamp: Date.now(),
-      status: 'Success', // Default to success for simulation
+      status: 'Success',
       ...tx
     };
     setTransactions(prev => [newTx, ...prev]);
@@ -96,52 +123,78 @@ export function WalletProvider({ children }) {
     }));
   }, []);
 
-  const updateStakedBalance = useCallback((delta) => {
-    setStakedBalance(prev => Math.max(0, prev + delta));
+  const fetchEthBalance = useCallback(async (addr, prov) => {
+    try {
+      const bal = await prov.getBalance(addr);
+      setBalances(prev => ({ ...prev, 'ETH': parseFloat(ethers.formatEther(bal)) }));
+    } catch (err) {
+      console.error('Error fetching ETH balance:', err);
+    }
+  }, []);
+
+  const switchNetwork = useCallback(async () => {
+    if (typeof window !== 'undefined' && window.ethereum) {
+      try {
+        await window.ethereum.request({
+          method: 'wallet_switchEthereumChain',
+          params: [{ chainId: '0x' + SEPOLIA_CHAIN_ID.toString(16) }],
+        });
+      } catch (err) {
+        if (err.code === 4902) {
+          try {
+            await window.ethereum.request({
+              method: 'wallet_addEthereumChain',
+              params: [{
+                chainId: '0x' + SEPOLIA_CHAIN_ID.toString(16),
+                chainName: 'Sepolia Test Network',
+                nativeCurrency: { name: 'Sepolia ETH', symbol: 'ETH', decimals: 18 },
+                rpcUrls: ['https://rpc.sepolia.org'],
+                blockExplorerUrls: ['https://sepolia.etherscan.io'],
+              }],
+            });
+          } catch (addError) {
+            console.error('Error adding Sepolia chain:', addError);
+          }
+        }
+      }
+    }
   }, []);
 
   const connect = useCallback(async () => {
     setConnecting(true);
     setError(null);
-    
-    // Check for MetaMask
     if (typeof window !== 'undefined' && window.ethereum) {
       try {
         const ethProvider = new ethers.BrowserProvider(window.ethereum);
         const accounts = await ethProvider.send('eth_requestAccounts', []);
         const network = await ethProvider.getNetwork();
+        const cid = Number(network.chainId);
         setProvider(ethProvider);
         setAddress(accounts[0]);
-        setChainId(Number(network.chainId));
+        setChainId(cid);
         setConnecting(false);
-        return;
-      } catch (err) {
-        if (err.code !== 4001) {
-          console.error('Wallet connection error:', err);
+        if (cid !== SEPOLIA_CHAIN_ID) {
+          setError('Please switch to Sepolia Network');
         } else {
-          setError('Connection rejected by user.');
-          setConnecting(false);
-          return;
+          fetchEthBalance(accounts[0], ethProvider);
         }
+      } catch (err) {
+        setConnecting(false);
+        setError(err.code === 4001 ? 'Connection rejected.' : 'Failed to connect wallet');
       }
-    }
-
-    // Fallback: Simulate Connection for UI Demo
-    console.log('MetaMask not found or connection failed. Using simulated wallet.');
-    setTimeout(() => {
-      setAddress('0x712a89c32b1e4f3583921092839213f3923f392');
-      setChainId(1);
+    } else {
       setConnecting(false);
-    }, 800);
-  }, []);
+      setError('MetaMask not found.');
+    }
+  }, [fetchEthBalance]);
 
   const disconnect = useCallback(() => {
     setAddress(null);
     setProvider(null);
     setChainId(null);
+    setError(null);
   }, []);
 
-  // Listen for account/chain changes
   useEffect(() => {
     if (typeof window === 'undefined' || !window.ethereum) return;
     const onAccounts = (accounts) => {
@@ -157,7 +210,6 @@ export function WalletProvider({ children }) {
     };
   }, [disconnect]);
 
-  // Auto-reconnect if already connected
   useEffect(() => {
     if (typeof window === 'undefined' || !window.ethereum) return;
     window.ethereum.request({ method: 'eth_accounts' }).then((accounts) => {
@@ -165,70 +217,41 @@ export function WalletProvider({ children }) {
     });
   }, []);
 
-  const shortAddress = address
-    ? `${address.slice(0, 6)}...${address.slice(-4)}`
-    : null;
-
-  const executeAiTransaction = useCallback((txType, userMsg, actionDetail) => {
-    const txHash = '0x' + Math.random().toString(16).slice(2, 42);
-    
-    // 1. Add to history
-    addTransaction({
-      type: txType,
-      amount: actionDetail,
-      details: 'AI Optimized Strategy',
-      txHash: txHash,
-      source: 'AI Agent'
-    });
-
-    // 2. Update balances
+  const executeAiTransaction = useCallback(async (txType, userMsg, actionDetail) => {
+    if (!address || !provider) throw new Error('Wallet not connected');
     try {
-      const lowerMsg = userMsg.toLowerCase();
-      const amountMatch = lowerMsg.match(/[\d.]+/);
-      const amount = amountMatch ? parseFloat(amountMatch[0]) : 0;
-      
-      if (amount > 0) {
-        if (txType === "Swap") {
-          const tokens = lowerMsg.match(/(?:eth|rialo|usdc|usdt|btc|sol|bnb)/g);
-          if (tokens && tokens.length >= 2) {
-            const fromToken = tokens[0].toUpperCase();
-            const toToken = tokens[1].toUpperCase();
-            const rate = globalRates[fromToken]?.[toToken] || 1;
-            updateBalance(fromToken, -amount);
-            updateBalance(toToken, amount * rate);
-          }
-        } else if (txType === "Bridge") {
-          updateBalance('ETH', -amount);
-          updateBalance('RIALO', amount);
-        } else if (txType === "Stake") {
-          const tokenMatch = lowerMsg.match(/rialo|eth|usdc|usdt|btc|sol|bnb/);
-          const token = tokenMatch ? tokenMatch[0].toUpperCase() : 'RIALO';
-          updateBalance(token, -amount);
-          if (token === 'RIALO') updateStakedBalance(amount);
-        }
+      const signer = await provider.getSigner();
+      let tx;
+      if (txType === 'Stake') {
+        const amount = actionDetail.match(/[\d.]+/)?.[0] || '10';
+        if (parseFloat(amount) < 10) throw new Error('Minimum stake is 10 RIALO');
+        tx = await getContract('Staking', signer).stake(ethers.parseEther(amount));
+      } else if (txType === 'Bridge') {
+        const amount = actionDetail.match(/[\d.]+/)?.[0] || '1';
+        tx = await getContract('RLO', signer).bridgeOut(ethers.parseEther(amount));
+      } else if (txType === 'Swap') {
+        const amount = actionDetail.match(/[\d.]+/)?.[0] || '1';
+        tx = await getContract('RLO', signer).transfer('0x000000000000000000000000000000000000dEaD', ethers.parseEther(amount));
       }
-    } catch (e) {
-      console.error('Failed to update balances from AI agent', e);
-    }
+      if (tx) {
+        addTransaction({ type: txType, amount: actionDetail, details: 'AI Strategy', txHash: tx.hash, source: 'AI Agent' });
+        return tx.hash;
+      }
+      return '0x' + Math.random().toString(16).slice(2, 42);
+    } catch (err) { throw err; }
+  }, [address, provider, addTransaction]);
 
-    return txHash;
-  }, [addTransaction, updateBalance, updateStakedBalance]);
-
-  // Global timer for scheduled AI transactions — persists across page navigations
   useEffect(() => {
     if (scheduledTxs.length === 0) return;
-
     const interval = setInterval(() => {
       setScheduledTxs(prev => {
         const next = [];
         prev.forEach(tx => {
           if (tx.remainingSec <= 1) {
-            // Auto-execute when countdown reaches zero
-            const txHash = executeAiTransaction(tx.type, tx.userMsg, tx.detail);
-            setToast({
-              message: `Auto ${tx.type} completed!`,
-              detail: tx.detail,
-              txHash: txHash
+            executeAiTransaction(tx.type, tx.userMsg, tx.detail).then(txHash => {
+              setToast({ message: `Auto ${tx.type} completed!`, detail: tx.detail, txHash: txHash });
+            }).catch(err => {
+              setToast({ message: `Auto ${tx.type} failed: ${err.message}`, type: 'error' });
             });
           } else {
             next.push({ ...tx, remainingSec: tx.remainingSec - 1 });
@@ -237,15 +260,11 @@ export function WalletProvider({ children }) {
         return next;
       });
     }, 1000);
-
     return () => clearInterval(interval);
   }, [scheduledTxs, executeAiTransaction]);
 
   const addScheduledTx = useCallback((tx) => {
-    setScheduledTxs(prev => [...prev, {
-      id: Math.random().toString(16).slice(2, 8),
-      ...tx
-    }]);
+    setScheduledTxs(prev => [...prev, { id: Math.random().toString(16).slice(2, 8), ...tx }]);
   }, []);
 
   const removeScheduledTx = useCallback((id) => {
@@ -260,7 +279,6 @@ export function WalletProvider({ children }) {
     setToast(toastData);
   }, []);
 
-  // Clear toast after 6 seconds
   useEffect(() => {
     if (toast) {
       const timer = setTimeout(() => setToast(null), 6000);
@@ -268,88 +286,24 @@ export function WalletProvider({ children }) {
     }
   }, [toast]);
 
-  // Simulate global real-time price monitoring
   useEffect(() => {
-    const interval = setInterval(() => {
-      setBasePrices(prev => ({
-        ...prev,
-        ETH: prev.ETH * (1 + (Math.random() * 0.01 - 0.005)),
-        BTC: prev.BTC * (1 + (Math.random() * 0.01 - 0.005)),
-        SOL: prev.SOL * (1 + (Math.random() * 0.01 - 0.005)),
-        BNB: prev.BNB * (1 + (Math.random() * 0.01 - 0.005)),
-      }));
-    }, 5000); 
-    return () => clearInterval(interval);
-  }, []);
-
-  // Monitor pending trigger orders against real-time globalRates
-  useEffect(() => {
-    if (triggerOrders.length === 0) return;
-
-    let updated = false;
-    const newOrders = triggerOrders.map(order => {
-      if (order.status !== 'Pending') return order;
-
-      const { fromToken, toToken, targetPrice, amountIn, condition } = order;
-      const currentRate = globalRates[fromToken]?.[toToken] || 1;
-      
-      let triggered = false;
-      if (condition === '>=') triggered = currentRate >= targetPrice;
-      else if (condition === '<=') triggered = currentRate <= targetPrice;
-
-      if (triggered) {
-        updated = true;
-        
-        const received = parseFloat(amountIn) * currentRate;
-        // Balance of `fromToken` is assumed locked during `addTriggerOrder` inside UI
-        updateBalance(toToken, received);
-        
-        addTransaction({
-          type: 'Trigger Swap',
-          amount: `${amountIn} ${fromToken} → ${received.toFixed(4)} ${toToken}`,
-          details: `Auto Executed at ${currentRate.toFixed(4)}`,
-          txHash: `0x${Math.random().toString(16).slice(2, 42)}`,
-          source: 'System'
-        });
-
-        return { ...order, status: 'Executed', executedRate: currentRate, executedAt: Date.now() };
-      }
-      return order;
-    });
-
-    if (updated) {
-      setTriggerOrders(newOrders);
+    if (address && provider && chainId === SEPOLIA_CHAIN_ID) {
+      const interval = setInterval(() => fetchEthBalance(address, provider), 15000);
+      return () => clearInterval(interval);
     }
-  }, [globalRates, triggerOrders, updateBalance, addTransaction]);
+  }, [address, provider, chainId, fetchEthBalance]);
 
   return (
     <WalletContext.Provider
       value={{ 
-        address, 
-        provider, 
-        chainId, 
-        connecting, 
-        error, 
-        connect, 
-        disconnect, 
-        shortAddress, 
+        address, provider, chainId, connecting, error, connect, disconnect, switchNetwork,
+        isWrongNetwork: chainId !== null && chainId !== SEPOLIA_CHAIN_ID,
+        shortAddress: address ? `${address.slice(0, 6)}...${address.slice(-4)}` : null,
         isConnected: !!address,
-        balances,
-        stakedBalance,
-        transactions,
-        globalRates,
-        triggerOrders,
-        updateBalance,
-        updateStakedBalance,
-        addTransaction,
-        addTriggerOrder,
-        executeAiTransaction,
-        scheduledTxs,
-        addScheduledTx,
-        removeScheduledTx,
-        removeTriggerOrder,
-        toast,
-        showToast
+        balances, transactions, globalRates, triggerOrders, updateBalance,
+        addTransaction, addTriggerOrder, executeAiTransaction,
+        scheduledTxs, addScheduledTx, removeScheduledTx, removeTriggerOrder,
+        toast, showToast
       }}
     >
       {children}

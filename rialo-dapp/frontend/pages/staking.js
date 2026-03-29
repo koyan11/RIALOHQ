@@ -3,26 +3,28 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import Toast from '../components/Toast';
 import { useWallet } from '../hooks/useWallet';
+import { useRLO } from '../hooks/useRLO';
+import { useStaking } from '../hooks/useStaking';
 import { useRouter } from 'next/router';
 
 export default function StakingPage() {
   const router = useRouter();
-  const { isConnected, connect, balances, stakedBalance, updateBalance, updateStakedBalance, addTransaction } = useWallet();
-  const [rloAmount, setRloAmount] = useState("");
-  const [sfsFraction, setSfsFraction] = useState(25);
-  
-  // Interactive States
-  const [isStaking, setIsStaking] = useState(false);
-  const [isAddingPath, setIsAddingPath] = useState(false);
-  
-  // Simulation: using a totalStaked state instead of a constant for realism
-  const [totalProtocolStaked, setTotalProtocolStaked] = useState(1450200);
-  
-  const [sponsorAddress, setSponsorAddress] = useState("");
-  const [sponsorAmount, setSponsorAmount] = useState("");
-  const [sponsoredPaths, setSponsoredPaths] = useState([
-    { address: "0x71C...9A4", amount: 5.00 }
-  ]);
+  const { isConnected, connect, balances: walletBalances, addTransaction } = useWallet();
+  const { balance: rloBal } = useRLO();
+  const { 
+    stakedBalance: stakedBalStr, 
+    pendingRewards: pendingRewStr, 
+    totalStaked: totalProtStakedStr, 
+    loading: stakingLoading, 
+    stake: stakeAction, 
+    withdraw: withdrawAction, 
+    claimRewards: claimAction 
+  } = useStaking();
+
+  const balances = { ...walletBalances, RIALO: parseFloat(rloBal || '0') };
+  const stakedBalance = parseFloat(stakedBalStr || '0');
+  const pendingRewards = parseFloat(pendingRewStr || '0');
+  const totalProtocolStaked = parseFloat(totalProtStakedStr || '1450200');
 
   // Toast (Using standard project Toast)
   const [toast, setToast] = useState(null);
@@ -37,10 +39,10 @@ export default function StakingPage() {
   const totalAllocated = sponsoredPaths.reduce((sum, path) => sum + path.amount, 0);
   const availableServiceCredits = Math.max(0, rawYieldToServiceCredits - totalAllocated);
 
-  const handleStake = () => {
+  const handleStake = async () => {
     if (!isConnected) { connect(); return; }
-    if (numRlo <= 0) {
-      setToast({ message: "Please enter a valid RLO amount", type: "error" });
+    if (numRlo < 10) {
+      setToast({ message: "Minimum staking amount is 10 RIALO", type: "error" });
       return;
     }
     const currentBalance = balances['RIALO'] || 0;
@@ -48,24 +50,66 @@ export default function StakingPage() {
       setToast({ message: "Insufficient RIALO balance", type: "error" });
       return;
     }
-    setIsStaking(true);
-    setToast({ message: "Submitting staking transaction…", type: "loading" });
     
-    setTimeout(() => {
-      setTotalProtocolStaked(prev => prev + numRlo);
-      updateBalance('RIALO', -numRlo);
-      updateStakedBalance(numRlo);
-      setIsStaking(false);
-      setToast({ message: `Successfully staked ${numRlo.toLocaleString()} RLO!`, type: "success" });
-      
+    setToast({ message: "Submitting staking transaction...", type: "loading" });
+    try {
+      const hash = await stakeAction(rloAmount);
+      setToast({ message: `Successfully staked ${numRlo.toLocaleString()} RLO!`, type: "success", txHash: hash });
+      setRloAmount("");
       addTransaction({
         type: 'Stake',
         amount: `${numRlo} RIALO`,
         details: 'SfS Staking',
-        txHash: '0x789...012',
+        txHash: hash,
         source: 'Direct'
       });
-    }, 2000);
+    } catch (e) {
+      setToast({ message: e.reason || e.message || "Staking failed", type: "error" });
+    }
+  };
+
+  const handleUnstake = async () => {
+    if (!isConnected) { connect(); return; }
+    if (stakedBalance <= 0) {
+      setToast({ message: "No RLO staked", type: "error" });
+      return;
+    }
+    setToast({ message: "Submitting unstaking transaction...", type: "loading" });
+    try {
+      const hash = await withdrawAction(stakedBalStr);
+      setToast({ message: `Successfully unstaked ${stakedBalance.toFixed(2)} RLO!`, type: "success", txHash: hash });
+      addTransaction({
+        type: 'Unstake',
+        amount: `${stakedBalance.toFixed(2)} RIALO`,
+        details: 'SfS Unstaking',
+        txHash: hash,
+        source: 'Direct'
+      });
+    } catch (e) {
+      setToast({ message: e.reason || e.message || "Unstaking failed", type: "error" });
+    }
+  };
+
+  const handleClaim = async () => {
+    if (!isConnected) { connect(); return; }
+    if (pendingRewards <= 0) {
+      setToast({ message: "No rewards to claim", type: "error" });
+      return;
+    }
+    setToast({ message: "Claiming rewards...", type: "loading" });
+    try {
+      const hash = await claimAction();
+      setToast({ message: "Rewards claimed successfully!", type: "success", txHash: hash });
+      addTransaction({
+        type: 'Claim Rewards',
+        amount: `${pendingRewards.toFixed(2)} RIALO`,
+        details: 'Staking Rewards',
+        txHash: hash,
+        source: 'Direct'
+      });
+    } catch (e) {
+      setToast({ message: e.reason || e.message || "Claim failed", type: "error" });
+    }
   };
 
   const handleAddSponsor = () => {
@@ -211,22 +255,33 @@ export default function StakingPage() {
                   </div>
                 </div>
 
-                <button 
-                  onClick={handleStake}
-                  disabled={isStaking}
-                  className={`w-full bg-white text-black py-5 rounded-2xl font-headline font-extrabold text-lg tracking-tight hover:bg-white/90 active:scale-[0.98] transition-all shadow-2xl disabled:opacity-50 flex justify-center items-center gap-3`}
-                >
-                  {isStaking ? (
-                    <>
-                      <span className="material-symbols-outlined animate-spin">autorenew</span>
-                      Processing…
-                    </>
-                  ) : !isConnected ? (
-                    'Connect Wallet'
-                  ) : (
-                    "Confirm Staking"
+                <div className="flex gap-4">
+                  <button 
+                    onClick={handleStake}
+                    disabled={stakingLoading}
+                    className={`flex-1 bg-white text-black py-5 rounded-2xl font-headline font-extrabold text-lg tracking-tight hover:bg-white/90 active:scale-[0.98] transition-all shadow-2xl disabled:opacity-50 flex justify-center items-center gap-3`}
+                  >
+                    {stakingLoading ? (
+                      <>
+                        <span className="material-symbols-outlined animate-spin text-xl">autorenew</span>
+                        Processing…
+                      </>
+                    ) : !isConnected ? (
+                      'Connect Wallet'
+                    ) : (
+                      "Stake"
+                    )}
+                  </button>
+                  {isConnected && stakedBalance > 0 && (
+                    <button 
+                      onClick={handleUnstake}
+                      disabled={stakingLoading}
+                      className="flex-1 bg-[#161616] text-white py-5 rounded-2xl font-headline font-extrabold text-lg tracking-tight border border-white/10 hover:bg-white/5 active:scale-[0.98] transition-all disabled:opacity-50"
+                    >
+                      Unstake
+                    </button>
                   )}
-                </button>
+                </div>
               </div>
             </div>
           </div>
@@ -246,10 +301,19 @@ export default function StakingPage() {
                 </div>
 
                 <div className="bg-[#161616] rounded-2xl p-8 border border-white/5 shadow-inner">
-                  <span className="font-label text-[10px] font-bold uppercase tracking-[0.2em] text-white/30 mb-2 block">Available Service Credits</span>
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="font-label text-[10px] font-bold uppercase tracking-[0.2em] text-white/30 block">Claimable Rewards</span>
+                    <button 
+                      onClick={handleClaim}
+                      disabled={stakingLoading || pendingRewards <= 0}
+                      className="text-[10px] font-bold text-primary hover:text-primary/70 uppercase tracking-widest disabled:opacity-30 transition-all"
+                    >
+                      Claim All
+                    </button>
+                  </div>
                   <div className="font-headline font-extrabold text-4xl text-white tracking-tighter flex items-baseline gap-3">
-                    {availableServiceCredits.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})} 
-                    <span className="font-label text-[10px] font-bold uppercase tracking-[0.2em] text-white/20">Credits</span>
+                    {pendingRewards.toLocaleString(undefined, {minimumFractionDigits: 4, maximumFractionDigits: 4})} 
+                    <span className="font-label text-[10px] font-bold uppercase tracking-[0.2em] text-white/20">RLO</span>
                   </div>
                 </div>
 

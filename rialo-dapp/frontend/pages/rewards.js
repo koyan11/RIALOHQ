@@ -3,7 +3,8 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import Toast from '../components/Toast';
 import { useWallet } from '../hooks/useWallet';
-import { fetchRewards, claimRewards } from '../lib/api';
+import { useStaking } from '../hooks/useStaking';
+import { fetchRewards, claimRewards as mockClaim } from '../lib/api';
 
 const INITIAL_HISTORY = [
   { amount: '+240.15 RIALO', date: 'Nov 24, 2024', status: 'Success' },
@@ -13,7 +14,8 @@ const INITIAL_HISTORY = [
 
 export default function RewardsPage() {
   const { isConnected, address, connect, updateBalance, transactions, addTransaction } = useWallet();
-  const [rewards, setRewards] = useState({ totalEarned: '12,482.50', claimable: '842.12', apy: 8.42 });
+  const { pendingRewards: pendingRewStr, claimRewards, loading: stakingLoading } = useStaking();
+  const [rewards, setRewards] = useState({ totalEarned: '12,482.50', claimable: '0.00', apy: 18.40 });
   const [loading, setLoading] = useState(false);
   const [claiming, setClaiming] = useState(false);
   const [toast, setToast] = useState(null);
@@ -21,28 +23,11 @@ export default function RewardsPage() {
 
   const loadRewards = useCallback(async () => {
     if (!isConnected || !address) return;
-    setLoading(true);
-    try {
-      const data = await fetchRewards(address);
-      setRewards(prev => {
-        // Skip updating claimable if it was recently reset to 0.00 by a claim
-        if (prev.claimable === '0.00') return {
-          ...prev,
-          totalEarned: parseFloat(data.totalEarned).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
-          apy: parseFloat(data.apy).toFixed(2),
-        };
-        return {
-          totalEarned: parseFloat(data.totalEarned).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
-          claimable: parseFloat(data.claimable).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
-          apy: parseFloat(data.apy).toFixed(2),
-        };
-      });
-    } catch (err) {
-      // Use default values on error (e.g. contract not deployed)
-    } finally {
-      setLoading(false);
-    }
-  }, [isConnected, address]);
+    setRewards(prev => ({
+      ...prev,
+      claimable: parseFloat(pendingRewStr || '0').toLocaleString('en-US', { minimumFractionDigits: 4, maximumFractionDigits: 4 }),
+    }));
+  }, [isConnected, address, pendingRewStr]);
 
   // Fetch rewards on wallet connect + auto-refresh every 30s
   useEffect(() => {
@@ -53,35 +38,34 @@ export default function RewardsPage() {
 
   const handleClaim = async () => {
     if (!isConnected) { connect(); return; }
+    const claimAmount = parseFloat(pendingRewStr || '0');
+    if (claimAmount <= 0) {
+      setToast({ message: 'No rewards to claim', type: 'error' });
+      return;
+    }
+
     setClaiming(true);
-    setToast({ message: 'Claiming rewards…', type: 'loading' });
+    setToast({ message: 'Claiming rewards...', type: 'loading' });
     try {
-      const res = await claimRewards({ userAddress: address });
-      setToast({ message: `Rewards claimed successfully!`, type: 'success', txHash: res.txHash });
-      // Update balance (simulated)
-      const claimAmount = parseFloat(rewards.claimable.replace(/,/g, ''));
-      updateBalance('RIALO', claimAmount);
+      const hash = await claimRewards();
+      setToast({ message: `Rewards claimed successfully!`, type: 'success', txHash: hash });
       
-      // Update local state (simulated)
-      setRewards(prev => ({ ...prev, claimable: '0.00' }));
       // Update unified history
       addTransaction({
         type: 'Claim',
-        amount: `+${claimAmount.toFixed(2)} RIALO`,
+        amount: `+${claimAmount.toFixed(4)} RIALO`,
         details: 'Ecosystem Reward',
-        txHash: res.txHash,
+        txHash: hash,
         source: 'Direct'
       });
 
-      // Refresh
-      setTimeout(loadRewards, 2000);
     } catch (err) {
-      const msg = err.response?.data?.error || err.message || 'Claim failed';
-      setToast({ message: msg, type: 'error' });
+      setToast({ message: err.reason || err.message || 'Claim failed', type: 'error' });
     } finally {
       setClaiming(false);
     }
   };
+
 
   // Bar chart heights for chart visual
   const barData = {

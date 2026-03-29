@@ -280,16 +280,25 @@ export default function AiAgent() {
             txHash: '0x' + Math.random().toString(16).slice(2, 42)
           });
         } else {
-          // EXECUTE IMMEDIATELY
-          const txHash = executeAiTransaction(type, userMsg, detail);
-          showToast({
-            message: `${type} successful!`,
-            detail: detail,
-            txHash: txHash
+          // EXECUTE ON-CHAIN
+          setMessages(prev => [...prev, { role: 'ai', content: { raw: `🔄 Initiating **${type}** on-chain. Please confirm the transaction in your wallet.` } }]);
+          
+          executeAiTransaction(type, userMsg, detail).then(txHash => {
+            showToast({
+              message: `${type} successful!`,
+              detail: detail,
+              txHash: txHash
+            });
+            setMessages(prev => [...prev, { role: 'ai', content: { raw: `✅ **${type}** confirmed on-chain! Tx: [${txHash.slice(0,10)}...](https://sepolia.etherscan.io/tx/${txHash})` } }]);
+          }).catch(err => {
+            const errorMsg = err.reason || err.message || 'Transaction failed';
+            showToast({ message: `${type} failed`, detail: errorMsg, type: 'error' });
+            setMessages(prev => [...prev, { role: 'ai', content: { raw: `❌ **${type}** failed: ${errorMsg}` } }]);
           });
         }
       }
     }, 600);
+
   };
 
   const submitScheduledForm = (e) => {

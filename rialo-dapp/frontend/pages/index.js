@@ -154,10 +154,10 @@ export default function Home() {
             <p className="text-lg text-on-surface/60 mb-12">Ready to deploy on the most resilient infrastructure in the ecosystem? Join the Rialo developer network today.</p>
             <div className="flex flex-col sm:flex-row justify-center gap-4">
               <button
-                onClick={isConnected ? () => router.push('/staking') : connect}
+                onClick={isConnected ? () => router.push('/dashboard') : connect}
                 className="bg-black text-white px-12 py-5 rounded-2xl font-bold hover:bg-black/90 transition-all shadow-2xl active:scale-95"
               >
-                Build on Rialo
+                {isConnected ? 'Launch Dashboard' : 'Connect Wallet'}
               </button>
               <button className="bg-surface-container-low text-primary px-12 py-5 rounded-xl font-bold border border-outline-variant/10 hover:bg-surface-container-high transition-all">
                 Join Community
