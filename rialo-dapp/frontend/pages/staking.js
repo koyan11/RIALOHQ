@@ -190,325 +190,286 @@ export default function StakingPage() {
   };
 
   return (
-    <div className="bg-surface font-body text-on-surface antialiased selection:bg-primary-container selection:text-on-primary-container min-h-screen">
+    <div className="bg-surface font-body text-on-surface antialiased selection:bg-primary-container selection:text-on-primary-container min-h-screen pb-10">
       <Navbar />
 
-      <main className="max-w-7xl mx-auto px-4 py-20">
+      <main className="max-w-7xl mx-auto px-4 py-16 relative">
         
-        {/* Header - Matching Swap. style */}
-        <div className="mb-20 text-center animate-in fade-in slide-in-from-top-4 duration-700">
-          <h1 className="font-headline font-extrabold tracking-tighter text-primary mb-4" style={{ fontSize: '3.5rem' }}>Stake.</h1>
-          <p className="font-body text-on-surface/50 max-w-xl mx-auto">Precise liquidity for the architectural void. Stake RLO, receive stRLO, and fund your transactions via Service for Staking (SfS).</p>
-          
-          <div className="mt-8 flex justify-center">
-            <div className="relative">
-              <button 
-                onClick={() => setShowSettings(!showSettings)}
-                className={`flex items-center gap-2 px-6 py-2 rounded-full border transition-all ${showSettings ? 'bg-primary text-black border-primary' : 'bg-transparent text-primary/60 border-primary/20 hover:border-primary/40'}`}
-              >
-                <span className="material-symbols-outlined text-sm">settings</span>
-                <span className="font-headline font-bold text-[10px] uppercase tracking-widest">AI Settings</span>
-              </button>
-              
-              {showSettings && (
-                <div className="absolute left-1/2 -translate-x-1/2 top-full mt-4 w-72 bg-[#161616] border border-white/10 rounded-2xl shadow-2xl p-6 z-50 text-left">
-                  <h3 className="font-headline font-bold text-sm text-white mb-4 flex items-center gap-2">
-                    <span className="material-symbols-outlined text-primary text-sm">auto_fix</span>
-                    AI Auto-Execution
-                  </h3>
-                  <p className="text-[10px] text-white/30 mb-4 leading-relaxed">Enter a dedicated AI wallet private key to enable automated, non-custodial transaction execution through the agent.</p>
-                  <div className="space-y-4">
-                    <div>
-                      <label className="font-label text-[10px] uppercase tracking-widest text-white/20 font-bold mb-2 block">AI Wallet Secret</label>
-                      <input 
-                        type="password" 
-                        placeholder="0x..."
-                        value={aiPrivateKey || ''}
-                        onChange={(e) => setAiPrivateKey(e.target.value)}
-                        className="w-full bg-[#0c0c0c] border border-white/5 rounded-xl px-4 py-3 text-xs font-mono text-white placeholder:text-white/5 focus:border-primary/50 outline-none transition-all"
-                      />
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* Statistics Cards at the Top */}
-        <div className="mb-20 animate-in fade-in slide-in-from-top-2 duration-700 delay-100">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-[#0c0c0c] rounded-2xl p-8 shadow-2xl border border-white/5 backdrop-blur-xl transition-all duration-300 hover:border-white/10">
-               <span className="font-label text-xs font-bold uppercase tracking-[0.2em] text-white/30 mb-4 block">Total Protocol Staked</span>
-               <div className="flex items-baseline gap-2">
-                 <span className="font-headline font-extrabold text-white text-4xl tracking-tighter text-emerald-400">{totalProtocolStaked.toLocaleString()}</span>
-                 <span className="font-label text-[10px] text-white/20 font-bold uppercase tracking-widest">RLO</span>
-               </div>
-            </div>
+        {/* Top Header Row for AI Settings */}
+        <div className="flex justify-end mb-8 relative z-50 animate-in fade-in">
+          <div>
+            <button 
+              onClick={() => setShowSettings(!showSettings)}
+              className={`flex items-center gap-2 px-4 py-1.5 rounded-full border transition-all ${showSettings ? 'bg-[#ffaa00] text-black border-[#ffaa00]' : 'bg-[#121212] text-white/60 border-white/10 hover:border-white/20'}`}
+            >
+              <span className="material-symbols-outlined text-sm">settings</span>
+              <span className="font-headline font-bold text-[10px] uppercase tracking-widest">AI Agent Settings</span>
+            </button>
             
-            <div className="bg-[#0c0c0c] rounded-2xl p-8 shadow-2xl border border-white/5 backdrop-blur-xl transition-all duration-300 hover:border-white/10">
-               <span className="font-label text-xs font-bold uppercase tracking-[0.2em] text-white/30 mb-4 block">Network APY</span>
-               <div className="flex items-baseline gap-2">
-                 <span className="font-headline font-extrabold text-white text-4xl tracking-tighter">18.4</span>
-                 <span className="font-label text-[10px] text-white/20 font-bold uppercase tracking-widest">%</span>
-               </div>
-            </div>
-
-            <div className="bg-[#0c0c0c] rounded-2xl p-8 shadow-2xl border border-white/5 backdrop-blur-xl transition-all duration-300 hover:border-white/10">
-               <span className="font-label text-xs font-bold uppercase tracking-[0.2em] text-white/30 mb-4 block">Personal Staked</span>
-               <div className="flex items-baseline gap-2">
-                 <span className="font-headline font-extrabold text-white text-4xl tracking-tighter">{isConnected ? stakedBalance.toFixed(2) : '0.00'}</span>
-                 <span className="font-label text-[10px] text-white/20 font-bold uppercase tracking-widest">RLO</span>
-               </div>
-               {!isConnected && (
-                  <button onClick={connect} className="mt-2 text-[10px] font-bold text-primary hover:text-primary/70 underline underline-offset-4 uppercase tracking-[0.2em] transition-colors">Connect Wallet</button>
-               )}
-            </div>
+            {showSettings && (
+              <div className="absolute right-0 top-full mt-2 w-72 bg-[#121212] border border-[#ffaa00]/20 rounded-2xl shadow-2xl p-6 z-50 text-left">
+                <h3 className="font-headline font-bold text-sm text-white mb-3 flex items-center gap-2">
+                  <span className="material-symbols-outlined text-[#ffaa00] text-sm">auto_fix</span>
+                  AI Auto-Execution
+                </h3>
+                <p className="font-body text-[10px] text-white/40 mb-4 leading-relaxed">Enter a dedicated AI wallet private key to enable automated, non-custodial transaction execution through the agent.</p>
+                <div>
+                  <label className="font-label text-[10px] uppercase tracking-widest text-white/30 font-bold mb-2 block">AI Wallet Secret</label>
+                  <input 
+                    type="password" 
+                    placeholder="0x..."
+                    value={aiPrivateKey || ''}
+                    onChange={(e) => setAiPrivateKey(e.target.value)}
+                    className="w-full bg-[#0a0a0a] border border-white/10 rounded-xl px-4 py-3 text-xs font-mono text-white placeholder:text-white/10 focus:border-[#ffaa00]/50 outline-none transition-all"
+                  />
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
         {/* Main Grid: 2 Columns */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start mb-20">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-stretch mb-16">
           
           {/* LEFT COLUMN: Stake RLO */}
-          <div className="flex flex-col animate-in fade-in slide-in-from-left-4 duration-700 delay-200">
-            <div className="bg-[#0c0c0c] rounded-2xl p-10 shadow-2xl border border-white/5 relative overflow-hidden group/card hover:border-white/10 transition-colors duration-500">
-              <div className="space-y-6">
-                <div>
-                  <span className="font-label text-[10px] font-bold uppercase tracking-[0.2em] text-white/30 mb-4 block">Stake Rialo</span>
-                  <div className="bg-[#161616] rounded-2xl p-6 flex flex-col border border-white/5 focus-within:border-white/20 transition-all shadow-inner">
-                    <label className="font-label text-[10px] text-white/20 mb-2 font-bold uppercase tracking-widest">RLO amount</label>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-4 flex-grow">
-                        <img src="/rialo-icon.png" className="w-8 h-8 object-contain mr-3" alt="RLO" />
-                        <input
-                          type="number"
-                          value={rloAmount}
-                          onChange={(e) => setRloAmount(e.target.value)}
-                          className="bg-transparent text-4xl font-headline font-extrabold text-white outline-none w-full placeholder:text-white/5"
-                          placeholder="0.0"
-                        />
-                      </div>
-                      <button 
-                        onClick={() => setRloAmount((balances['RIALO'] || 0).toString())}
-                        className="font-headline font-bold text-[11px] text-black bg-white hover:bg-white/90 px-4 py-2 rounded-xl transition-all uppercase tracking-widest shadow-md"
-                      >
-                        MAX
-                      </button>
-                    </div>
-                  </div>
-                </div>
+          <div className="flex flex-col animate-in fade-in slide-in-from-left-4 duration-700">
+            <div className="text-center mb-8">
+              <h1 className="font-headline font-extrabold text-white text-3xl tracking-tighter mb-2">Stake RLO</h1>
+              <p className="font-body text-white/50 text-sm max-w-sm mx-auto">Stake RLO, receive sRLO, and fund your transactions via SfS.</p>
+            </div>
 
-                <div className="bg-[#161616] rounded-2xl p-6 border border-white/5 relative overflow-hidden group">
-                  <div className="flex justify-between items-center mb-4">
-                    <span className="font-label text-[10px] font-bold uppercase tracking-[0.2em] text-white/30">
-                      SfS Routing Fraction (ϕ)
-                    </span>
-                    <div className="flex items-center gap-3">
-                      <span className="font-headline font-bold text-white bg-white/10 px-3 py-1 rounded-lg text-sm">
-                        {localSfsFraction}%
-                      </span>
-                      {localSfsFraction !== contractSfsFraction && (
-                        <button 
-                          onClick={handleUpdateFraction}
-                          disabled={isUpdatingFraction}
-                          className="text-[10px] font-bold text-primary hover:text-primary/70 uppercase tracking-widest border border-primary/20 px-2 py-1 rounded-md transition-all"
-                        >
-                          {isUpdatingFraction ? 'Syncing...' : 'Sync'}
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                  
-                  <p className="font-body text-xs text-white/40 mb-6 leading-relaxed">
-                    Route a percentage of your yield to the <span className="text-white font-bold border-b border-white/20">ServicePaymaster</span> to automate gas costs.
-                  </p>
-                  
-                  <input 
-                    type="range" 
-                    min="0" 
-                    max="100" 
-                    value={localSfsFraction} 
-                    onChange={(e) => setLocalSfsFraction(Number(e.target.value))}
-                    className="w-full h-1 bg-[#0c0c0c] rounded-lg appearance-none cursor-pointer accent-white focus:outline-none"
+            <div className="bg-[#121212] rounded-[24px] p-8 border border-[#ffaa00]/10 shadow-2xl relative flex-grow">
+              <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-[#ffaa00] to-transparent opacity-20 border-t border-[#ffaa00]/30 rounded-t-[24px]"></div>
+              
+              <div className="mb-6">
+                <div className="flex justify-between items-center mb-3">
+                  <label className="font-label text-[10px] uppercase tracking-widest text-white/40 font-bold">RLO AMOUNT</label>
+                  <button 
+                    onClick={() => setRloAmount((balances['RIALO'] || 0).toString())}
+                    className="font-headline font-bold text-[10px] text-[#ffaa00] bg-[#ffaa00]/10 hover:bg-[#ffaa00]/20 px-3 py-1 rounded-md transition-all uppercase tracking-widest border border-[#ffaa00]/20"
+                  >
+                    MAX
+                  </button>
+                </div>
+                <div className="bg-[#0a0a0a] rounded-xl flex items-center px-4 py-3 border border-white/5 focus-within:border-white/20 transition-colors">
+                  <span className="material-symbols-outlined text-[#ffaa00] mr-4 text-2xl">local_fire_department</span>
+                  <input
+                    type="number"
+                    value={rloAmount}
+                    onChange={(e) => setRloAmount(e.target.value)}
+                    className="bg-transparent font-headline font-extrabold text-3xl text-white outline-none w-full placeholder:text-white/10"
+                    placeholder="0"
                   />
-                  <div className="flex justify-between text-[9px] text-white/20 mt-3 font-bold uppercase tracking-widest font-label">
-                    <span>100% Wallet</span>
-                    <span>100% Gas Credits</span>
-                  </div>
                 </div>
+              </div>
 
-                <div className="space-y-4 px-2">
-                  <div className="flex justify-between items-center">
-                    <span className="font-label text-[10px] font-bold uppercase tracking-widest text-white/30">Estimated APR</span>
-                    <span className="font-headline font-bold text-emerald-400 bg-emerald-400/5 px-2.5 py-1 rounded text-xs tracking-tighter">18.4%</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="font-label text-[10px] font-bold uppercase tracking-widest text-white/30">Total Yield</span>
-                    <span className="font-headline font-extrabold text-white tracking-tight">
-                      {totalYield.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})} <span className="text-white/20 text-[9px] uppercase">RLO/yr</span>
-                    </span>
-                  </div>
-                </div>
-
-                <div className="flex gap-4">
+              <div className="flex gap-4 mb-8">
                   <button 
                     onClick={handleStake}
                     disabled={stakingLoading}
-                    className={`flex-1 bg-white text-black py-5 rounded-2xl font-headline font-extrabold text-lg tracking-tight hover:bg-white/90 active:scale-[0.98] transition-all shadow-2xl disabled:opacity-50 flex justify-center items-center gap-3`}
+                    className={`flex-1 bg-[#1e90ff] text-white py-4 rounded-xl font-headline font-bold text-lg hover:bg-[#1e90ff]/90 active:scale-[0.98] transition-all shadow-lg disabled:opacity-50 flex justify-center items-center gap-3`}
                   >
-                    {stakingLoading ? (
-                      <>
-                        <span className="material-symbols-outlined animate-spin text-xl">autorenew</span>
-                        Processing…
-                      </>
-                    ) : !isConnected ? (
-                      'Connect Wallet'
-                    ) : (
-                      "Stake"
-                    )}
+                    {stakingLoading ? 'Processing...' : 'Simulate Staking'}
                   </button>
                   {isConnected && stakedBalance > 0 && (
                     <button 
                       onClick={handleUnstake}
                       disabled={stakingLoading}
-                      className="flex-1 bg-[#161616] text-white py-5 rounded-2xl font-headline font-extrabold text-lg tracking-tight border border-white/10 hover:bg-white/5 active:scale-[0.98] transition-all disabled:opacity-50"
+                      className="bg-[#161616] text-white px-6 rounded-xl font-headline font-bold text-sm border border-white/10 hover:bg-white/5 transition-all disabled:opacity-50"
+                      title="Unstake RLO"
                     >
                       Unstake
                     </button>
                   )}
+              </div>
+              
+              <div className="bg-[#161616] rounded-xl p-6 border border-white/5 mb-6">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="font-label text-[10px] font-bold uppercase tracking-widest text-white/40">
+                    SfS Routing Fraction (<span className="text-[#ffaa00]">ϕ</span>)
+                  </span>
+                  <span className="font-headline font-bold text-[#ffaa00] text-sm bg-[#ffaa00]/10 px-2 py-0.5 rounded border border-[#ffaa00]/20">
+                    {localSfsFraction}%
+                  </span>
+                </div>
+                <p className="font-body text-[11px] text-white/40 mb-5 leading-relaxed">
+                  Route a percentage of your yield to the <span className="text-white border-b border-white/20 border-dashed">ServicePaymaster</span> for gas costs.
+                </p>
+                <input 
+                  type="range" 
+                  min="0" 
+                  max="100" 
+                  value={localSfsFraction} 
+                  onChange={(e) => setLocalSfsFraction(Number(e.target.value))}
+                  onMouseUp={handleUpdateFraction}
+                  onTouchEnd={handleUpdateFraction}
+                  className="w-full h-1.5 bg-white/10 rounded-lg appearance-none cursor-pointer accent-[#ffaa00] focus:outline-none"
+                />
+                <div className="flex justify-between text-[9px] text-white/30 mt-3 font-bold uppercase tracking-widest font-label">
+                  <span>0% All Native</span>
+                  <span>100% All Gas</span>
+                </div>
+              </div>
+
+              <div className="space-y-4 px-1 mx-2 pt-2 text-[12px] font-body">
+                <div className="flex justify-between items-center border-b border-white/5 pb-3">
+                  <span className="text-white/40 font-medium">You will receive</span>
+                  <span className="font-headline font-bold text-white">{numRlo.toLocaleString()} sRLO</span>
+                </div>
+                <div className="flex justify-between items-center border-b border-white/5 pb-3">
+                  <span className="text-white/40 font-medium">Network APY</span>
+                  <span className="font-headline font-bold text-emerald-400">18.4%</span>
+                </div>
+                <div className="flex justify-between items-center border-b border-white/5 pb-3">
+                  <span className="text-white/40 font-medium flex items-center gap-1.5">Yield to Wallet <span className="material-symbols-outlined text-[12px] opacity-60">info</span></span>
+                  <span className="font-headline font-bold text-white">{yieldToWallet.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})} <span className="text-[10px] text-white/30 font-medium">RLO/yr</span></span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-white/40 font-medium flex items-center gap-1.5">Total Yield Router <span className="material-symbols-outlined text-[12px] opacity-60">info</span></span>
+                  <span className="font-headline font-bold text-[#ffaa00]">{rawYieldToServiceCredits.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})} <span className="text-[10px] text-[#ffaa00]/50 font-medium">Credits/yr</span></span>
                 </div>
               </div>
             </div>
           </div>
 
           {/* RIGHT COLUMN: SfS Router */}
-          <div className="flex flex-col animate-in fade-in slide-in-from-right-4 duration-700 delay-200">
-            <div className="bg-[#0c0c0c] rounded-2xl p-10 shadow-2xl border border-white/5 relative overflow-hidden group/card hover:border-white/10 transition-colors duration-500 min-h-full">
-              <div className="space-y-8 h-full flex flex-col">
-                <div className="flex items-center justify-between">
-                  <h3 className="font-headline font-extrabold text-2xl text-white flex items-center gap-3">
-                    <span className="material-symbols-outlined text-white text-3xl">alt_route</span>
-                    SfS Router
-                  </h3>
-                  <div className="w-10 h-10 bg-white/5 rounded-xl flex items-center justify-center border border-white/10">
-                    <span className="material-symbols-outlined text-white/40 text-xl">info</span>
+          <div className="flex flex-col animate-in fade-in slide-in-from-right-4 duration-700">
+            <div className="text-center mb-8">
+              <h1 className="font-headline font-extrabold text-white text-3xl tracking-tighter mb-2 flex items-center justify-center gap-2">
+                <span className="material-symbols-outlined text-[#ffaa00] text-3xl">route</span>
+                SfS Router: Sponsorship
+              </h1>
+              <p className="font-body text-white/50 text-sm max-w-sm mx-auto">Manage your Service Credits and sponsor external addresses.</p>
+            </div>
+
+            <div className="bg-[#121212] rounded-[24px] p-8 border border-[#ffaa00]/10 shadow-2xl relative flex-grow">
+              <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-[#ffaa00] to-transparent opacity-20 border-t border-[#ffaa00]/30 rounded-t-[24px]"></div>
+
+              <div className="bg-[#0a0a0a] rounded-2xl p-6 border border-white/5 mb-8 flex justify-between items-center relative overflow-hidden group">
+                <div className="absolute inset-0 bg-gradient-to-r from-[#ffaa00]/5 to-transparent opacity-50"></div>
+                <div className="relative z-10">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="material-symbols-outlined text-[12px] text-white/40">info</span>
+                    <label className="font-label text-[10px] uppercase tracking-widest text-white/40 font-bold block">AVAILABLE SERVICE CREDITS</label>
+                  </div>
+                  <div className="font-headline font-extrabold text-3xl text-[#ffaa00] tracking-tighter flex items-end gap-2">
+                    {availableServiceCredits.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+                    <span className="font-label text-[10px] font-bold uppercase tracking-widest text-[#ffaa00]/50 mb-1.5">Credits/yr</span>
                   </div>
                 </div>
-
-                <div className="bg-[#161616] rounded-2xl p-8 border border-white/5 shadow-inner">
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="font-label text-[10px] font-bold uppercase tracking-[0.2em] text-white/30 block">Claimable Rewards</span>
-                    <button 
-                      onClick={handleClaim}
-                      disabled={stakingLoading || pendingRewards <= 0}
-                      className="text-[10px] font-bold text-primary hover:text-primary/70 uppercase tracking-widest disabled:opacity-30 transition-all"
-                    >
-                      Claim All
-                    </button>
-                  </div>
-                  <div className="font-headline font-extrabold text-4xl text-white tracking-tighter flex items-baseline gap-3">
-                    {pendingRewards.toLocaleString(undefined, {minimumFractionDigits: 4, maximumFractionDigits: 4})} 
-                    <span className="font-label text-[10px] font-bold uppercase tracking-[0.2em] text-white/20">RLO</span>
-                  </div>
+                <div className="relative z-10 w-12 h-12 rounded-full border border-[#ffaa00]/20 flex items-center justify-center bg-[#ffaa00]/10 shadow-[0_0_15px_rgba(255,170,0,0.1)]">
+                  <span className="material-symbols-outlined text-[#ffaa00] text-2xl">water_drop</span>
                 </div>
+              </div>
 
-                <div className="space-y-4">
-                  <span className="font-label text-[10px] font-bold uppercase tracking-[0.2em] text-white/30 block px-1">Create Sponsorship Allocation</span>
-                  <div className="flex flex-col gap-4">
+              <div className="mb-10">
+                <div className="flex justify-between items-center mb-4 px-1">
+                  <label className="font-headline font-bold text-sm text-white">Create Sponsorship Path</label>
+                  <span className="font-body text-[10px] text-white/40 tracking-wider">Allocated: {totalAllocated.toFixed(2)}</span>
+                </div>
+                <div className="space-y-4 flex flex-col items-stretch">
+                  <input 
+                    type="text" 
+                    value={sponsorAddress}
+                    onChange={(e) => setSponsorAddress(e.target.value)}
+                    placeholder="Enter wallet/Contract Address" 
+                    className="w-full bg-[#0a0a0a] border border-white/5 rounded-xl px-5 py-3 text-sm font-mono text-white placeholder:text-white/20 focus:outline-none focus:border-white/20 transition-all shadow-inner" 
+                  />
+                  <div className="flex flex-col sm:flex-row gap-3">
                     <input 
-                      type="text" 
-                      value={sponsorAddress}
-                      onChange={(e) => setSponsorAddress(e.target.value)}
-                      placeholder="Destination Address (0x...)" 
-                      className="w-full bg-[#161616] border border-white/5 rounded-2xl px-6 py-4 text-sm font-body text-white placeholder:text-white/10 focus:outline-none focus:border-white/20 transition-all"
+                      type="number" 
+                      value={sponsorAmount}
+                      onChange={(e) => setSponsorAmount(e.target.value)}
+                      placeholder="Credits to allocate" 
+                      className="w-full sm:w-1/3 bg-[#0a0a0a] border border-white/5 rounded-xl px-4 py-3 text-sm font-headline font-bold text-white placeholder:text-white/20 focus:outline-none focus:border-white/20 transition-all shadow-inner" 
                     />
-                    <div className="flex flex-col sm:flex-row gap-4">
-                      <input 
-                        type="number" 
-                        value={sponsorAmount}
-                        onChange={(e) => setSponsorAmount(e.target.value)}
-                        placeholder="Allocation Amount" 
-                        className="flex-grow bg-[#161616] border border-white/5 rounded-2xl px-6 py-4 text-white font-headline font-bold placeholder:text-white/10 focus:outline-none focus:border-white/20 transition-all"
-                      />
-                      <button 
-                        onClick={handleCreatePath}
-                        disabled={isAddingPath}
-                        className={`sm:min-w-[160px] bg-white text-black py-4 px-6 rounded-2xl font-headline font-extrabold text-sm tracking-tight hover:bg-white/90 active:scale-[0.98] transition-all shadow-xl disabled:opacity-50 flex items-center justify-center gap-2`}
-                      >
-                        {isAddingPath ? (
-                          <span className="material-symbols-outlined animate-spin text-sm">autorenew</span>
-                        ) : (
-                          <>
-                            <span className="material-symbols-outlined text-sm">add</span>
-                            Create Path
-                          </>
-                        )}
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex-grow pt-4">
-                  <span className="font-label text-[10px] font-bold uppercase tracking-[0.2em] text-white/30 mb-6 block">Active Router Paths</span>
-                  <div className="flex flex-col gap-3 max-h-[280px] overflow-y-auto pr-2 custom-scrollbar">
-                    {activePaths.length === 0 ? (
-                      <div className="py-12 text-center text-white/20 text-sm font-medium italic border-2 border-dashed border-white/5 rounded-2xl">No sponsorship paths active.</div>
-                    ) : (
-                      activePaths.map((path, index) => (
-                        <div key={index} className="px-5 py-4 bg-[#161616] rounded-2xl flex items-center justify-between hover:bg-[#1c1c1c] transition-colors border border-white/5 group">
-                          <div className="flex items-center gap-4 overflow-hidden">
-                            <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/5 flex items-center justify-center shrink-0">
-                              <span className="material-symbols-outlined text-white/20 text-lg">alt_route</span>
-                            </div>
-                            <div className="overflow-hidden">
-                              <span className="font-mono text-white text-xs block mb-0.5 truncate">{path.address}</span>
-                              <span className="font-label text-[9px] font-bold uppercase tracking-widest text-white/10">Active Contract Path</span>
-                            </div>
-                          </div>
-                          <div className="text-right shrink-0">
-                            <span className="font-headline font-extrabold text-white block leading-none">{path.amount.toFixed(2)}</span>
-                            <span className="font-label text-[9px] font-bold uppercase tracking-widest text-white/10 mt-1 block">RLO Allocated</span>
-                          </div>
-                        </div>
-                      ))
-                    )}
+                    <button 
+                      onClick={handleCreatePath}
+                      disabled={isAddingPath}
+                      className="flex-1 bg-[#d97706] hover:bg-[#d97706]/90 text-white border border-[#d97706]/20 rounded-xl px-4 py-3 font-headline font-bold text-sm transition-all flex justify-center items-center gap-2 active:scale-[0.98] disabled:opacity-50"
+                    >
+                      {isAddingPath ? (
+                        <span className="material-symbols-outlined animate-spin text-sm">autorenew</span>
+                      ) : (
+                        <>
+                          <span className="text-white font-extrabold text-lg mr-1 leading-none">+</span> Add to Router Path
+                        </>
+                      )}
+                    </button>
                   </div>
                 </div>
               </div>
+
+              <div className="flex-grow">
+                <label className="font-headline font-bold text-xs text-emerald-400 mb-4 px-1 flex items-center gap-2 tracking-widest uppercase">
+                  <span className="material-symbols-outlined text-[14px]">moving</span> ACTIVE SPONSORED PATHS
+                </label>
+                <div className="bg-[#0a0a0a] rounded-xl border border-white/5 overflow-hidden">
+                  {activePaths.length === 0 ? (
+                    <div className="py-6 text-center text-white/30 text-[11px] font-body italic flex justify-center items-center gap-2">
+                       <span className="material-symbols-outlined text-sm opacity-50">route</span> No active sponsor paths.
+                    </div>
+                  ) : (
+                    activePaths.map((path, index) => (
+                      <div key={index} className="flex justify-between items-center px-5 py-3 border-b border-white/5 last:border-0 hover:bg-white/5 transition-colors group">
+                        <div className="flex items-center gap-4">
+                          <div className="w-6 h-6 rounded-full bg-white/5 flex items-center justify-center border border-white/5 group-hover:border-white/10 transition-colors">
+                            <span className="material-symbols-outlined text-[10px] text-white/40">alt_route</span>
+                          </div>
+                          <span className="font-mono text-[11px] text-white/70">{path.address.slice(0,6)}...{path.address.slice(-4)}</span>
+                        </div>
+                        <span className="font-headline text-[11px] font-bold text-[#ffaa00]/90 bg-[#ffaa00]/10 border border-[#ffaa00]/10 px-2 py-1 rounded">
+                          {path.amount.toFixed(2)} Credits/yr
+                        </span>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+
+              {/* Claim Rewards inside the box if any */}
+              {pendingRewards > 0 && (
+                <div className="mt-8 pt-6 border-t border-white/10 flex justify-between items-center">
+                  <div>
+                    <span className="font-label text-[9px] uppercase tracking-widest text-white/40 block mb-1">Claimable Staking Rewards</span>
+                    <span className="font-headline font-bold text-white text-lg">{pendingRewards.toFixed(4)} RLO</span>
+                  </div>
+                  <button 
+                    onClick={handleClaim}
+                    disabled={stakingLoading}
+                    className="text-xs font-bold text-[#1e90ff] hover:text-white border border-[#1e90ff]/30 px-4 py-2 rounded-lg transition-all"
+                  >
+                    Claim
+                  </button>
+                </div>
+              )}
+
             </div>
           </div>
         </div>
 
-        {/* Protocol Metrics Grid */}
-        <div className="pt-20 border-t border-white/5">
-           <div className="flex items-center justify-between mb-12">
-             <h2 className="font-headline font-extrabold text-3xl text-primary flex items-center gap-4">
-                <span className="material-symbols-outlined text-primary text-4xl">analytics</span>
-                Protocol Metrics
-             </h2>
-             <button 
-               onClick={() => router.push('/dashboard')}
-               className="flex items-center gap-2 font-headline font-bold text-[10px] text-primary/60 uppercase tracking-widest hover:text-primary transition-colors group"
-             >
-               View Explorer
-               <span className="material-symbols-outlined text-sm group-hover:translate-x-1 transition-transform">arrow_forward</span>
-             </button>
-           </div>
-
-           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              {[
-                { label: 'Active Routers', value: '1,240,842' },
-                { label: 'Total Credits', value: '840.2M' },
-                { label: 'Validator Nodes', value: '448' },
-                { label: 'Governance', value: '124' }
-              ].map((stat, i) => (
-                <div key={i} className="bg-surface-container-low/50 p-6 rounded-2xl border border-white/5 hover:border-white/10 transition-colors">
-                   <p className="font-label text-[10px] font-bold uppercase tracking-[0.2em] text-on-surface/40 mb-3">{stat.label}</p>
-                   <p className="font-headline font-extrabold text-2xl text-on-surface tracking-tight">{stat.value}</p>
-                </div>
-              ))}
-           </div>
+        {/* Protocol Metrics Layout Bar */}
+        <div className="w-full mt-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
+          <div className="flex justify-between items-end mb-4 px-2">
+            <h3 className="font-headline font-bold text-sm text-white">Rialo Protocol Statistics</h3>
+            <button onClick={() => router.push('/dashboard')} className="font-body text-xs text-[#1e90ff] hover:underline hover:text-[#1e90ff]/80 transition-colors">View on Explorer</button>
+          </div>
+          <div className="bg-[#121212] rounded-[16px] border border-white/5 p-6 md:p-8 flex flex-col md:flex-row justify-between items-center shadow-2xl">
+            <div className="flex-1 w-full md:border-r border-white/5 md:px-6 px-0 py-4 md:py-0 first:pl-2 last:pr-2 last:border-0 border-b md:border-b-0">
+              <div className="font-body text-[11px] text-white/40 mb-1">Total staked with Rialo</div>
+              <div className="font-headline font-extrabold text-2xl text-white tracking-tight">
+                {totalProtocolStaked.toLocaleString()} <span className="text-[10px] text-white/20 font-normal ml-1">RLO</span>
+              </div>
+            </div>
+            <div className="flex-1 w-full md:border-r border-white/5 md:px-6 px-0 py-4 md:py-0 first:pl-2 last:pr-2 last:border-0 border-b md:border-b-0">
+              <div className="font-body text-[11px] text-white/40 mb-1">Active SfS Routers</div>
+              <div className="font-headline font-extrabold text-2xl text-white tracking-tight">12,400</div>
+            </div>
+            <div className="flex-1 w-full md:px-6 px-0 pt-4 md:pt-0">
+              <div className="font-body text-[11px] text-white/40 mb-1">Total Service Credits Minted</div>
+              <div className="font-headline font-extrabold text-2xl text-white tracking-tight">350,000</div>
+            </div>
+          </div>
         </div>
 
       </main>
