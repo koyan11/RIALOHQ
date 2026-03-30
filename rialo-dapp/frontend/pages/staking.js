@@ -161,7 +161,9 @@ export default function StakingPage() {
         fetchRloBalance();
       }
     } catch (e) {
-      setToast({ message: e.reason || e.message || "Update failed", type: "error" });
+      console.error("Fraction update error:", e);
+      const errorMsg = e.data?.message || e.reason || e.message || "Update failed";
+      setToast({ message: errorMsg, type: "error" });
     } finally {
       setIsUpdatingFraction(false);
     }
@@ -264,6 +266,16 @@ export default function StakingPage() {
                     className="bg-transparent font-headline font-extrabold text-3xl text-white outline-none w-full placeholder:text-white/10"
                     placeholder="0"
                   />
+                </div>
+                <div className="mt-4 flex flex-col gap-1 px-1">
+                  <div className="flex justify-between">
+                    <span className="text-[10px] text-white/30 font-bold uppercase tracking-wider">On-Chain Stake:</span>
+                    <span className="text-[10px] text-white font-bold">{stakedBalance.toFixed(2)} RRIALO</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-[10px] text-white/30 font-bold uppercase tracking-wider">Synced Phi (Fraction):</span>
+                    <span className="text-[10px] text-white font-bold">{contractSfsFraction}%</span>
+                  </div>
                 </div>
               </div>
 
