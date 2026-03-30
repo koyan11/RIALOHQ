@@ -78,7 +78,7 @@ export default function GlobalToast() {
         <div className="toast-content">
           <div className="toast-title">{toast.message} {toast.detail}</div>
           {toast.txHash && (
-            <a href={`https://etherscan.io/tx/${toast.txHash}`} target="_blank" rel="noopener noreferrer" className="toast-link">
+            <a href={`https://sepolia.etherscan.io/tx/${toast.txHash}`} target="_blank" rel="noopener noreferrer" className="toast-link">
               View on Etherscan ↗
             </a>
           )}

@@ -203,17 +203,20 @@ const getAiResponse = (input, globalRates) => {
 };
 
 export default function AiAgent() {
-  const { isConnected, executeAiTransaction, addTriggerOrder, globalRates, scheduledTxs, addScheduledTx, removeScheduledTx, toast, showToast } = useWallet();
+  const { isConnected, executeAiTransaction, addTriggerOrder, globalRates, scheduledTxs, addScheduledTx, removeScheduledTx, toast, showToast, aiPrivateKey, setAiPrivateKey } = useWallet();
   const [messages, setMessages] = useState([
     { role: 'ai', content: { raw: "Rialo AI is online. How can I optimize your on-chain operations today?" } }
   ]);
   const [input, setInput] = useState('');
   const [isThinking, setIsThinking] = useState(false);
   const [showSchedulePanel, setShowSchedulePanel] = useState(false);
+  const [showAiWalletPanel, setShowAiWalletPanel] = useState(false);
   const [schedData, setSchedData] = useState({ type: 'Swap', amount: '10', fromToken: 'USDC', toToken: 'RIALO', timeVal: '5', timeUnit: 'minutes' });
+  const [localKey, setLocalKey] = useState(aiPrivateKey || '');
   const messagesEndRef = useRef(null);
 
   const scrollToBottom = () => {
+
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
@@ -281,7 +284,12 @@ export default function AiAgent() {
           });
         } else {
           // EXECUTE ON-CHAIN
-          setMessages(prev => [...prev, { role: 'ai', content: { raw: `🔄 Initiating **${type}** on-chain. Please confirm the transaction in your wallet.` } }]);
+          const statusMsg = aiPrivateKey 
+            ? `🤖 **Headless Mode**: Automating **${type}** on-chain via AI Wallet...` 
+            : `🔄 Initiating **${type}** on-chain. Please confirm the transaction in your wallet.`;
+          
+          setMessages(prev => [...prev, { role: 'ai', content: { raw: statusMsg } }]);
+
           
           executeAiTransaction(type, userMsg, detail).then(txHash => {
             showToast({
@@ -619,6 +627,44 @@ export default function AiAgent() {
           border-color: #ffa500;
           color: #ffa500;
         }
+        .automation-badge {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          padding: 4px 10px;
+          border-radius: 999px;
+          background: rgba(255,255,255,0.05);
+          border: 1px solid rgba(255,255,255,0.1);
+          color: rgba(255,255,255,0.6);
+          font-size: 10px;
+          font-weight: 700;
+          letter-spacing: 0.05em;
+          transition: all 0.3s;
+        }
+        .automation-badge.active {
+          background: rgba(34,197,94,0.1);
+          border-color: rgba(34,197,94,0.3);
+          color: #22c55e;
+          box-shadow: 0 0 10px rgba(34,197,94,0.1);
+        }
+        .ai-settings-btn {
+          background: none;
+          border: none;
+          color: rgba(255,255,255,0.4);
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          transition: color 0.2s;
+        }
+        .ai-settings-btn:hover {
+          color: #fff;
+        }
+        .ai-wallet-panel {
+          background: #111;
+          border-top: 1px solid rgba(255,255,255,0.1);
+          padding: 20px;
+          animation: slideInUp 0.3s ease;
+        }
       `}</style>
 
       <div className="ai-widget">
@@ -627,6 +673,21 @@ export default function AiAgent() {
             <div className="ai-title">
               <span className="ai-status-dot"></span>
               Rialo AI Assistant
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <div className={`automation-badge ${aiPrivateKey ? 'active' : ''}`}>
+                <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>
+                  {aiPrivateKey ? 'bolt' : 'front_hand'}
+                </span>
+                {aiPrivateKey ? 'AUTO-SIGN ACTIVE' : 'MANUAL APPROVAL'}
+              </div>
+              <button 
+                className="ai-settings-btn"
+                onClick={() => setShowAiWalletPanel(!showAiWalletPanel)}
+                title="AI Wallet Settings"
+              >
+                <span className="material-symbols-outlined">settings</span>
+              </button>
             </div>
           </div>
           
@@ -796,7 +857,57 @@ export default function AiAgent() {
               </div>
             )}
 
+            {showAiWalletPanel && (
+              <div className="ai-wallet-panel">
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                  <h3 className="ai-sched-label" style={{ margin: 0 }}>AI Wallet Configuration</h3>
+                  <button onClick={() => setShowAiWalletPanel(false)} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.3)', cursor: 'pointer' }}>
+                    <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>close</span>
+                  </button>
+                </div>
+                <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.5)', marginBottom: '12px' }}>
+                  Enter a Private Key for a dedicated AI wallet. This allows the assistant to execute transactions without manual approval. 
+                  <span style={{ color: '#ffa500' }}> Use a wallet with limited funds for safety.</span>
+                </p>
+                <div style={{ display: 'flex', gap: '10px' }}>
+                  <input 
+                    type="password" 
+                    className="ai-sched-input" 
+                    style={{ flex: 1 }}
+                    placeholder="0x... (Private Key)" 
+                    value={localKey}
+                    onChange={(e) => setLocalKey(e.target.value)}
+                  />
+                  <button 
+                    className="ai-sched-btn" 
+                    style={{ width: 'auto', padding: '0 20px' }}
+                    onClick={() => {
+                      setAiPrivateKey(localKey);
+                      setShowAiWalletPanel(false);
+                      showToast({ message: localKey ? "AI Wallet Active" : "AI Wallet Removed", detail: localKey ? "No-popup mode enabled" : "Manual mode restored" });
+                    }}
+                  >
+                    {aiPrivateKey ? 'Update' : 'Enable'}
+                  </button>
+                </div>
+                {aiPrivateKey && (
+                  <button 
+                    onClick={() => {
+                      setAiPrivateKey(null);
+                      setLocalKey('');
+                      setShowAiWalletPanel(false);
+                      showToast({ message: "AI Wallet Removed", type: 'error' });
+                    }}
+                    style={{ background: 'none', border: 'none', color: '#ef4444', fontSize: '10px', marginTop: '10px', cursor: 'pointer', fontWeight: '700' }}
+                  >
+                    REMOVE AI WALLET
+                  </button>
+                )}
+              </div>
+            )}
+
             <div className="ai-quick-commands">
+
               <button 
                 onClick={() => setShowSchedulePanel(!showSchedulePanel)} 
                 className={`ai-command-chip ${showSchedulePanel ? 'border-[#ffa500] text-[#ffa500]' : ''}`}

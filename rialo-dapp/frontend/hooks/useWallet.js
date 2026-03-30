@@ -296,6 +296,44 @@ export function WalletProvider({ children }) {
     return () => clearInterval(interval);
   }, [scheduledTxs, executeAiTransaction]);
 
+  // Automation: Watch for Price Triggers (Limit Orders)
+  useEffect(() => {
+    if (!triggerOrders?.length) return;
+    
+    triggerOrders.forEach(order => {
+      if (order.status !== 'Pending') return;
+      
+      const currentRate = globalRates[order.fromToken]?.[order.toToken];
+      if (!currentRate) return;
+
+      let triggered = false;
+      if (order.condition === '<=' && currentRate <= order.targetPrice) triggered = true;
+      if (order.condition === '>=' && currentRate >= order.targetPrice) triggered = true;
+      if (order.condition === '<' && currentRate < order.targetPrice) triggered = true;
+      if (order.condition === '>' && currentRate > order.targetPrice) triggered = true;
+      if (order.condition === '==' && Math.abs(currentRate - order.targetPrice) < 0.0001) triggered = true;
+
+      if (triggered) {
+        // Mark as Executing to prevent double-strike
+        setTriggerOrders(prev => prev.map(o => o.id === order.id ? { ...o, status: 'Executing' } : o));
+        
+        const detail = `${order.amountIn} ${order.fromToken} -> ${order.toToken}`;
+        executeAiTransaction('Swap', `Limit Order Triggered: ${detail}`, detail)
+          .then(txHash => {
+            setToast({ message: `Limit Order Executed!`, detail: detail, txHash: txHash });
+            setTriggerOrders(prev => prev.map(o => o.id === order.id ? { ...o, status: 'Executed', executedRate: currentRate, txHash: txHash } : o));
+          })
+          .catch(err => {
+            console.error('Trigger execution failed:', err);
+            setToast({ message: `Limit Order Failed`, detail: err.message, type: 'error' });
+            // Revert status to Pending so it can try again or allow user to see it failed
+            setTriggerOrders(prev => prev.map(o => o.id === order.id ? { ...o, status: 'Pending' } : o));
+          });
+      }
+    });
+  }, [globalRates, triggerOrders, executeAiTransaction]);
+
+
   const addScheduledTx = useCallback((tx) => {
     setScheduledTxs(prev => [...prev, { id: Math.random().toString(16).slice(2, 8), ...tx }]);
   }, []);

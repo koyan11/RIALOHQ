@@ -27,7 +27,7 @@ export default function Toast({ message, type = 'success', txHash, onClose }) {
         <p className="font-headline font-bold text-sm">{message}</p>
         {txHash && (
           <a
-            href={`https://etherscan.io/tx/${txHash}`}
+            href={`https://sepolia.etherscan.io/tx/${txHash}`}
             target="_blank"
             rel="noopener noreferrer"
             className="text-xs underline opacity-80 hover:opacity-100 mt-1 block truncate"

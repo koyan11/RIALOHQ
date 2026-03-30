@@ -215,7 +215,7 @@ export default function DashboardPage() {
                             {tx.amount}
                           </p>
                           <a 
-                            href={`https://etherscan.io/tx/${tx.txHash}`} 
+                            href={`https://sepolia.etherscan.io/tx/${tx.txHash}`} 
                             target="_blank" 
                             rel="noopener noreferrer"
                             className="text-[10px] font-bold text-primary/60 hover:text-primary transition-colors flex items-center gap-1 uppercase tracking-tighter"
