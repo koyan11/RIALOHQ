@@ -9,8 +9,8 @@ import { useRouter } from 'next/router';
 
 export default function StakingPage() {
   const router = useRouter();
-  const { isConnected, connect, balances: walletBalances, addTransaction, aiPrivateKey, setAiPrivateKey } = useWallet();
-  const { balance: rloBal } = useRLO();
+  const { isConnected, address, provider, connect, balances: walletBalances, addTransaction, fetchEthBalance, aiPrivateKey, setAiPrivateKey } = useWallet();
+  const { balance: rloBal, fetchBalance: fetchRloBalance } = useRLO();
   const { 
     stakedBalance: stakedBalStr, 
     pendingRewards: pendingRewStr, 
