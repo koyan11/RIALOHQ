@@ -214,6 +214,14 @@ export default function SwapPage() {
                     setToast({ message: 'Requesting RLO from faucet...', type: 'loading' });
                     const hash = await claimFaucet();
                     setToast({ message: '100 RLO claimed successfully!', type: 'success', txHash: hash });
+                    addTransaction({
+                      type: 'Faucet',
+                      amount: '100 RIALO',
+                      details: 'Claim RLO Faucet',
+                      txHash: hash,
+                      source: 'Faucet'
+                    });
+                    fetchRloBalance();
                   } catch (e) {
                     setToast({ message: e.reason || e.message || 'Faucet claim failed', type: 'error' });
                   }
