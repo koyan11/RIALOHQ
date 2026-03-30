@@ -48,10 +48,11 @@ export default function StakingPage() {
 
   const numRlo = parseFloat(rloAmount) || 0;
   const networkApy = 0.184; // 18.4% as per metrics
-  const totalYield = (isConnected ? (stakedBalance + numRlo) : numRlo) * networkApy;
+  const simulatedTotal = (isConnected ? stakedBalance : 0) + numRlo;
+  const totalYield = simulatedTotal * networkApy;
   
-  const rawYieldToServiceCredits = (isConnected ? stakedBalance : 0) * networkApy * (localSfsFraction / 100);
-  const yieldToWallet = (isConnected ? stakedBalance : 0) * networkApy - rawYieldToServiceCredits;
+  const rawYieldToServiceCredits = simulatedTotal * networkApy * (localSfsFraction / 100);
+  const yieldToWallet = totalYield - rawYieldToServiceCredits;
 
   const totalAllocated = activePaths.reduce((sum, path) => sum + path.amount, 0);
   const availableServiceCredits = Math.max(0, rawYieldToServiceCredits - totalAllocated);
