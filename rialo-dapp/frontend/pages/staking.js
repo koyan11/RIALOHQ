@@ -46,16 +46,19 @@ export default function StakingPage() {
     setLocalSfsFraction(contractSfsFraction);
   }, [contractSfsFraction]);
 
+  // --- SIMULATED METRICS (Left Column Calculator) ---
   const numRlo = parseFloat(rloAmount) || 0;
   const networkApy = 0.184; // 18.4% as per metrics
   const simulatedTotal = (isConnected ? stakedBalance : 0) + numRlo;
-  const totalYield = simulatedTotal * networkApy;
+  const simulatedTotalYield = simulatedTotal * networkApy;
   
-  const rawYieldToServiceCredits = simulatedTotal * networkApy * (localSfsFraction / 100);
-  const yieldToWallet = totalYield - rawYieldToServiceCredits;
+  const simulatedRawYieldToServiceCredits = simulatedTotal * networkApy * (localSfsFraction / 100);
+  const simulatedYieldToWallet = simulatedTotalYield - simulatedRawYieldToServiceCredits;
 
+  // --- REAL METRICS (Right Column Allocation) ---
+  const realRawYieldToServiceCredits = (isConnected ? stakedBalance : 0) * networkApy * (contractSfsFraction / 100);
   const totalAllocated = activePaths.reduce((sum, path) => sum + path.amount, 0);
-  const availableServiceCredits = Math.max(0, rawYieldToServiceCredits - totalAllocated);
+  const availableServiceCredits = Math.max(0, realRawYieldToServiceCredits - totalAllocated);
 
   const handleStake = async () => {
     if (!isConnected) { connect(); return; }
@@ -332,11 +335,11 @@ export default function StakingPage() {
                 </div>
                 <div className="flex justify-between items-center border-b border-white/5 pb-3">
                   <span className="text-white/40 font-medium flex items-center gap-1.5">Yield to Wallet <span className="material-symbols-outlined text-[12px] opacity-60">info</span></span>
-                  <span className="font-headline font-bold text-white">{yieldToWallet.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})} <span className="text-[10px] text-white/30 font-medium">RLO/yr</span></span>
+                  <span className="font-headline font-bold text-white">{simulatedYieldToWallet.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})} <span className="text-[10px] text-white/30 font-medium">RLO/yr</span></span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-white/40 font-medium flex items-center gap-1.5">Total Yield Router <span className="material-symbols-outlined text-[12px] opacity-60">info</span></span>
-                  <span className="font-headline font-bold text-white">{rawYieldToServiceCredits.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})} <span className="text-[10px] text-white/50 font-medium">Credits/yr</span></span>
+                  <span className="font-headline font-bold text-white">{simulatedRawYieldToServiceCredits.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})} <span className="text-[10px] text-white/50 font-medium">Credits/yr</span></span>
                 </div>
               </div>
             </div>
