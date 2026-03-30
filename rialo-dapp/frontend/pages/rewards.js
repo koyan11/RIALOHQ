@@ -62,6 +62,14 @@ export default function RewardsPage() {
         fetchRloBalance();
       }
 
+      addTransaction({
+        type: 'Claim',
+        amount: `${claimAmount.toFixed(4)} RIALO`,
+        details: 'Ecosystem Rewards',
+        txHash: hash,
+        source: 'Direct'
+      });
+
     } catch (err) {
       setToast({ message: err.reason || err.message || 'Claim failed', type: 'error' });
     } finally {
@@ -198,50 +206,68 @@ export default function RewardsPage() {
 
           {/* Claim History */}
           <div className="space-y-6">
-            <div className="flex justify-between items-center">
-              <h3 className="font-headline font-bold text-primary text-lg">Claim History</h3>
-              <button onClick={loadRewards} className="text-on-surface/40 hover:text-primary transition-colors">
-                <span className="material-symbols-outlined">refresh</span>
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="font-headline font-bold text-primary text-xl">Claim History</h3>
+              <button onClick={loadRewards} className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-white/40 hover:text-primary transition-all">
+                <span className="material-symbols-outlined text-sm">refresh</span>
               </button>
             </div>
-            <div className="space-y-4">
+            <div className="space-y-3">
               {isConnected ? (
                 (() => {
                   const claimHistory = transactions.filter(tx => tx.type === 'Claim');
-                  // Combine with static history for demo purposes if empty
-                  const combinedHistory = claimHistory.length > 0 
-                    ? claimHistory.map(tx => ({
-                        amount: tx.amount,
-                        date: new Date(tx.timestamp).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-                        status: tx.status
-                      }))
-                    : INITIAL_HISTORY;
+                  const finalHistory = claimHistory.length > 0 
+                    ? claimHistory.slice().reverse()
+                    : INITIAL_HISTORY.map((h, i) => ({
+                        type: 'Claim',
+                        amount: h.amount,
+                        timestamp: new Date(h.date).getTime(),
+                        details: 'Historical Reward',
+                        status: 'Success',
+                        id: `mock-${i}`
+                      }));
 
-                  return combinedHistory.map((row, i) => (
-                    <div key={i} className="bg-surface-container-lowest p-5 rounded-xl flex items-center justify-between border border-outline-variant/5">
-                      <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 rounded-full bg-surface-container-low flex items-center justify-center">
-                          <span className="material-symbols-outlined text-primary text-sm">download</span>
+                  return finalHistory.slice(0, 5).map((tx, i) => {
+                    const dateStr = new Date(tx.timestamp || Date.now()).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                    const timeStr = new Date(tx.timestamp || Date.now()).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+                    
+                    return (
+                      <div key={tx.id || i} className="bg-[#0c0c0c] border border-white/5 p-5 rounded-2xl flex items-center justify-between group hover:border-primary/20 transition-all transition-all shadow-xl">
+                        <div className="flex items-center gap-4">
+                          <div className="w-10 h-10 rounded-xl bg-cyan-500/10 flex items-center justify-center border border-white/5">
+                            <span className="material-symbols-outlined text-cyan-400 text-[18px]">water_drop</span>
+                          </div>
+                          <div>
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded border bg-cyan-500/20 text-cyan-300 border-cyan-500/20">
+                                {tx.type || 'Claim'}
+                              </span>
+                              <p className="font-headline font-bold text-sm text-white/90">{tx.details || 'Reward Distribution'}</p>
+                            </div>
+                            <p className="font-body text-[10px] text-white/25">
+                              {dateStr} • {timeStr}
+                            </p>
+                          </div>
                         </div>
-                        <div>
-                          <p className="font-body font-semibold text-sm">Reward Claim</p>
-                          <p className="font-body text-[10px] text-on-surface/50">{row.date}</p>
+                        <div className="text-right">
+                          <p className="font-headline font-black text-white text-base leading-none mb-1">{tx.amount}</p>
+                          <p className="text-[9px] font-bold text-primary/60 uppercase tracking-tighter">SUCCESSFUL</p>
                         </div>
                       </div>
-                      <div className="text-right">
-                        <p className="font-headline font-bold text-sm">{row.amount}</p>
-                        <p className="font-body text-[10px] text-primary/60">{row.status}</p>
-                      </div>
-                    </div>
-                  ));
+                    );
+                  });
                 })()
               ) : (
-                <div className="bg-surface-container-lowest p-8 rounded-xl text-center border border-outline-variant/5">
-                  <span className="material-symbols-outlined text-on-surface/20 text-4xl mb-2 block">account_balance_wallet</span>
-                  <p className="text-sm text-on-surface/40">Connect wallet to see claim history</p>
-                  <button onClick={connect} className="mt-4 text-xs font-bold uppercase tracking-widest underline underline-offset-4 text-primary hover:opacity-70 transition-opacity">
-                    Connect Wallet
-                  </button>
+                <div className="bg-[#0c0c0c] border border-white/5 p-12 rounded-2xl text-center flex flex-col items-center gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center border border-white/5">
+                    <span className="material-symbols-outlined text-white/10 text-3xl">account_balance_wallet</span>
+                  </div>
+                  <div>
+                    <p className="text-sm text-white/30 font-headline font-bold">Wallet not connected</p>
+                    <button onClick={connect} className="mt-4 text-[10px] font-black uppercase tracking-[0.2em] text-primary hover:text-white transition-colors underline underline-offset-4">
+                      Connect to see history
+                    </button>
+                  </div>
                 </div>
               )}
             </div>

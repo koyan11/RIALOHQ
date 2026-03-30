@@ -132,7 +132,7 @@ export default function StakingPage() {
       const hash = await claimAction();
       setToast({ message: "Rewards claimed successfully!", type: "success", txHash: hash });
       addTransaction({
-        type: 'Claim Rewards',
+        type: 'Claim',
         amount: `${pendingRewards.toFixed(2)} RIALO`,
         details: 'Staking Rewards',
         txHash: hash,
