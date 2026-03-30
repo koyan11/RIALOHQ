@@ -297,7 +297,7 @@ export default function AiAgent() {
               detail: detail,
               txHash: txHash
             });
-            setMessages(prev => [...prev, { role: 'ai', content: { raw: `✅ **${type}** confirmed on-chain! Tx: [${txHash.slice(0,10)}...](https://sepolia.etherscan.io/tx/${txHash})` } }]);
+            setMessages(prev => [...prev, { role: 'ai', content: { raw: `✅ **${type}** execution successful!` } }]);
           }).catch(err => {
             const errorMsg = err.reason || err.message || 'Transaction failed';
             showToast({ message: `${type} failed`, detail: errorMsg, type: 'error' });
