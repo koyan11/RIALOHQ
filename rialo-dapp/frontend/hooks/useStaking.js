@@ -21,8 +21,14 @@ export function useStaking() {
 
       if (address) {
         const stakeInfo = await contract.stakes(address);
-        setStakedBalance(ethers.formatEther(stakeInfo.amount));
-        setSfsFraction(Number(stakeInfo.sfsFraction) / 100); // Basis points to percentage (0-100)
+        // Ethers v6 returns a Result object which can be accessed by index or name
+        const rawAmount = stakeInfo.amount || stakeInfo[0] || 0n;
+        const formattedStaked = ethers.formatEther(rawAmount);
+        
+        console.log(`[Staking Debug] Address: ${address}, Staked: ${formattedStaked}`);
+        setStakedBalance(formattedStaked);
+        
+        setSfsFraction(Number(stakeInfo.sfsFraction || stakeInfo[3] || 0) / 100); 
         
         const rewards = await contract.calculateRewards(address);
         setPendingRewards(ethers.formatEther(rewards));

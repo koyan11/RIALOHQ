@@ -137,6 +137,15 @@ export default function SwapPage() {
         fetchEthBalance(address, provider);
         fetchRloBalance();
       }
+
+      // Handle mock token balance updates (USDC, USDT, etc.)
+      // Since these are local-only mock tokens, we update them manually
+      if (fromToken !== 'ETH' && fromToken !== 'RIALO') {
+        updateBalance(fromToken, -parseFloat(amountIn));
+      }
+      if (toToken !== 'ETH' && toToken !== 'RIALO') {
+        updateBalance(toToken, parseFloat(estimatedOut));
+      }
       
       // Add to history
       addTransaction({

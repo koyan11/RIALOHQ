@@ -249,6 +249,22 @@ export function WalletProvider({ children }) {
         // For automated triggers, if no AI wallet is provided, we simulate the transaction 
         // silently to provide a seamless demo experience without blocking the UI with popups
         const fakeHash = 'simulated_0x' + Array(64).fill(0).map(() => Math.floor(Math.random() * 16).toString(16)).join('');
+        
+        // Handle mock balance updates for simulated transactions
+        if (txType === 'Swap') {
+          const match = actionDetail.match(/([\d.]+)\s+([A-Z0-9]+)\s+->\s+([A-Z0-9]+)/i);
+          if (match) {
+            const amount = parseFloat(match[1]);
+            const from = match[2].toUpperCase();
+            const to = match[3].toUpperCase();
+            const rate = globalRates[from]?.[to] || 1;
+            const amountOut = amount * rate;
+
+            if (from !== 'ETH' && from !== 'RIALO') updateBalance(from, -amount);
+            if (to !== 'ETH' && to !== 'RIALO') updateBalance(to, amountOut);
+          }
+        }
+        
         addTransaction({ type: txType, amount: actionDetail, details: 'AI Auto Execution (Simulated)', txHash: fakeHash, source: 'AI Agent' });
         return fakeHash;
       } else {
@@ -257,6 +273,8 @@ export function WalletProvider({ children }) {
       }
 
       let tx;
+      let fromToken, toToken, amountVal;
+
       if (txType === 'Stake') {
         const amount = actionDetail.match(/[\d.]+/)?.[0] || '10';
         if (parseFloat(amount) < 10) throw new Error('Minimum stake is 10 RIALO');
@@ -265,17 +283,38 @@ export function WalletProvider({ children }) {
         const amount = actionDetail.match(/[\d.]+/)?.[0] || '1';
         tx = await getContract('RLO', signer).bridgeOut(ethers.parseEther(amount));
       } else if (txType === 'Swap') {
-        const amount = actionDetail.match(/[\d.]+/)?.[0] || '1';
-        tx = await getContract('RLO', signer).transfer('0x000000000000000000000000000000000000dEaD', ethers.parseEther(amount));
+        const match = actionDetail.match(/([\d.]+)\s+([A-Z0-9]+)\s+->\s+([A-Z0-9]+)/i);
+        if (match) {
+          amountVal = parseFloat(match[1]);
+          fromToken = match[2].toUpperCase();
+          toToken = match[3].toUpperCase();
+          
+          if (fromToken === 'RIALO') {
+            tx = await getContract('RLO', signer).transfer('0x000000000000000000000000000000000000dEaD', ethers.parseEther(amountVal.toString()));
+          } else {
+            // Simulated swap for non-RIALO tokens (e.g. USDT -> RIALO)
+            tx = await signer.sendTransaction({ to: RLO_ADDRESS, value: 0 }); // Just for MetaMask popup
+          }
+        }
       }
+
       if (tx) {
         await tx.wait();
+        
+        // Finalize mock balance updates for real transactions
+        if (txType === 'Swap' && fromToken && toToken) {
+          const rate = globalRates[fromToken]?.[toToken] || 1;
+          const amountOut = amountVal * rate;
+          if (fromToken !== 'ETH' && fromToken !== 'RIALO') updateBalance(fromToken, -amountVal);
+          if (toToken !== 'ETH' && toToken !== 'RIALO') updateBalance(toToken, amountOut);
+        }
+
         addTransaction({ type: txType, amount: actionDetail, details: 'AI Strategy', txHash: tx.hash, source: 'AI Agent' });
         return tx.hash;
       }
       return '0x' + Math.random().toString(16).slice(2, 42);
     } catch (err) { throw err; }
-  }, [address, provider, addTransaction, aiPrivateKey]);
+  }, [address, provider, addTransaction, aiPrivateKey, globalRates, updateBalance]);
 
 
   useEffect(() => {

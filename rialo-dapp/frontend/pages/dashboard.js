@@ -13,6 +13,12 @@ export default function DashboardPage() {
   
   const [loading, setLoading] = useState(false);
 
+  useEffect(() => {
+    if (address) {
+      fetchStakingData();
+    }
+  }, [address, fetchStakingData]);
+
   const stakedBalance = parseFloat(stakedBalStr || '0');
   const availableRialo = parseFloat(rialoBalance || '0');
   const totalValue = availableRialo + stakedBalance;
@@ -21,10 +27,11 @@ export default function DashboardPage() {
   const displayBalances = {
     ...balances,
     RIALO: availableRialo,
-    ETH: balances['ETH'] || 0
+    ETH: balances['ETH'] || 0,
+    STAKED: stakedBalance
   };
 
-  // Mock data for the chart
+  // Portfolio data for chart
   const portfolioData = [
     { label: 'Staked', value: stakedBalance, color: 'bg-primary' },
     { label: 'Wallet', value: availableRialo, color: 'bg-white/20' },
@@ -45,42 +52,43 @@ export default function DashboardPage() {
         </header>
 
         {/* Individual Asset Balances */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-16">
           {[
             { symbol: 'RIALO', label: 'Ecosystem Token', color: 'bg-primary', icon: 'currency_exchange' },
+            { symbol: 'STAKED', label: 'Staked Assets', color: 'bg-emerald-500', icon: 'lock' },
             { symbol: 'ETH', label: 'Ethereum Testnet', color: 'bg-[#627EEA]', icon: 'token' },
             { symbol: 'USDC', label: 'USD Coin', color: 'bg-[#2775CA]', icon: 'monetization_on' },
             { symbol: 'USDT', label: 'Tether USD', color: 'bg-[#26A17B]', icon: 'account_balance_wallet' },
           ].map((token) => (
-            <div key={token.symbol} className="bg-[#0c0c0c] rounded-2xl p-8 flex flex-col justify-between min-h-[220px] border border-white/5 shadow-2xl relative overflow-hidden group hover:border-primary/20 transition-all">
+            <div key={token.symbol} className="bg-[#1c1c1c] rounded-2x p-6 flex flex-col justify-between min-h-[180px] border border-white/10 shadow-2xl relative overflow-hidden group hover:border-primary/20 transition-all">
               <div className="relative z-10 flex justify-between items-start">
                 <div>
-                  <span className="font-label text-[10px] text-white/30 uppercase tracking-[0.2em] font-bold mb-2 block">{token.label}</span>
-                  <h2 className="font-headline text-3xl font-extrabold text-white leading-none tracking-tighter">
+                  <span className="font-label text-[9px] text-white/30 uppercase tracking-[0.2em] font-bold mb-2 block">{token.label}</span>
+                  <h2 className="font-headline text-2xl font-extrabold text-white leading-none tracking-tighter">
                     {isConnected ? (displayBalances[token.symbol] || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0.00'}
                   </h2>
-                  <p className="text-white/20 text-xs mt-2 font-body font-normal">{token.symbol}</p>
+                  <p className="text-white/20 text-[10px] mt-2 font-body font-normal">{token.symbol === 'STAKED' ? 'sRLO (Staked)' : token.symbol}</p>
                 </div>
-                <div className="w-10 h-10 rounded-lg bg-surface-container-low flex items-center justify-center border border-white/5 overflow-hidden p-1">
+                <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center border border-white/5 overflow-hidden p-1.5">
                    <img 
                     src={
-                      token.symbol === 'RIALO' ? '/rialo-icon.png' :
+                      token.symbol === 'RIALO' || token.symbol === 'STAKED' ? '/rialo-icon.png' :
                       token.symbol === 'ETH' ? '/eth-icon.png' :
                       token.symbol === 'USDC' ? '/usdc-icon.webp' :
                       '/usdt-icon.png'
                     } 
                     alt={token.symbol} 
-                    className="w-full h-full object-contain"
+                    className={`w-full h-full object-contain ${token.symbol === 'STAKED' ? 'opacity-50 grayscale' : ''}`}
                    />
                 </div>
               </div>
-              <div className="relative z-10 pt-6">
+              <div className="relative z-10 pt-4">
                 <div className="w-full h-1 bg-white/5 rounded-full overflow-hidden">
                   <div className={`h-full ${token.color} opacity-30`} style={{ width: '100%' }}></div>
                 </div>
               </div>
               {/* Subtle background decoration */}
-              <div className={`absolute top-0 right-0 w-32 h-32 ${token.color}/5 rounded-full -mr-16 -mt-16 blur-3xl group-hover:${token.color}/10 transition-colors`}></div>
+              <div className={`absolute top-0 right-0 w-24 h-24 ${token.color}/5 rounded-full -mr-12 -mt-12 blur-3xl group-hover:${token.color}/10 transition-colors`}></div>
             </div>
           ))}
         </div>
@@ -95,9 +103,9 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            <div className="bg-[#0c0c0c] rounded-2xl border border-white/5 overflow-hidden shadow-2xl">
+            <div className="bg-[#1c1c1c] rounded-2xl border border-white/10 overflow-hidden shadow-2xl">
               {/* Table Header */}
-              <div className="grid grid-cols-[40px_1fr_auto_auto] gap-4 px-6 py-3 border-b border-white/5">
+              <div className="grid grid-cols-[40px_1fr_auto_auto] gap-4 px-6 py-3 border-b border-white/5 bg-white/5 text-transparent">
                 <div />
                 <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/20">Order Details</span>
                 <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/20 text-right">Target Fill</span>
@@ -114,7 +122,7 @@ export default function DashboardPage() {
                   const cfg = statusConfig[order.status] || statusConfig['Pending'];
 
                   return (
-                    <div key={order.id} className="grid grid-cols-[40px_1fr_auto_auto] gap-4 items-center px-6 py-5 hover:bg-white/[0.025] transition-colors border-b border-white/[0.04] last:border-0 group">
+                    <div key={order.id} className="grid grid-cols-[40px_1fr_auto_auto] gap-4 items-center px-6 py-5 hover:bg-white/[0.04] transition-colors border-b border-white/[0.04] last:border-0 group">
                       {/* Icon */}
                       <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${cfg.bg} border border-white/5 shadow-sm`}>
                         <span className={`material-symbols-outlined text-[18px] ${cfg.text}`}>{cfg.icon}</span>
@@ -179,10 +187,10 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          <div className="bg-[#0c0c0c] rounded-2xl border border-white/5 overflow-hidden shadow-2xl">
+          <div className="bg-[#1c1c1c] rounded-2xl border border-white/10 overflow-hidden shadow-2xl">
             {/* Table Header */}
             {isConnected && transactions.length > 0 && (
-              <div className="grid grid-cols-[40px_1fr_auto_auto] gap-4 px-6 py-3 border-b border-white/5">
+              <div className="grid grid-cols-[40px_1fr_auto_auto] gap-4 px-6 py-3 border-b border-white/5 bg-white/5">
                 <div />
                 <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/20">Transaction</span>
                 <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/20 text-right">Amount</span>

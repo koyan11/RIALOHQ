@@ -85,14 +85,14 @@ export default function BridgePage() {
         </div>
 
         {/* Bridge Card */}
-        <div className="w-full max-w-[520px] bg-[#0c0c0c] rounded-2xl p-10 shadow-2xl border border-white/5">
+        <div className="w-full max-w-[520px] bg-[#1c1c1c] rounded-2xl p-10 shadow-2xl border border-white/10">
           {/* From */}
           <div className="space-y-4 mb-6">
             <div className="flex justify-between items-center">
               <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/30 font-label">From</span>
               <span className="text-xs font-medium text-white/20">Balance: {balances['ETH']?.toFixed(2) || '0.00'} ETH</span>
             </div>
-            <div className="bg-[#161616] rounded-2xl p-6 flex items-center justify-between border border-white/5 focus-within:border-white/20 transition-all">
+            <div className="bg-white/5 rounded-2xl p-6 flex items-center justify-between border border-white/5 focus-within:border-white/20 transition-all">
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center border border-white/10 overflow-hidden">
                   {CHAINS.find(c => c.id === fromChain)?.isImage ? (
@@ -110,7 +110,7 @@ export default function BridgePage() {
                     className="bg-transparent border-none p-0 text-white font-bold text-xl focus:ring-0 cursor-pointer appearance-none"
                   >
                     {CHAINS.map(c => (
-                      <option key={c.id} value={c.id} className="bg-[#0c0c0c] text-white">{c.name}</option>
+                      <option key={c.id} value={c.id} className="bg-[#1c1c1c] text-white">{c.name}</option>
                     ))}
                   </select>
                   <span className="text-[10px] text-white/20 tracking-wider font-bold uppercase mt-1">Source Chain</span>
@@ -130,7 +130,7 @@ export default function BridgePage() {
 
           {/* Direction Icon */}
           <div className="flex justify-center -my-8 relative z-10">
-            <div className="bg-[#0c0c0c] border-8 border-[#0c0c0c] rounded-full p-2 shadow-2xl">
+            <div className="bg-[#1c1c1c] border-8 border-[#1c1c1c] rounded-full p-2 shadow-2xl">
               <div className="bg-white w-12 h-12 rounded-full flex items-center justify-center text-black">
                 <span className="material-symbols-outlined">south</span>
               </div>
@@ -143,7 +143,7 @@ export default function BridgePage() {
               <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/30 font-label">To</span>
               <span className="text-xs font-medium text-white/20">Balance: {balances['RIALO']?.toFixed(2) || '0.00'} RIALO</span>
             </div>
-            <div className="bg-[#161616] rounded-2xl p-6 flex items-center justify-between border border-white/5">
+            <div className="bg-white/5 rounded-2xl p-6 flex items-center justify-between border border-white/5">
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-2xl overflow-hidden border border-white/10">
                   <img src="/rialo-icon-new.png" className="w-full h-full object-contain" alt="Rialo" />

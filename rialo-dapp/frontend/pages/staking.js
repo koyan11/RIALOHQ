@@ -240,11 +240,11 @@ export default function StakingPage() {
           {/* LEFT COLUMN: Stake RLO */}
           <div className="flex flex-col animate-in fade-in slide-in-from-left-4 duration-700">
             <div className="text-center mb-8">
-              <h1 className="font-headline font-extrabold text-black text-3xl tracking-tighter mb-2">Stake RLO</h1>
-              <p className="font-body text-black/60 text-sm max-w-sm mx-auto">Stake RLO, receive sRLO, and fund your transactions via SfS.</p>
+              <h1 className="font-headline font-extrabold text-white text-3xl tracking-tighter mb-2">Stake RLO</h1>
+              <p className="font-body text-white/60 text-sm max-w-sm mx-auto">Stake RLO, receive sRLO, and fund your transactions via SfS.</p>
             </div>
 
-            <div className="bg-[#121212] rounded-[24px] p-8 border border-white/5 shadow-2xl relative flex-grow">
+            <div className="bg-[#1c1c1c] rounded-[24px] p-8 border border-white/10 shadow-2xl relative flex-grow">
               <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-20 border-t border-white/10 rounded-t-[24px]"></div>
               
               <div className="mb-6">
@@ -257,7 +257,7 @@ export default function StakingPage() {
                     MAX
                   </button>
                 </div>
-                <div className="bg-[#0a0a0a] rounded-xl flex items-center px-4 py-3 border border-white/5 focus-within:border-white/20 transition-colors">
+                <div className="bg-white/5 rounded-xl flex items-center px-4 py-3 border border-white/5 focus-within:border-white/20 transition-colors">
                   <span className="material-symbols-outlined text-white mr-4 text-2xl">local_fire_department</span>
                   <input
                     type="number"
@@ -360,17 +360,17 @@ export default function StakingPage() {
           {/* RIGHT COLUMN: SfS Router */}
           <div className="flex flex-col animate-in fade-in slide-in-from-right-4 duration-700">
             <div className="text-center mb-8">
-              <h1 className="font-headline font-extrabold text-black text-3xl tracking-tighter mb-2 flex items-center justify-center gap-2">
-                <span className="material-symbols-outlined text-black text-3xl">route</span>
+              <h1 className="font-headline font-extrabold text-white text-3xl tracking-tighter mb-2 flex items-center justify-center gap-2">
+                <span className="material-symbols-outlined text-white text-3xl">route</span>
                 SfS Router: Sponsorship
               </h1>
-              <p className="font-body text-black/60 text-sm max-w-sm mx-auto">Manage your Service Credits and sponsor external addresses.</p>
+              <p className="font-body text-white/60 text-sm max-w-sm mx-auto">Manage your Service Credits and sponsor external addresses.</p>
             </div>
 
-            <div className="bg-[#121212] rounded-[24px] p-8 border border-white/5 shadow-2xl relative flex-grow">
+            <div className="bg-[#1c1c1c] rounded-[24px] p-8 border border-white/10 shadow-2xl relative flex-grow">
               <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-20 border-t border-white/10 rounded-t-[24px]"></div>
 
-              <div className="bg-[#0a0a0a] rounded-2xl p-6 border border-white/5 mb-8 flex justify-between items-center relative overflow-hidden group">
+              <div className="bg-white/5 rounded-2xl p-6 border border-white/5 mb-8 flex justify-between items-center relative overflow-hidden group">
                 <div className="absolute inset-0 bg-gradient-to-r from-white/5 to-transparent opacity-50"></div>
                 <div className="relative z-10">
                   <div className="flex items-center gap-2 mb-2">
@@ -398,7 +398,7 @@ export default function StakingPage() {
                     value={sponsorAddress}
                     onChange={(e) => setSponsorAddress(e.target.value)}
                     placeholder="Enter wallet/Contract Address" 
-                    className="w-full bg-[#0a0a0a] border border-white/5 rounded-xl px-5 py-3 text-sm font-mono text-white placeholder:text-white/20 focus:outline-none focus:border-white/20 transition-all shadow-inner" 
+                    className="w-full bg-white/5 border border-white/5 rounded-xl px-5 py-3 text-sm font-mono text-white placeholder:text-white/20 focus:outline-none focus:border-white/20 transition-all shadow-inner" 
                   />
                   <div className="flex flex-col sm:flex-row gap-3">
                     <input 
@@ -406,7 +406,7 @@ export default function StakingPage() {
                       value={sponsorAmount}
                       onChange={(e) => setSponsorAmount(e.target.value)}
                       placeholder="Credits to allocate" 
-                      className="w-full sm:w-1/3 bg-[#0a0a0a] border border-white/5 rounded-xl px-4 py-3 text-sm font-headline font-bold text-white placeholder:text-white/20 focus:outline-none focus:border-white/20 transition-all shadow-inner" 
+                      className="w-full sm:w-1/3 bg-white/5 border border-white/5 rounded-xl px-4 py-3 text-sm font-headline font-bold text-white placeholder:text-white/20 focus:outline-none focus:border-white/20 transition-all shadow-inner" 
                     />
                     <button 
                       onClick={handleCreatePath}

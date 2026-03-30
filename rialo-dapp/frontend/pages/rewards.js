@@ -102,7 +102,7 @@ export default function RewardsPage() {
         {/* Stats Bento Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
           {/* Total Earned */}
-          <div className="bg-[#0c0c0c] rounded-2xl p-10 flex flex-col justify-between min-h-[260px] border border-white/5 shadow-2xl">
+          <div className="bg-[#1c1c1c] rounded-2xl p-10 flex flex-col justify-between min-h-[260px] border border-white/10 shadow-2xl">
             <div>
               <span className="font-label text-[10px] text-white/30 uppercase tracking-[0.2em] font-bold mb-6 block">Total Cumulative Earned</span>
               <h2 className="font-headline text-[3.5rem] font-extrabold text-white leading-none">
@@ -145,7 +145,7 @@ export default function RewardsPage() {
           </div>
 
           {/* APY */}
-          <div className="bg-[#0c0c0c] rounded-2xl p-10 flex flex-col justify-between min-h-[260px] border border-white/5 shadow-2xl">
+          <div className="bg-[#1c1c1c] rounded-2xl p-10 flex flex-col justify-between min-h-[260px] border border-white/10 shadow-2xl">
             <div>
               <span className="font-label text-[10px] text-white/30 uppercase tracking-[0.2em] font-bold mb-6 block">Network Yield (APY)</span>
               <h2 className="font-headline text-[3.5rem] font-extrabold text-white leading-none">
