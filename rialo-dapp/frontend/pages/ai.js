@@ -13,7 +13,7 @@ export default function AiPage() {
       
       <main className="min-h-[819px] flex flex-col items-center justify-center px-6 py-20">
         <h1 className="font-headline text-5xl font-extrabold tracking-tighter text-center mb-4" style={{ 
-          background: 'linear-gradient(to right, #fff, #ffa500)',
+          background: 'linear-gradient(to right, #fff, #10b981)',
           WebkitBackgroundClip: 'text',
           WebkitTextFillColor: 'transparent',
           fontSize: '3.5rem'

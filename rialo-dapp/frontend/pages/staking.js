@@ -206,7 +206,7 @@ export default function StakingPage() {
           <div>
             <button 
               onClick={() => setShowSettings(!showSettings)}
-              className={`flex items-center gap-2 px-4 py-1.5 rounded-full border transition-all ${showSettings ? 'bg-white text-black border-white' : 'bg-[#121212] text-white/80 border-black/10 hover:border-black/20 shadow-sm'}`}
+              className={`flex items-center gap-2 px-4 py-1.5 rounded-full border transition-all ${showSettings ? 'bg-emerald-500 text-on-primary border-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.3)]' : 'bg-[#121212] text-white/80 border-white/10 hover:border-emerald-500/30 shadow-sm'}`}
             >
               <span className="material-symbols-outlined text-sm">settings</span>
               <span className="font-headline font-bold text-[10px] uppercase tracking-widest">AI Agent Settings</span>
@@ -252,7 +252,7 @@ export default function StakingPage() {
                   <label className="font-label text-[10px] uppercase tracking-widest text-white/40 font-bold">RLO AMOUNT</label>
                   <button 
                     onClick={() => setRloAmount((balances['RIALO'] || 0).toString())}
-                    className="font-headline font-bold text-[10px] text-black bg-white hover:bg-white/90 px-3 py-1 rounded-md transition-all uppercase tracking-widest"
+                    className="font-headline font-bold text-[10px] text-emerald-500 bg-emerald-500/10 hover:bg-emerald-500/20 px-3 py-1 rounded-md transition-all uppercase tracking-widest border border-emerald-500/20"
                   >
                     MAX
                   </button>
@@ -283,7 +283,7 @@ export default function StakingPage() {
                   <button 
                     onClick={handleStake}
                     disabled={stakingLoading}
-                    className={`flex-1 bg-white text-black py-4 rounded-xl font-headline font-bold text-lg hover:bg-white/90 active:scale-[0.98] transition-all shadow-lg disabled:opacity-50 flex justify-center items-center gap-3`}
+                    className={`flex-1 bg-emerald-500 text-on-primary py-4 rounded-xl font-headline font-bold text-lg hover:bg-emerald-400 active:scale-[0.98] transition-all shadow-[0_0_25px_rgba(16,185,129,0.2)] disabled:opacity-50 flex justify-center items-center gap-3`}
                   >
                     {stakingLoading ? 'Processing...' : 'Simulate Staking'}
                   </button>
@@ -305,7 +305,7 @@ export default function StakingPage() {
                     SfS Routing Fraction (<span className="text-white">ϕ</span>)
                   </span>
                   <div className="flex items-center gap-2">
-                    <span className="font-headline font-bold text-black text-sm bg-white/90 px-2 py-0.5 rounded border border-white/10">
+                    <span className="font-headline font-bold text-on-primary text-sm bg-emerald-500 px-2 py-0.5 rounded border border-emerald-500/20 shadow-[0_0_10px_rgba(16,185,129,0.2)]">
                       {localSfsFraction}%
                     </span>
                     {localSfsFraction !== contractSfsFraction && (
@@ -328,7 +328,7 @@ export default function StakingPage() {
                   max="100" 
                   value={localSfsFraction} 
                   onChange={(e) => setLocalSfsFraction(Number(e.target.value))}
-                  className="w-full h-1.5 bg-white/10 rounded-lg appearance-none cursor-pointer accent-white focus:outline-none"
+                  className="w-full h-1.5 bg-white/10 rounded-lg appearance-none cursor-pointer accent-emerald-500 focus:outline-none"
                 />
                 <div className="flex justify-between text-[9px] text-white/30 mt-3 font-bold uppercase tracking-widest font-label">
                   <span>0% All Native</span>
@@ -411,13 +411,13 @@ export default function StakingPage() {
                     <button 
                       onClick={handleCreatePath}
                       disabled={isAddingPath}
-                      className="flex-1 bg-white hover:bg-white/90 text-black rounded-xl px-4 py-3 font-headline font-bold text-sm transition-all flex justify-center items-center gap-2 active:scale-[0.98] disabled:opacity-50 shadow-md"
+                      className="flex-1 bg-emerald-500 hover:bg-emerald-400 text-on-primary rounded-xl px-4 py-3 font-headline font-bold text-sm transition-all flex justify-center items-center gap-2 active:scale-[0.98] disabled:opacity-50 shadow-[0_0_20px_rgba(16,185,129,0.15)]"
                     >
                       {isAddingPath ? (
                         <span className="material-symbols-outlined animate-spin text-sm">autorenew</span>
                       ) : (
                         <>
-                          <span className="text-black font-extrabold text-lg mr-1 leading-none">+</span> Add to Router Path
+                          <span className="text-on-primary font-extrabold text-lg mr-1 leading-none">+</span> Add to Router Path
                         </>
                       )}
                     </button>
@@ -443,7 +443,7 @@ export default function StakingPage() {
                           </div>
                           <span className="font-mono text-[11px] text-white/70">{path.address.slice(0,6)}...{path.address.slice(-4)}</span>
                         </div>
-                        <span className="font-headline text-[11px] font-bold text-black bg-white/90 px-2 py-1 rounded">
+                        <span className="font-headline text-[11px] font-bold text-on-primary bg-emerald-500 px-2 py-1 rounded shadow-sm">
                           {path.amount.toFixed(2)} Credits/yr
                         </span>
                       </div>
@@ -476,8 +476,8 @@ export default function StakingPage() {
         {/* Protocol Metrics Layout Bar */}
         <div className="w-full mt-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
           <div className="flex justify-between items-end mb-4 px-2">
-            <h3 className="font-headline font-bold text-sm text-black">Rialo Protocol Statistics</h3>
-            <button onClick={() => router.push('/dashboard')} className="font-body text-xs text-black/40 hover:underline hover:text-black/80 transition-colors">View on Explorer</button>
+            <h3 className="font-headline font-bold text-sm text-emerald-500/60 uppercase tracking-widest">Rialo Protocol Statistics</h3>
+            <button onClick={() => router.push('/dashboard')} className="font-body text-xs text-white/30 hover:underline hover:text-emerald-500 transition-colors">View on Explorer</button>
           </div>
           <div className="bg-[#121212] rounded-[16px] border border-white/5 p-6 md:p-8 flex flex-col md:flex-row justify-between items-center shadow-2xl">
             <div className="flex-1 w-full md:border-r border-white/5 md:px-6 px-0 py-4 md:py-0 first:pl-2 last:pr-2 last:border-0 border-b md:border-b-0">

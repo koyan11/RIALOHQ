@@ -369,8 +369,8 @@ export default function AiAgent() {
           width: 8px;
           height: 8px;
           border-radius: 50%;
-          background: #22c55e;
-          box-shadow: 0 0 8px #22c55e;
+          background: #10b981;
+          box-shadow: 0 0 8px #10b981;
         }
         .ai-close {
           background: none;
@@ -435,7 +435,7 @@ export default function AiAgent() {
           padding-left: 16px;
         }
         .ai-recommendation {
-          color: #22c55e;
+          color: #10b981;
           font-weight: 500;
         }
         .ai-raw {
@@ -500,7 +500,7 @@ export default function AiAgent() {
         }
         .ai-scheduled-item {
           background: #1a1a1b;
-          border: 1px solid rgba(255,165,0,0.2);
+          border: 1px solid rgba(16,185,129,0.2);
           border-radius: 12px;
           padding: 12px 16px;
           display: flex;
@@ -511,14 +511,14 @@ export default function AiAgent() {
         .ai-scheduled-timer {
           width: 32px;
           height: 32px;
-          border: 2px solid #ffa500;
+          border: 2px solid #10b981;
           border-radius: 50%;
           display: flex;
           align-items: center;
           justify-content: center;
           font-size: 10px;
           font-weight: 700;
-          color: #ffa500;
+          color: #10b981;
           flex-shrink: 0;
         }
         .ai-scheduled-info {
@@ -527,7 +527,7 @@ export default function AiAgent() {
         .ai-scheduled-title {
           font-size: 11px;
           font-weight: 800;
-          color: #ffa500;
+          color: #10b981;
           text-transform: uppercase;
           letter-spacing: 0.05em;
         }
@@ -578,11 +578,11 @@ export default function AiAgent() {
           outline: none;
         }
         .ai-sched-input:focus, .ai-sched-select:focus {
-          border-color: #ffa500;
+          border-color: #10b981;
         }
         .ai-sched-btn {
           width: 100%;
-          background: #ffa500;
+          background: #10b981;
           color: #000;
           border: none;
           border-radius: 12px;
@@ -595,7 +595,7 @@ export default function AiAgent() {
           transition: all 0.2s;
         }
         .ai-sched-btn:hover {
-          background: #ffb733;
+          background: #059669;
           transform: translateY(-1px);
         }
 
@@ -624,8 +624,8 @@ export default function AiAgent() {
         }
         .ai-command-chip:hover {
           background: rgba(255,255,255,0.1);
-          border-color: #ffa500;
-          color: #ffa500;
+          border-color: #10b981;
+          color: #10b981;
         }
         .automation-badge {
           display: flex;

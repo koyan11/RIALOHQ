@@ -32,21 +32,21 @@ export default function LearnPage() {
       <main className="max-w-[1200px] mx-auto px-8 py-24">
         {/* Hero */}
         <header className="mb-24 max-w-3xl">
-          <div className="inline-flex items-center px-3 py-1 rounded-full bg-surface-container-high text-primary mb-6">
+          <div className="inline-flex items-center px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-500 mb-6 border border-emerald-500/20">
             <span className="material-symbols-outlined text-sm mr-2">school</span>
             <span className="font-label text-xs font-bold tracking-widest uppercase">Knowledge Base</span>
           </div>
-          <h1 className="font-headline text-6xl font-extrabold tracking-tight mb-8 leading-[1.1]">
+          <h1 className="font-headline text-6xl font-extrabold tracking-tight mb-8 leading-[1.1] text-white">
             The Architectural Void of Knowledge.
           </h1>
-          <p className="font-body text-xl text-on-surface/60 leading-relaxed">
+          <p className="font-body text-xl text-white/60 leading-relaxed">
             Master the nuances of the Rialo ecosystem. From initial setup to high-yield staking strategies, explore the technical foundations of our Layer 1.
           </p>
         </header>
 
         {/* Featured Bento */}
         <section className="grid grid-cols-1 md:grid-cols-12 gap-6 mb-32">
-          <div className="md:col-span-8 group relative overflow-hidden rounded-xl bg-surface-container-lowest shadow-[0px_24px_48px_rgba(0,0,0,0.04)] transition-all duration-500 hover:scale-[1.01]">
+          <div className="md:col-span-8 group relative overflow-hidden rounded-xl bg-[#0c0c0c] border border-white/5 shadow-2xl transition-all duration-500 hover:scale-[1.01]">
             <div className="p-12 h-full flex flex-col">
               <div className="mb-12 aspect-[16/7] bg-[#e6e2d1] rounded-2xl overflow-hidden border-8 border-white/10 shadow-2xl relative group">
                 <video
@@ -60,10 +60,10 @@ export default function LearnPage() {
                 <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none"></div>
               </div>
               <div className="mt-auto">
-                <span className="font-label text-[10px] font-bold tracking-[0.2em] uppercase text-primary/40 mb-3 block">Foundations</span>
-                <h2 className="font-headline text-3xl font-bold mb-4">What is Rialo?</h2>
-                <p className="font-body text-on-surface/60 mb-8 max-w-xl">An in-depth technical analysis of our unique consensus mechanism and the architectural philosophy of the Void.</p>
-                <a href="#" className="inline-flex items-center font-label text-sm font-bold uppercase tracking-wider group/link">
+                <span className="font-label text-[10px] font-bold tracking-[0.2em] uppercase text-emerald-500/40 mb-3 block">Foundations</span>
+                <h2 className="font-headline text-3xl font-bold mb-4 text-white">What is Rialo?</h2>
+                <p className="font-body text-white/50 mb-8 max-w-xl">An in-depth technical analysis of our unique consensus mechanism and the architectural philosophy of the Void.</p>
+                <a href="#" className="inline-flex items-center font-label text-sm font-bold uppercase tracking-wider group/link text-emerald-500 hover:text-emerald-400">
                   Begin Exploration
                   <span className="material-symbols-outlined ml-2 transition-transform group-hover/link:translate-x-1">arrow_forward</span>
                 </a>
@@ -71,7 +71,7 @@ export default function LearnPage() {
             </div>
           </div>
 
-          <div className="md:col-span-4 bg-primary text-on-primary rounded-xl p-10 flex flex-col justify-between shadow-[0px_24px_48px_rgba(0,0,0,0.04)] transition-all duration-500 hover:scale-[1.01]">
+          <div className="md:col-span-4 bg-emerald-500 text-on-primary rounded-xl p-10 flex flex-col justify-between shadow-[0_0_50px_rgba(16,185,129,0.2)] transition-all duration-500 hover:scale-[1.01]">
             <div>
               <span className="material-symbols-outlined text-4xl mb-8 block">speed</span>
               <h2 className="font-headline text-2xl font-bold mb-4">Getting Started</h2>
@@ -91,28 +91,28 @@ export default function LearnPage() {
         <section className="mb-32">
           <div className="flex items-end justify-between mb-16">
             <div>
-              <span className="font-label text-xs uppercase tracking-[0.2em] text-on-surface/50 mb-2 block">Learn By Topic</span>
-              <h2 className="font-headline text-3xl font-bold">Explore the Ecosystem</h2>
+              <span className="font-label text-xs uppercase tracking-[0.2em] text-white/30 mb-2 block text-white/50">Learn By Topic</span>
+              <h2 className="font-headline text-3xl font-bold text-white">Explore the Ecosystem</h2>
             </div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {topics.map(({ icon, title, desc, tag }) => (
-              <div key={title} className="bg-surface-container-lowest p-8 rounded-xl shadow-[0px_24px_48px_rgba(0,0,0,0.04)] group cursor-pointer hover:shadow-xl transition-all duration-300">
-                <div className="w-12 h-12 rounded-lg bg-surface-container-low flex items-center justify-center mb-6 group-hover:bg-primary group-hover:text-on-primary transition-colors">
+              <div key={title} className="bg-[#0c0c0c] p-8 rounded-xl border border-white/5 group cursor-pointer hover:border-emerald-500/20 transition-all duration-300">
+                <div className="w-12 h-12 rounded-lg bg-white/5 flex items-center justify-center mb-6 group-hover:bg-emerald-500 group-hover:text-black transition-colors">
                   <span className="material-symbols-outlined">{icon}</span>
                 </div>
-                <span className="font-label text-[10px] uppercase tracking-widest text-on-surface/40 mb-3 block">{tag}</span>
-                <h3 className="font-headline text-lg font-bold mb-3">{title}</h3>
-                <p className="text-on-surface/60 text-sm leading-relaxed">{desc}</p>
+                <span className="font-label text-[10px] uppercase tracking-widest text-white/20 mb-3 block">{tag}</span>
+                <h3 className="font-headline text-lg font-bold mb-3 text-white">{title}</h3>
+                <p className="text-white/40 text-sm leading-relaxed">{desc}</p>
               </div>
             ))}
           </div>
         </section>
 
         {/* Contributors Section */}
-        <section className="p-12 md:p-24 text-center mb-32 text-[#111111]">
-          <h2 className="font-headline text-[3.5rem] font-medium mb-6 tracking-tight">Contributors</h2>
-          <p className="max-w-[1000px] mx-auto text-on-surface/50 mb-20 text-lg leading-relaxed font-body">
+        <section className="p-12 md:p-24 text-center mb-32">
+          <h2 className="font-headline text-[3.5rem] font-medium mb-6 tracking-tight text-white">Contributors</h2>
+          <p className="max-w-[1000px] mx-auto text-white/40 mb-20 text-lg leading-relaxed font-body">
             A team of experienced builders and researchers from leading blockchain and high-growth companies, working together to build next-generation decentralized networks.
 
           </p>
@@ -127,7 +127,7 @@ export default function LearnPage() {
                 <img 
                   src={`/contributors/${filename}`} 
                   alt="Contributor Logo" 
-                  className="max-h-[32px] w-auto h-auto object-contain mix-blend-multiply grayscale contrast-[1.2] brightness-[1.1] opacity-70 hover:opacity-100"
+                  className="max-h-[32px] w-auto h-auto object-contain mix-blend-multiply grayscale contrast-[1.2] brightness-[1.1] opacity-30 hover:opacity-100 invert"
                 />
               </div>
             ))}
@@ -135,8 +135,8 @@ export default function LearnPage() {
 
           <div className="mt-40">
             <div className="mb-10 text-center">
-              <span className="font-label text-xs uppercase tracking-[0.2em] text-primary/80 mb-2 block">Core Builders</span>
-              <h3 className="font-headline text-2xl font-bold text-[#111111]">Architects of the Void</h3>
+              <span className="font-label text-xs uppercase tracking-[0.2em] text-emerald-500 mb-2 block">Core Builders</span>
+              <h3 className="font-headline text-2xl font-bold text-white">Architects of the Void</h3>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-[800px] mx-auto">
               {[
@@ -148,7 +148,7 @@ export default function LearnPage() {
                   href={dev.link}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="bg-[#0c0c0c] border border-white/5 p-6 rounded-2xl flex items-center gap-5 transition-all hover:border-white/10 hover:shadow-2xl hover:shadow-primary/5 group text-left block"
+                  className="bg-[#0c0c0c] border border-white/5 p-6 rounded-2xl flex items-center gap-5 transition-all hover:border-emerald-500/20 hover:shadow-2xl hover:shadow-emerald-500/5 group text-left"
                 >
                   <div className={`w-14 h-14 rounded-2xl flex items-center justify-center font-headline font-bold text-lg border overflow-hidden ${dev.color}`}>
                     {dev.image ? (
@@ -158,7 +158,7 @@ export default function LearnPage() {
                     )}
                   </div>
                   <div>
-                    <h3 className="font-headline text-xl font-bold text-white group-hover:text-primary transition-colors">{dev.name}</h3>
+                    <h3 className="font-headline text-xl font-bold text-white group-hover:text-emerald-500 transition-colors">{dev.name}</h3>
                     <div className="flex items-center gap-2 mt-1">
                       <span className="font-label text-[10px] uppercase tracking-widest text-white/30">{dev.role}</span>
                       <span className="w-1 h-1 rounded-full bg-white/10"></span>
@@ -172,20 +172,21 @@ export default function LearnPage() {
         </section>
 
         {/* Newsletter CTA */}
-        <section className="bg-surface-container-lowest rounded-xl p-12 md:p-20 text-center shadow-[0px_24px_48px_rgba(0,0,0,0.04)]">
+        <section className="bg-emerald-500 text-on-primary rounded-xl p-12 md:p-20 text-center shadow-[0_0_100px_rgba(16,185,129,0.1)]">
           <h2 className="font-headline text-3xl font-bold mb-4">Stay at the Frontier.</h2>
-          <p className="text-on-surface/60 max-w-md mx-auto mb-8">Get weekly protocol updates, ecosystem reports, and deep-dive articles delivered to your inbox.</p>
+          <p className="text-on-primary/60 max-w-md mx-auto mb-8">Get weekly protocol updates, ecosystem reports, and deep-dive articles delivered to your inbox.</p>
           <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
             <input
               type="email"
               placeholder="Enter your email"
-              className="flex-1 bg-surface-container-low border border-outline-variant/20 rounded-xl px-5 py-3 focus:ring-1 focus:ring-primary focus:border-primary font-body"
+              className="flex-1 bg-white/10 border border-white/20 rounded-xl px-5 py-3 focus:ring-1 focus:ring-on-primary focus:border-on-primary font-body placeholder:text-white/30 text-white"
             />
-            <button className="bg-primary text-on-primary px-8 py-3 rounded-xl font-bold hover:bg-primary-container transition-all">
+            <button className="bg-black text-white px-8 py-3 rounded-xl font-bold hover:bg-black/80 transition-all">
               Subscribe
             </button>
           </div>
         </section>
+
       </main>
       <Footer />
     </div>

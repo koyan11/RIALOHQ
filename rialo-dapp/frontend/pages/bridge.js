@@ -75,12 +75,12 @@ export default function BridgePage() {
   };
 
   return (
-    <div className="bg-surface text-on-surface antialiased selection:bg-primary selection:text-on-primary font-body">
+    <div className="bg-surface text-on-surface antialiased selection:bg-emerald-500/30 selection:text-emerald-900 font-body">
       <Navbar />
       <main className="min-h-[819px] flex flex-col items-center justify-center px-6 py-20">
         {/* Hero */}
         <div className="text-center mb-12">
-          <h1 className="text-5xl font-extrabold tracking-tighter text-primary mb-4 font-headline">Bridge Assets</h1>
+          <h1 className="text-5xl font-extrabold tracking-tighter text-emerald-500 mb-4 font-headline">Bridge Assets</h1>
           <p className="text-on-surface/60 max-w-md mx-auto">Seamlessly move your assets across networks. A simplified bridging experience designed to remove complexity</p>
         </div>
 
@@ -130,8 +130,8 @@ export default function BridgePage() {
 
           {/* Direction Icon */}
           <div className="flex justify-center -my-8 relative z-10">
-            <div className="bg-[#1c1c1c] border-8 border-[#1c1c1c] rounded-full p-2 shadow-2xl">
-              <div className="bg-white w-12 h-12 rounded-full flex items-center justify-center text-black">
+            <div className="bg-[#1c1c1c] border-8 border-[#1c1c1c] rounded-full p-2 shadow-2xl transition-transform hover:scale-110">
+              <div className="bg-emerald-500 w-12 h-12 rounded-full flex items-center justify-center text-on-primary shadow-[0_0_20px_rgba(16,185,129,0.3)]">
                 <span className="material-symbols-outlined">south</span>
               </div>
             </div>
@@ -145,8 +145,8 @@ export default function BridgePage() {
             </div>
             <div className="bg-white/5 rounded-2xl p-6 flex items-center justify-between border border-white/5">
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-2xl overflow-hidden border border-white/10">
-                  <img src="/rialo-icon-new.png" className="w-full h-full object-contain" alt="Rialo" />
+                <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(255,255,255,0.1)] overflow-hidden border border-white/10">
+                  <img src="/rialo-icon-new.png" className="w-full h-full object-contain p-2" alt="Rialo" />
                 </div>
                 <div className="flex flex-col">
                   <span className="text-white font-bold text-xl">Rialo L1</span>
@@ -179,7 +179,7 @@ export default function BridgePage() {
           <button
             onClick={handleBridge}
             disabled={loading || (isConnected && amount && parseFloat(amount) > (balances['ETH'] || 0))}
-            className="w-full bg-white text-black py-5 rounded-2xl font-bold text-lg hover:bg-white/90 transition-all scale-[0.98] active:scale-95 shadow-2xl disabled:opacity-50"
+            className="w-full bg-emerald-500 text-on-primary py-5 rounded-2xl font-headline font-extrabold text-lg hover:bg-emerald-400 transition-all active:scale-95 shadow-[0_0_30px_rgba(16,185,129,0.2)] disabled:opacity-50"
           >
             {loading ? (
               <span className="flex items-center justify-center gap-2">
@@ -203,8 +203,8 @@ export default function BridgePage() {
             { icon: 'hub', title: '12 Networks Supported', desc: 'Bridge between all major EVM chains and Layer 2 rollups with unified liquidity.' },
           ].map(({ icon, title, desc }) => (
             <div key={title} className="bg-surface-container-low p-8 rounded-xl border border-outline-variant/5">
-              <span className="material-symbols-outlined text-primary/40 mb-4 block">{icon}</span>
-              <h3 className="text-lg font-bold text-primary mb-2">{title}</h3>
+              <span className="material-symbols-outlined text-emerald-500/40 mb-4 block">{icon}</span>
+              <h3 className="text-lg font-bold text-emerald-500 mb-2">{title}</h3>
               <p className="text-sm text-on-surface/60">{desc}</p>
             </div>
           ))}

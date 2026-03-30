@@ -33,8 +33,8 @@ export default function DashboardPage() {
 
   // Portfolio data for chart
   const portfolioData = [
-    { label: 'Staked', value: stakedBalance, color: 'bg-primary' },
-    { label: 'Wallet', value: availableRialo, color: 'bg-white/20' },
+    { label: 'Wallet Balance', value: availableRialo, color: 'bg-emerald-500' },
+    { label: 'Network Liquidity', value: totalValue * 0.1, color: 'bg-white/20' },
   ];
 
   return (
@@ -52,15 +52,14 @@ export default function DashboardPage() {
         </header>
 
         {/* Individual Asset Balances */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-16">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-16">
           {[
-            { symbol: 'RIALO', label: 'Ecosystem Token', color: 'bg-primary', icon: 'currency_exchange' },
-            { symbol: 'STAKED', label: 'Staked Assets', color: 'bg-emerald-500', icon: 'lock' },
-            { symbol: 'ETH', label: 'Ethereum Testnet', color: 'bg-[#627EEA]', icon: 'token' },
-            { symbol: 'USDC', label: 'USD Coin', color: 'bg-[#2775CA]', icon: 'monetization_on' },
-            { symbol: 'USDT', label: 'Tether USD', color: 'bg-[#26A17B]', icon: 'account_balance_wallet' },
+            { symbol: 'RIALO', label: 'Ecosystem Token', color: 'bg-emerald-500', icon: 'currency_exchange' },
+            { symbol: 'ETH', label: 'Ethereum Testnet', color: 'bg-emerald-500', icon: 'token' },
+            { symbol: 'USDC', label: 'USD Coin', color: 'bg-emerald-500', icon: 'monetization_on' },
+            { symbol: 'USDT', label: 'Tether USD', color: 'bg-emerald-500', icon: 'account_balance_wallet' },
           ].map((token) => (
-            <div key={token.symbol} className="bg-[#1c1c1c] rounded-2x p-6 flex flex-col justify-between min-h-[180px] border border-white/10 shadow-2xl relative overflow-hidden group hover:border-primary/20 transition-all">
+            <div key={token.symbol} className="bg-[#1c1c1c] rounded-2xl p-6 flex flex-col justify-between min-h-[180px] border border-white/10 shadow-2xl relative overflow-hidden group hover:border-emerald-500/40 transition-all">
               <div className="relative z-10 flex justify-between items-start">
                 <div>
                   <span className="font-label text-[9px] text-white/30 uppercase tracking-[0.2em] font-bold mb-2 block">{token.label}</span>
@@ -98,7 +97,7 @@ export default function DashboardPage() {
           <section className="mb-16">
             <div className="flex justify-between items-center mb-8">
               <div>
-                <h3 className="font-headline font-bold text-primary text-xl">Active Trigger Orders</h3>
+                <h3 className="font-headline font-bold text-emerald-500 text-xl">Active Trigger Orders</h3>
                 <p className="text-[10px] text-white/30 uppercase tracking-widest mt-1">{triggerOrders.filter(o => o.status === 'Pending').length} orders awaiting execution</p>
               </div>
             </div>
@@ -182,7 +181,7 @@ export default function DashboardPage() {
         <section className="mb-16">
           <div className="flex justify-between items-center mb-8">
             <div>
-              <h3 className="font-headline font-bold text-primary text-xl">Transaction History</h3>
+              <h3 className="font-headline font-bold text-emerald-500 text-xl">Transaction History</h3>
               <p className="text-[10px] text-white/30 uppercase tracking-widest mt-1">{transactions.length} total operations recorded</p>
             </div>
           </div>
@@ -319,7 +318,7 @@ export default function DashboardPage() {
           {/* Portfolio Composition */}
           <div className="lg:col-span-2 space-y-6">
             <div className="bg-surface-container-low rounded-xl p-8 border border-outline-variant/10">
-              <h3 className="font-headline font-bold text-primary text-lg mb-10">Asset Composition</h3>
+              <h3 className="font-headline font-bold text-emerald-500 text-lg mb-10">Asset Composition</h3>
               
               <div className="space-y-8">
                 {portfolioData.map((item, i) => {
@@ -347,6 +346,9 @@ export default function DashboardPage() {
                 <div>
                   <p className="text-[10px] font-bold text-on-surface/30 uppercase tracking-[0.2em] mb-2">Network APY</p>
                   <p className="font-headline text-2xl font-extrabold text-on-surface">18.4%</p>
+                  <div className="w-full h-1.5 bg-emerald-500/10 rounded-full mt-2 overflow-hidden">
+                    <div className="h-full bg-emerald-500" style={{ width: '85%' }}></div>
+                  </div>
                 </div>
                 <div>
                   <p className="text-[10px] font-bold text-on-surface/30 uppercase tracking-[0.2em] mb-2">Protocol Status</p>
@@ -361,7 +363,7 @@ export default function DashboardPage() {
 
           {/* Quick Actions & Tips */}
           <div className="space-y-6">
-            <h3 className="font-headline font-bold text-primary text-lg">Quick Actions</h3>
+            <h3 className="font-headline font-bold text-emerald-500 text-lg">Quick Actions</h3>
             <div className="grid grid-cols-1 gap-4">
               {[
                 { label: 'Swap Assets', icon: 'swap_horiz', href: '/swap', desc: 'Exchange RIALO for other assets' },
@@ -374,11 +376,11 @@ export default function DashboardPage() {
                   className="bg-surface-container-lowest p-6 rounded-xl border border-outline-variant/5 hover:border-primary/30 transition-all group"
                 >
                   <div className="flex items-start gap-4">
-                    <div className="w-10 h-10 rounded-full bg-surface-container-low flex items-center justify-center group-hover:bg-primary group-hover:text-on-primary transition-colors border border-on-surface/5">
+                    <div className="w-10 h-10 rounded-full bg-surface-container-low flex items-center justify-center group-hover:bg-emerald-500 group-hover:text-on-primary transition-colors border border-on-surface/5">
                       <span className="material-symbols-outlined text-sm">{action.icon}</span>
                     </div>
                     <div>
-                      <p className="font-headline font-bold text-sm text-on-surface group-hover:text-primary transition-colors">{action.label}</p>
+                      <p className="font-headline font-bold text-sm text-on-surface group-hover:text-emerald-500 transition-colors">{action.label}</p>
                       <p className="text-[10px] text-on-surface/40 font-body mt-1">{action.desc}</p>
                     </div>
                   </div>

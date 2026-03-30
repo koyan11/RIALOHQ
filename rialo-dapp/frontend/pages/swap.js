@@ -213,7 +213,7 @@ export default function SwapPage() {
         <div className="w-full max-w-[480px]">
           {/* Header */}
           <div className="mb-8 text-center">
-            <h1 className="font-headline font-extrabold tracking-tighter text-primary mb-2" style={{ fontSize: '3.5rem' }}>Swap.</h1>
+            <h1 className="font-headline font-extrabold tracking-tighter text-emerald-500 mb-2" style={{ fontSize: '3.5rem' }}>Swap.</h1>
             <p className="font-body text-on-surface/50 mb-6">Seamless trading across the unified ecosystem</p>
             
             {isConnected && (
@@ -236,7 +236,7 @@ export default function SwapPage() {
                   }
                 }}
                 disabled={faucetLoading}
-                className="inline-flex items-center gap-2 bg-primary/10 text-primary border border-primary/20 px-4 py-2 rounded-full text-[10px] font-bold uppercase tracking-widest hover:bg-primary/20 transition-all"
+                className="inline-flex items-center gap-2 bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 px-4 py-2 rounded-full text-[10px] font-bold uppercase tracking-widest hover:bg-emerald-500/20 transition-all"
               >
                 <span className="material-symbols-outlined text-sm">water_drop</span>
                 {faucetLoading ? 'Claiming...' : 'Claim 100 RLO Faucet'}
@@ -251,11 +251,11 @@ export default function SwapPage() {
               <div className="flex gap-1 bg-[#161616] p-1 rounded-full border border-white/5">
                 <button 
                   onClick={() => setOrderType('swap')}
-                  className={`font-headline font-bold text-sm tracking-tight transition-all px-4 py-1.5 rounded-full ${orderType === 'swap' ? 'bg-white text-black shadow-md' : 'text-white/40 hover:text-white'}`}
+                  className={`font-headline font-bold text-sm tracking-tight transition-all px-4 py-1.5 rounded-full ${orderType === 'swap' ? 'bg-emerald-500 text-on-primary shadow-md' : 'text-white/40 hover:text-white'}`}
                 >Swap</button>
                 <button 
                   onClick={() => setOrderType('limit')}
-                  className={`font-headline font-bold text-sm tracking-tight transition-all px-4 py-1.5 rounded-full ${orderType === 'limit' ? 'bg-white text-black shadow-md' : 'text-white/40 hover:text-white'}`}
+                  className={`font-headline font-bold text-sm tracking-tight transition-all px-4 py-1.5 rounded-full ${orderType === 'limit' ? 'bg-emerald-500 text-on-primary shadow-md' : 'text-white/40 hover:text-white'}`}
                 >Limit</button>
               </div>
               <div className="relative">
@@ -277,7 +277,7 @@ export default function SwapPage() {
                             onClick={() => setSlippage(val === 'Auto' ? 'Auto' : val)}
                             className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all border ${
                               (val === 'Auto' && slippage === 'Auto') || val === slippage 
-                                ? 'bg-white text-black border-white' 
+                                ? 'bg-emerald-500 text-on-primary border-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.2)]' 
                                 : 'bg-[#0c0c0c] text-white/60 hover:text-white border-white/5'
                             }`}
                           >
@@ -289,7 +289,7 @@ export default function SwapPage() {
                     <div className="mt-6 pt-6 border-t border-white/5">
                       <div className="flex items-center justify-between mb-3">
                         <label className="font-label text-xs uppercase tracking-widest text-white/30 font-bold">AI Wallet Secret</label>
-                        <span className="material-symbols-outlined text-primary text-xs">auto_fix</span>
+                        <span className="material-symbols-outlined text-emerald-500 text-xs">auto_fix</span>
                       </div>
                       <p className="text-[10px] text-white/20 mb-3 leading-relaxed">Enter a private key for automated AI execution. This key will be used to sign transactions without manual approval.</p>
                       <input 
@@ -297,7 +297,7 @@ export default function SwapPage() {
                         placeholder="0x..."
                         value={aiPrivateKey || ''}
                         onChange={(e) => setAiPrivateKey(e.target.value)}
-                        className="w-full bg-[#0c0c0c] border border-white/5 rounded-xl px-4 py-3 text-xs font-mono text-white placeholder:text-white/5 focus:border-primary/50 outline-none transition-all"
+                        className="w-full bg-[#0c0c0c] border border-white/5 rounded-xl px-4 py-3 text-xs font-mono text-white placeholder:text-white/5 focus:border-emerald-500/50 outline-none transition-all"
                       />
                     </div>
                   </div>
@@ -434,7 +434,7 @@ export default function SwapPage() {
             <button
               onClick={handleAction}
               disabled={loading || (isConnected && amountIn && parseFloat(amountIn) > (balances[fromToken] || 0))}
-              className="w-full bg-white text-black py-5 rounded-2xl font-headline font-extrabold text-lg tracking-tight hover:bg-white/90 active:scale-[0.98] transition-all shadow-2xl disabled:opacity-50"
+              className="w-full bg-emerald-500 text-on-primary py-5 rounded-2xl font-headline font-extrabold text-lg tracking-tight hover:bg-emerald-400 active:scale-[0.98] transition-all shadow-[0_0_30px_rgba(16,185,129,0.15)] disabled:opacity-50"
             >
               {loading ? (
                 <span className="flex items-center justify-center gap-2">
@@ -457,7 +457,7 @@ export default function SwapPage() {
             <div className="bg-surface-container-low/50 p-4 rounded-xl border border-outline-variant/10">
               <p className="font-label text-xs uppercase text-on-surface/40 mb-1">Network Status</p>
               <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-primary animate-pulse"></div>
+                <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
                 <span className="font-headline font-bold text-sm">Testnet Node Active</span>
               </div>
             </div>
