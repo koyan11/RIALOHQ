@@ -13,7 +13,7 @@ const CHAINS = [
 ];
 
 export default function BridgePage() {
-  const { isConnected, address, provider, connect, balances: walletBalances, addTransaction, globalRates, fetchEthBalance } = useWallet();
+  const { isConnected, address, provider, connect, balances: walletBalances, addTransaction, globalRates, fetchEthBalance, updateBalance } = useWallet();
   const { balance: rloBal, fetchBalance: fetchRloBalance } = useRLO();
   const [fromChain, setFromChain] = useState('1');
   const [amount, setAmount] = useState('');
@@ -64,10 +64,13 @@ export default function BridgePage() {
         source: 'Direct'
       });
       
-      // Update balances from chain
+      // Update balances from chain and local mock
       if (address && provider) {
         fetchEthBalance(address, provider);
         fetchRloBalance();
+      }
+      if (updateBalance) {
+        updateBalance('ETH_RIALO', parseFloat(amount));
       }
       
       setAmount('');
@@ -149,7 +152,7 @@ export default function BridgePage() {
           <div className="space-y-4 mt-6 mb-10">
             <div className="flex justify-between items-center">
               <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/30 font-label">To</span>
-              <span className="text-xs font-medium text-white/20">Balance: 0.00 ETH</span>
+              <span className="text-xs font-medium text-white/20">Balance: {balances['ETH_RIALO']?.toFixed(2) || '0.00'} ETH</span>
             </div>
             <div className="bg-[#161616] rounded-2xl p-6 flex items-center justify-between border border-white/5 shadow-inner">
               <div className="flex items-center gap-4">
