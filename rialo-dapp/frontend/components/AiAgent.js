@@ -222,7 +222,7 @@ export default function AiAgent() {
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages, scheduledTxs]);
+  }, [messages, scheduledTxs.map(tx => tx.id).join(',')]); // Only scroll when message count or number of active scheduled tasks changes
 
 
 
