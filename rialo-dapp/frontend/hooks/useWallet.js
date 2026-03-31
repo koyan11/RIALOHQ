@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useCallback, useEffect, useMemo } from 'react';
 import { ethers } from 'ethers';
-import { getContract } from '../lib/ethers';
+import { getContract, RLO_ADDRESS } from '../lib/ethers';
 
 const WalletContext = createContext(null);
 const SEPOLIA_CHAIN_ID = 11155111;
@@ -260,8 +260,8 @@ export function WalletProvider({ children }) {
             const rate = globalRates[from]?.[to] || 1;
             const amountOut = amount * rate;
 
-            if (from !== 'ETH' && from !== 'RIALO') updateBalance(from, -amount);
-            if (to !== 'ETH' && to !== 'RIALO') updateBalance(to, amountOut);
+            if (from !== 'ETH') updateBalance(from, -amount);
+            if (to !== 'ETH') updateBalance(to, amountOut);
           }
         }
         
@@ -305,8 +305,8 @@ export function WalletProvider({ children }) {
         if (txType === 'Swap' && fromToken && toToken) {
           const rate = globalRates[fromToken]?.[toToken] || 1;
           const amountOut = amountVal * rate;
-          if (fromToken !== 'ETH' && fromToken !== 'RIALO') updateBalance(fromToken, -amountVal);
-          if (toToken !== 'ETH' && toToken !== 'RIALO') updateBalance(toToken, amountOut);
+          if (fromToken !== 'ETH') updateBalance(fromToken, -amountVal);
+          if (toToken !== 'ETH') updateBalance(toToken, amountOut);
         }
 
         addTransaction({ type: txType, amount: actionDetail, details: 'AI Strategy', txHash: tx.hash, source: 'AI Agent' });
