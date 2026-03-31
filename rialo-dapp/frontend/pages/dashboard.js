@@ -52,10 +52,9 @@ export default function DashboardPage() {
         </header>
 
         {/* Individual Asset Balances */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-16">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-16">
           {[
             { symbol: 'RIALO', label: 'Ecosystem Token', color: 'bg-primary', icon: 'currency_exchange' },
-            { symbol: 'STAKED', label: 'Staked Assets', color: 'bg-emerald-500', icon: 'lock' },
             { symbol: 'ETH', label: 'Ethereum Testnet', color: 'bg-[#627EEA]', icon: 'token' },
             { symbol: 'USDC', label: 'USD Coin', color: 'bg-[#2775CA]', icon: 'monetization_on' },
             { symbol: 'USDT', label: 'Tether USD', color: 'bg-[#26A17B]', icon: 'account_balance_wallet' },
