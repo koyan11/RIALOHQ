@@ -8,7 +8,7 @@ import { useRouter } from 'next/router';
 
 export default function StakingPage() {
   const router = useRouter();
-  const { isConnected, address, provider, connect, balances: walletBalances, addTransaction, fetchEthBalance, aiPrivateKey, setAiPrivateKey, showToast } = useWallet();
+  const { isConnected, address, provider, connect, balances: walletBalances, addTransaction, fetchEthBalance, showToast } = useWallet();
   const { balance: rloBal, fetchBalance: fetchRloBalance } = useRLO();
   const { 
     stakedBalance: stakedBalStr, 
@@ -36,7 +36,6 @@ export default function StakingPage() {
   const [sponsorAmount, setSponsorAmount] = useState('');
   const [isUpdatingFraction, setIsUpdatingFraction] = useState(false);
   const [isAddingPath, setIsAddingPath] = useState(false);
-  const [showSettings, setShowSettings] = useState(false);
 
   useEffect(() => {
     // Only sync from contract if it has a real non-zero value.
@@ -203,38 +202,7 @@ export default function StakingPage() {
 
       <main className="max-w-7xl mx-auto px-4 py-16 relative">
         
-        {/* Top Header Row for AI Settings */}
-        <div className="flex justify-end mb-8 relative z-50 animate-in fade-in">
-          <div>
-            <button 
-              onClick={() => setShowSettings(!showSettings)}
-              className={`flex items-center gap-2 px-4 py-1.5 rounded-full border transition-all ${showSettings ? 'bg-white text-black border-white' : 'bg-[#121212] text-white/80 border-black/10 hover:border-black/20 shadow-sm'}`}
-            >
-              <span className="material-symbols-outlined text-sm">settings</span>
-              <span className="font-headline font-bold text-[10px] uppercase tracking-widest">AI Agent Settings</span>
-            </button>
-            
-            {showSettings && (
-              <div className="absolute right-0 top-full mt-2 w-72 bg-[#121212] border border-white/20 rounded-2xl shadow-2xl p-6 z-50 text-left">
-                <h3 className="font-headline font-bold text-sm text-white mb-3 flex items-center gap-2">
-                  <span className="material-symbols-outlined text-white text-sm">auto_fix</span>
-                  AI Auto-Execution
-                </h3>
-                <p className="font-body text-[10px] text-white/40 mb-4 leading-relaxed">Enter a dedicated AI wallet private key to enable automated, non-custodial transaction execution through the agent.</p>
-                <div>
-                  <label className="font-label text-[10px] uppercase tracking-widest text-white/30 font-bold mb-2 block">AI Wallet Secret</label>
-                  <input 
-                    type="password" 
-                    placeholder="0x..."
-                    value={aiPrivateKey || ''}
-                    onChange={(e) => setAiPrivateKey(e.target.value)}
-                    className="w-full bg-[#0a0a0a] border border-white/10 rounded-xl px-4 py-3 text-xs font-mono text-white placeholder:text-white/10 focus:border-white/50 outline-none transition-all"
-                  />
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
+
 
         {/* Main Grid: 2 Columns */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-stretch mb-16">
