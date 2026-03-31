@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useCallback, useEffect, useMemo } from 'react';
+import { createContext, useContext, useState, useCallback, useEffect, useMemo, useRef } from 'react';
 import { ethers } from 'ethers';
 import { getContract, RLO_ADDRESS } from '../lib/ethers';
 
@@ -6,6 +6,13 @@ const WalletContext = createContext(null);
 const SEPOLIA_CHAIN_ID = 11155111;
 
 export function WalletProvider({ children }) {
+  // Skip the very first run of the persist effect.
+  // On mount, STEP 1 loads from localStorage and queues state updates,
+  // but STEP 2 runs immediately after with the old zero values before
+  // those updates are committed — wiping localStorage. By skipping the
+  // first STEP 2 run, we let React re-render with loaded values first,
+  // then STEP 2 runs correctly on the re-render.
+  const skipFirstPersist = useRef(true);
   const [address, setAddress] = useState(null);
   const [provider, setProvider] = useState(null);
   const [chainId, setChainId] = useState(null);
@@ -58,60 +65,77 @@ export function WalletProvider({ children }) {
     return rates;
   }, [basePrices]);
 
-  const [balances, setBalances] = useState({
-    'ETH': 0,
-    'RIALO': 0,
-    'BTC': 0.00,
-    'SOL': 0.00,
-    'BNB': 0.00,
-    'USDC': 0.00,
-    'USDT': 0.00
-  });
+  // SSR-safe default — same value on server and client to avoid hydration mismatch.
+  // The real saved values are loaded from localStorage in a useEffect below.
+  const [balances, setBalances] = useState({ 'ETH': 0, 'RIALO': 0, 'BTC': 0, 'SOL': 0, 'BNB': 0, 'USDC': 0, 'USDT': 0 });
 
-  const [transactions, setTransactions] = useState(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('rialo_transactions');
-      return saved ? JSON.parse(saved) : [];
-    }
-    return [];
-  });
-  const [triggerOrders, setTriggerOrders] = useState(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('rialo_trigger_orders');
-      return saved ? JSON.parse(saved) : [];
-    }
-    return [];
-  });
-  const [scheduledTxs, setScheduledTxs] = useState(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('rialo_scheduled_txs');
-      return saved ? JSON.parse(saved) : [];
-    }
-    return [];
-  });
-  const [aiMessages, setAiMessages] = useState(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('rialo_ai_messages');
-      const initialMessage = { role: 'ai', content: { raw: "Rialo AI is online. How can I optimize your on-chain operations today?" } };
-      return saved ? JSON.parse(saved) : [initialMessage];
-    }
-    return [];
-  });
+  // SSR-safe defaults — same on server and client.
+  const [transactions, setTransactions] = useState([]);
+  const [triggerOrders, setTriggerOrders] = useState([]);
+  const [scheduledTxs, setScheduledTxs] = useState([]);
+  const [aiMessages, setAiMessages] = useState([{ role: 'ai', content: { raw: "Rialo AI is online. How can I optimize your on-chain operations today?" } }]);
   const [toast, setToast] = useState(null);
 
+  // STEP 1: After mount, load all saved data from localStorage into state.
+  // This runs only on the client, after hydration, so there's no SSR mismatch.
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('rialo_transactions', JSON.stringify(transactions));
-      localStorage.setItem('rialo_trigger_orders', JSON.stringify(triggerOrders));
-      localStorage.setItem('rialo_scheduled_txs', JSON.stringify(scheduledTxs));
-      localStorage.setItem('rialo_ai_messages', JSON.stringify(aiMessages));
-      if (aiPrivateKey) {
-        localStorage.setItem('rialo_ai_private_key', aiPrivateKey);
-      } else {
-        localStorage.removeItem('rialo_ai_private_key');
-      }
+    const savedBalances = localStorage.getItem('rialo_balances');
+    if (savedBalances) setBalances(JSON.parse(savedBalances));
+
+    const savedTxs = localStorage.getItem('rialo_transactions');
+    if (savedTxs) setTransactions(JSON.parse(savedTxs));
+
+    const savedOrders = localStorage.getItem('rialo_trigger_orders');
+    if (savedOrders) setTriggerOrders(JSON.parse(savedOrders));
+
+    const savedScheduled = localStorage.getItem('rialo_scheduled_txs');
+    if (savedScheduled) setScheduledTxs(JSON.parse(savedScheduled));
+
+    const savedMessages = localStorage.getItem('rialo_ai_messages');
+    if (savedMessages) setAiMessages(JSON.parse(savedMessages));
+
+  }, []);
+
+  // STEP 2: Persist state to localStorage on every change.
+  // Skips the FIRST run (mount) where state still has stale zero defaults.
+  // On the re-render triggered by STEP 1's setState calls, this runs
+  // again with the correct loaded values.
+  useEffect(() => {
+    if (skipFirstPersist.current) {
+      skipFirstPersist.current = false;
+      return;
     }
-  }, [transactions, triggerOrders, scheduledTxs, aiMessages, aiPrivateKey]);
+    localStorage.setItem('rialo_transactions', JSON.stringify(transactions));
+    localStorage.setItem('rialo_trigger_orders', JSON.stringify(triggerOrders));
+    localStorage.setItem('rialo_scheduled_txs', JSON.stringify(scheduledTxs));
+    localStorage.setItem('rialo_ai_messages', JSON.stringify(aiMessages));
+    localStorage.setItem('rialo_balances', JSON.stringify(balances));
+    if (aiPrivateKey) {
+      localStorage.setItem('rialo_ai_private_key', aiPrivateKey);
+    } else {
+      localStorage.removeItem('rialo_ai_private_key');
+    }
+  }, [transactions, triggerOrders, scheduledTxs, aiMessages, balances, aiPrivateKey]);
+
+  const simplifyError = useCallback((err) => {
+    if (!err) return null;
+    let msg = typeof err === 'string' ? err : err.reason || err.message || 'Transaction failed';
+    
+    const lower = msg.toLowerCase();
+    if (lower.includes('user rejected')) return 'User rejected transaction';
+    if (lower.includes('insufficient funds')) return 'Insufficient funds';
+    if (lower.includes('execution reverted')) {
+       const reasonMatch = msg.match(/reverted\s+with\s+reason\s+(?:"|')([^"']+)(?:"|')/i);
+       if (reasonMatch) return reasonMatch[1];
+       if (msg.includes('require(false)')) return 'Transaction Reverted';
+       return 'Execution Reverted';
+    }
+    if (lower.includes('estimategas')) return 'Gas estimation failed';
+    if (lower.includes('network changed')) return 'Network changed. Please refresh.';
+    
+    // If it's still too long, cap it
+    return msg.length > 60 ? 'Transaction failed. Check console.' : msg;
+  }, []);
 
   const addTransaction = useCallback((tx) => {
     const newTx = {
@@ -312,22 +336,25 @@ export function WalletProvider({ children }) {
       }
 
       if (tx) {
-        await tx.wait();
-        
-        // Finalize mock balance updates for real transactions
-        if (txType === 'Swap' && fromToken && toToken) {
-          const rate = globalRates[fromToken]?.[toToken] || 1;
-          const amountOut = amountVal * rate;
-          if (fromToken !== 'ETH') updateBalance(fromToken, -amountVal);
-          if (toToken !== 'ETH') updateBalance(toToken, amountOut);
-        }
-
+        // Add to history immediately for a "langsung" feel
         addTransaction({ type: txType, amount: actionDetail, details: 'AI Strategy', txHash: tx.hash, source: 'AI Agent' });
-        if (!isAuto) {
-           // Success message for direct chat triggers is handled in AiAgent.js by response
-        } else {
-           addAiMessage({ role: 'ai', content: { raw: `Successfully executed your background ${txType}: ${actionDetail}` } });
-        }
+
+        // Resolve early so the AI Agent and Toast show success immediately
+        // but still handle the wait and balance updates in background
+        tx.wait().then(() => {
+          if (txType === 'Swap' && fromToken && toToken) {
+            const rate = globalRates[fromToken]?.[toToken] || 1;
+            const amountOut = amountVal * rate;
+            if (fromToken !== 'ETH') updateBalance(fromToken, -amountVal);
+            if (toToken !== 'ETH') updateBalance(toToken, amountOut);
+          }
+          if (isAuto) {
+             addAiMessage({ role: 'ai', content: { raw: `Successfully confirmed background ${txType}: ${actionDetail}` } });
+          }
+        }).catch(err => {
+          console.error("Transaction failed after wait:", err);
+        });
+
         return tx.hash;
       }
       return '0x' + Math.random().toString(16).slice(2, 42);
@@ -345,7 +372,7 @@ export function WalletProvider({ children }) {
             executeAiTransaction(tx.type, tx.userMsg, tx.detail, true).then(txHash => {
               setToast({ message: `Auto ${tx.type} completed!`, detail: tx.detail, txHash: txHash });
             }).catch(err => {
-              setToast({ message: `Auto ${tx.type} failed: ${err.message}`, type: 'error' });
+              showToast({ message: `Auto ${tx.type} failed`, detail: err, type: 'error' });
             });
           } else {
             next.push({ ...tx, remainingSec: tx.remainingSec - 1 });
@@ -408,8 +435,9 @@ export function WalletProvider({ children }) {
   }, []);
 
   const showToast = useCallback((toastData) => {
-    setToast(toastData);
-  }, []);
+    const finalDetail = toastData.type === 'error' ? simplifyError(toastData.detail) : toastData.detail;
+    setToast({ ...toastData, detail: finalDetail });
+  }, [simplifyError]);
 
   useEffect(() => {
     if (toast) {
