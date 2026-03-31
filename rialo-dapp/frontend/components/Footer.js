@@ -71,14 +71,7 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="border-t border-white/5 pt-8 flex flex-col md:flex-row items-center justify-between gap-6">
-          <p className="font-headline text-[11px] text-white/20 uppercase tracking-widest">
-            Built on the architectural void. Powered by precision.
-          </p>
-          <div className="flex gap-8">
-            <span className="font-headline text-[11px] text-white/10 uppercase tracking-widest">v2.1.0-Emerald</span>
-          </div>
-        </div>
+
       </div>
     </footer>
   );
