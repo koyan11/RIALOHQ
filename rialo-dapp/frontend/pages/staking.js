@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import Toast from '../components/Toast';
 import { useWallet } from '../hooks/useWallet';
 import { useRLO } from '../hooks/useRLO';
 import { useStaking } from '../hooks/useStaking';
@@ -9,7 +8,7 @@ import { useRouter } from 'next/router';
 
 export default function StakingPage() {
   const router = useRouter();
-  const { isConnected, address, provider, connect, balances: walletBalances, addTransaction, fetchEthBalance, aiPrivateKey, setAiPrivateKey } = useWallet();
+  const { isConnected, address, provider, connect, balances: walletBalances, addTransaction, fetchEthBalance, aiPrivateKey, setAiPrivateKey, showToast } = useWallet();
   const { balance: rloBal, fetchBalance: fetchRloBalance } = useRLO();
   const { 
     stakedBalance: stakedBalStr, 
@@ -30,9 +29,6 @@ export default function StakingPage() {
   const pendingRewards = parseFloat(pendingRewStr || '0');
   const totalProtocolStaked = parseFloat(totalProtStakedStr || '1450200');
 
-  // Toast (Using standard project Toast)
-  const [toast, setToast] = useState(null);
-
   // Staking input state
   const [rloAmount, setRloAmount] = useState('');
   const [localSfsFraction, setLocalSfsFraction] = useState(50);
@@ -43,7 +39,11 @@ export default function StakingPage() {
   const [showSettings, setShowSettings] = useState(false);
 
   useEffect(() => {
-    setLocalSfsFraction(contractSfsFraction);
+    // Only sync from contract if it has a real non-zero value.
+    // If the chain returns 0 (never set), keep the local default of 50%.
+    if (contractSfsFraction > 0) {
+      setLocalSfsFraction(contractSfsFraction);
+    }
   }, [contractSfsFraction]);
 
   // --- SIMULATED METRICS (Left Column Calculator) ---
@@ -56,26 +56,28 @@ export default function StakingPage() {
   const simulatedYieldToWallet = simulatedTotalYield - simulatedRawYieldToServiceCredits;
 
   // --- REAL METRICS (Right Column Allocation) ---
-  const realRawYieldToServiceCredits = (isConnected ? stakedBalance : 0) * networkApy * (contractSfsFraction / 100);
+  // Use localSfsFraction (slider value) so user sees credits update live.
+  // This reflects what they've configured, whether or not it's been synced to chain yet.
+  const realRawYieldToServiceCredits = (isConnected ? stakedBalance : 0) * networkApy * (localSfsFraction / 100);
   const totalAllocated = activePaths.reduce((sum, path) => sum + path.amount, 0);
   const availableServiceCredits = Math.max(0, realRawYieldToServiceCredits - totalAllocated);
 
   const handleStake = async () => {
     if (!isConnected) { connect(); return; }
     if (numRlo < 10) {
-      setToast({ message: "Minimum staking amount is 10 RIALO", type: "error" });
+      showToast({ message: "Minimum staking amount is 10 RIALO", type: "error" });
       return;
     }
     const currentBalance = balances['RIALO'] || 0;
     if (numRlo > currentBalance) {
-      setToast({ message: "Insufficient RIALO balance", type: "error" });
+      showToast({ message: "Insufficient RIALO balance", type: "error" });
       return;
     }
     
-    setToast({ message: "Submitting staking transaction...", type: "loading" });
+    showToast({ message: "Submitting staking transaction...", type: "loading" });
     try {
       const hash = await stakeAction(rloAmount);
-      setToast({ message: `Successfully staked ${numRlo.toLocaleString()} RLO!`, type: "success", txHash: hash });
+      showToast({ message: `Successfully staked ${numRlo.toLocaleString()} RLO!`, type: "success", txHash: hash });
       setRloAmount("");
       addTransaction({
         type: 'Stake',
@@ -90,20 +92,20 @@ export default function StakingPage() {
         fetchRloBalance();
       }
     } catch (e) {
-      setToast({ message: e.reason || e.message || "Staking failed", type: "error" });
+      showToast({ message: "Staking failed", type: "error" });
     }
   };
 
   const handleUnstake = async () => {
     if (!isConnected) { connect(); return; }
     if (stakedBalance <= 0) {
-      setToast({ message: "No RLO staked", type: "error" });
+      showToast({ message: "No RLO staked", type: "error" });
       return;
     }
-    setToast({ message: "Submitting unstaking transaction...", type: "loading" });
+    showToast({ message: "Submitting unstaking transaction...", type: "loading" });
     try {
       const hash = await withdrawAction(stakedBalStr);
-      setToast({ message: `Successfully unstaked ${stakedBalance.toFixed(2)} RLO!`, type: "success", txHash: hash });
+      showToast({ message: `Successfully unstaked ${stakedBalance.toFixed(2)} RLO!`, type: "success", txHash: hash });
       addTransaction({
         type: 'Unstake',
         amount: `${stakedBalance.toFixed(2)} RIALO`,
@@ -117,20 +119,20 @@ export default function StakingPage() {
         fetchRloBalance();
       }
     } catch (e) {
-      setToast({ message: e.reason || e.message || "Unstaking failed", type: "error" });
+      showToast({ message: "Unstaking failed", type: "error" });
     }
   };
 
   const handleClaim = async () => {
     if (!isConnected) { connect(); return; }
     if (pendingRewards <= 0) {
-      setToast({ message: "No rewards to claim", type: "error" });
+      showToast({ message: "No rewards to claim", type: "error" });
       return;
     }
-    setToast({ message: "Claiming rewards...", type: "loading" });
+    showToast({ message: "Claiming rewards...", type: "loading" });
     try {
       const hash = await claimAction();
-      setToast({ message: "Rewards claimed successfully!", type: "success", txHash: hash });
+      showToast({ message: "Rewards claimed successfully!", type: "success", txHash: hash });
       addTransaction({
         type: 'Claim',
         amount: `${pendingRewards.toFixed(2)} RIALO`,
@@ -144,17 +146,17 @@ export default function StakingPage() {
         fetchRloBalance();
       }
     } catch (e) {
-      setToast({ message: e.reason || e.message || "Claim failed", type: "error" });
+      showToast({ message: "Claim failed", type: "error" });
     }
   };
 
   const handleUpdateFraction = async () => {
     if (!isConnected) { connect(); return; }
     setIsUpdatingFraction(true);
-    setToast({ message: "Syncing SfS Fraction with blockchain...", type: "loading" });
+    showToast({ message: "Syncing SfS Fraction with blockchain...", type: "loading" });
     try {
       const hash = await updateSfsFraction(localSfsFraction);
-      setToast({ message: "SfS Fraction updated successfully!", type: "success", txHash: hash });
+      showToast({ message: "SfS Fraction updated successfully!", type: "success", txHash: hash });
       // Refresh balances from chain after confirmation
       if (address && provider) {
         fetchEthBalance(address, provider);
@@ -163,7 +165,7 @@ export default function StakingPage() {
     } catch (e) {
       console.error("Fraction update error:", e);
       const errorMsg = e.data?.message || e.reason || e.message || "Update failed";
-      setToast({ message: errorMsg, type: "error" });
+      showToast({ message: errorMsg, type: "error" });
     } finally {
       setIsUpdatingFraction(false);
     }
@@ -172,24 +174,24 @@ export default function StakingPage() {
   const handleCreatePath = async () => {
     if (!isConnected) { connect(); return; }
     if (!sponsorAddress) {
-      setToast({ message: "Please enter a valid address", type: "error" });
+      showToast({ message: "Please enter a valid address", type: "error" });
       return;
     }
     const amountVal = parseFloat(sponsorAmount) || 0;
     if (amountVal <= 0) {
-      setToast({ message: "Please enter a valid amount", type: "error" });
+      showToast({ message: "Please enter a valid amount", type: "error" });
       return;
     }
 
     setIsAddingPath(true);
-    setToast({ message: "Creating sponsorship path on-chain...", type: "loading" });
+    showToast({ message: "Creating sponsorship path on-chain...", type: "loading" });
     try {
       const hash = await addSponsorshipPath(sponsorAddress, amountVal);
-      setToast({ message: "Sponsorship path added successfully!", type: "success", txHash: hash });
+      showToast({ message: "Sponsorship path added successfully!", type: "success", txHash: hash });
       setSponsorAddress("");
       setSponsorAmount("");
     } catch (e) {
-      setToast({ message: e.reason || e.message || "Failed to create path", type: "error" });
+      showToast({ message: e.reason || e.message || "Failed to create path", type: "error" });
     } finally {
       setIsAddingPath(false);
     }
@@ -286,7 +288,7 @@ export default function StakingPage() {
                     disabled={stakingLoading}
                     className="flex-1 bg-white text-black py-4 rounded-xl font-headline font-extrabold text-lg hover:bg-white/90 active:scale-[0.98] transition-all shadow-lg disabled:opacity-50 flex justify-center items-center gap-3"
                   >
-                    {stakingLoading ? 'Processing...' : 'Simulate Staking'}
+                    {stakingLoading ? 'Processing...' : 'Stake RLO'}
                   </button>
                   {isConnected && stakedBalance > 0 && (
                     <button 
@@ -502,7 +504,6 @@ export default function StakingPage() {
       </main>
 
       <Footer />
-      {toast && <Toast {...toast} onClose={() => setToast(null)} />}
 
       <style jsx>{`
         .custom-scrollbar::-webkit-scrollbar {
