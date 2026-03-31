@@ -105,7 +105,7 @@ export default function Navbar() {
         }
         .logo-link:hover { opacity: 0.75; }
         .logo-img {
-          height: 28px;
+          height: 38px;
           width: auto;
         }
         /* dark bg → white logo | light bg → black logo */
