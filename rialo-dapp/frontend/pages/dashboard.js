@@ -230,7 +230,7 @@ export default function DashboardPage() {
                               {tx.type}
                             </span>
                             {tx.source === 'AI Agent' && (
-                              <span className="text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 rounded border bg-primary/10 text-primary border-primary/20 flex items-center gap-1">
+                              <span className="text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 rounded border bg-white/10 text-white border-white/20 flex items-center gap-1">
                                 <span className="material-symbols-outlined text-[10px]">smart_toy</span> AI
                               </span>
                             )}
