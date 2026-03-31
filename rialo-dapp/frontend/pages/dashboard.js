@@ -361,7 +361,7 @@ export default function DashboardPage() {
 
           {/* Quick Actions & Tips */}
           <div className="space-y-6">
-            <h3 className="font-headline font-bold text-primary text-lg">Quick Actions</h3>
+            <h3 className="font-headline font-bold text-white text-lg">Quick Actions</h3>
             <div className="grid grid-cols-1 gap-4">
               {[
                 { label: 'Swap Assets', icon: 'swap_horiz', href: '/swap', desc: 'Exchange RIALO for other assets' },
@@ -374,12 +374,12 @@ export default function DashboardPage() {
                   className="bg-[#0c0c0c] p-6 rounded-xl border border-white/5 hover:border-primary/30 transition-all group shadow-xl"
                 >
                   <div className="flex items-start gap-4">
-                    <div className="w-10 h-10 rounded-full bg-surface-container-low flex items-center justify-center group-hover:bg-primary group-hover:text-on-primary transition-colors border border-on-surface/5">
+                    <div className="w-10 h-10 rounded-full bg-surface-container-low flex items-center justify-center group-hover:bg-primary group-hover:text-on-primary transition-colors border border-white/5">
                       <span className="material-symbols-outlined text-sm">{action.icon}</span>
                     </div>
                     <div>
-                      <p className="font-headline font-bold text-sm text-on-surface group-hover:text-primary transition-colors">{action.label}</p>
-                      <p className="text-[10px] text-on-surface/40 font-body mt-1">{action.desc}</p>
+                      <p className="font-headline font-bold text-sm text-white group-hover:text-primary transition-colors">{action.label}</p>
+                      <p className="text-[10px] text-white/40 font-body mt-1">{action.desc}</p>
                     </div>
                   </div>
                 </Link>
