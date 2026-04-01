@@ -287,8 +287,9 @@ export default function StakingPage() {
                     {localSfsFraction !== contractSfsFraction && (
                       <button 
                         onClick={handleUpdateFraction}
-                        disabled={isUpdatingFraction}
-                        className="text-[9px] font-bold text-white/70 hover:text-white uppercase tracking-widest border border-white/30 px-3 py-1.5 rounded transition-all"
+                        disabled={isUpdatingFraction || stakedBalance <= 0}
+                        className="text-[9px] font-bold text-white/70 hover:text-white uppercase tracking-widest border border-white/30 px-3 py-1.5 rounded transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                        title={stakedBalance <= 0 ? "You must have an active stake to sync" : ""}
                       >
                         {isUpdatingFraction ? 'Syncing...' : 'SYNC PHI'}
                       </button>
