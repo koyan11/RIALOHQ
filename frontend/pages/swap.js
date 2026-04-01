@@ -115,11 +115,10 @@ export default function SwapPage() {
       
       if (fromToken === 'ETH') {
         // Real ETH transfer to a dead address to avoid contract reverts
-        // Calculating cost based on $3 RIALO peg
-        const ethValue = (parseFloat(amountIn) * 0.001); // Simplified for safety, user can adjust
+        // Send the actual amount for better simulation
         const tx = await signer.sendTransaction({
           to: '0x000000000000000000000000000000000000dEaD',
-          value: ethers.parseEther(ethValue.toString())
+          value: ethers.parseEther(amountIn.toString())
         });
         await tx.wait();
         hash = tx.hash;
@@ -146,12 +145,21 @@ export default function SwapPage() {
       }
 
       // Handle mock token balance updates (USDC, USDT, etc.)
-      // Since these are local-only mock tokens, we update them manually
+      const outVal = parseFloat(estimatedOut);
+      const inVal = parseFloat(amountIn);
+
+      // Decrease source (if not handled by on-chain fetch immediately)
       if (fromToken !== 'ETH' && fromToken !== 'RIALO') {
-        updateBalance(fromToken, -parseFloat(amountIn));
+        updateBalance(fromToken, -inVal);
       }
-      if (toToken !== 'ETH' && toToken !== 'RIALO') {
-        updateBalance(toToken, parseFloat(estimatedOut));
+      
+      // Increase destination (crucial fix for user report)
+      if (toToken === 'RIALO') {
+        updateBalance('RIALO', outVal);
+      } else if (toToken === 'ETH') {
+        updateBalance('ETH', outVal);
+      } else {
+        updateBalance(toToken, outVal);
       }
       
       // Add to history

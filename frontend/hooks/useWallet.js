@@ -332,10 +332,10 @@ export function WalletProvider({ children }) {
             // Send to dead address to safely simulate a swap
              tx = await signer.sendTransaction({
                 to: '0x000000000000000000000000000000000000dEaD',
-                value: ethers.parseEther((amountVal * 0.001).toString()) // Mock ETH value ratio
+                value: ethers.parseEther((amountVal * 1).toString()) // Changed from 0.001 to 1 for full value simulation
              });
           } else {
-             // Simulated swap for non-RIALO tokens (e.g. USDT -> RIALO)
+             // Simulated swap for non-RIALO tokens (e.g. USDC -> RIALO)
              // Send to user's own address instead of contract to avoid revert
              tx = await signer.sendTransaction({
                 to: address, 
@@ -355,9 +355,34 @@ export function WalletProvider({ children }) {
           if (txType === 'Swap' && fromToken && toToken) {
             const rate = globalRates[fromToken]?.[toToken] || 1;
             const amountOut = amountVal * rate;
-            if (fromToken !== 'ETH') updateBalance(fromToken, -amountVal);
-            if (toToken !== 'ETH') updateBalance(toToken, amountOut);
+            
+            if (fromToken !== 'ETH' && fromToken !== 'RIALO') {
+              updateBalance(fromToken, -amountVal);
+            }
+            if (toToken !== 'ETH' && toToken !== 'RIALO') {
+              updateBalance(toToken, amountOut);
+            }
+            
+            if (toToken === 'RIALO') {
+              updateBalance('RIALO', amountOut);
+            }
+            if (toToken === 'ETH') {
+              updateBalance('ETH', amountOut);
+            }
           }
+
+          if (txType === 'Bridge') {
+            const amount = parseFloat(actionDetail.match(/[\d.]+/)?.[0] || '0');
+            if (actionDetail.toLowerCase().includes('rialo l1') || actionDetail.toLowerCase().includes('to rialo')) {
+               // Bridge Out (Deposit)
+               updateBalance('ETH_RIALO', amount);
+            } else {
+               // Bridge In (Withdraw)
+               updateBalance('ETH_RIALO', -amount);
+               updateBalance('ETH', amount);
+            }
+          }
+
           if (isAuto) {
              addAiMessage({ role: 'ai', content: { raw: `Successfully confirmed background ${txType}: ${actionDetail}` } });
           }

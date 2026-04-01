@@ -55,10 +55,9 @@ export default function StakingPage() {
   const simulatedYieldToWallet = simulatedTotalYield - simulatedRawYieldToServiceCredits;
 
   // --- REAL METRICS (Right Column Allocation) ---
-  // Use localSfsFraction (slider value) so user sees credits update live.
-  // This reflects what they've configured, whether or not it's been synced to chain yet.
   const realRawYieldToServiceCredits = (isConnected ? stakedBalance : 0) * networkApy * (localSfsFraction / 100);
   const totalAllocated = activePaths.reduce((sum, path) => sum + path.amount, 0);
+  const pendingServiceCredits = pendingRewards * (contractSfsFraction / 100); // This reflects what's actually accumulated on-chain
   const availableServiceCredits = Math.max(0, realRawYieldToServiceCredits - totalAllocated);
 
   const handleStake = async () => {
@@ -347,11 +346,14 @@ export default function StakingPage() {
                 <div className="relative z-10">
                   <div className="flex items-center gap-2 mb-2">
                     <span className="material-symbols-outlined text-[12px] text-white/40">info</span>
-                    <label className="font-label text-[10px] uppercase tracking-widest text-white/30 font-bold block">AVAILABLE SERVICE CREDITS</label>
+                    <label className="font-label text-[10px] uppercase tracking-widest text-white/30 font-bold block">PENDING SERVICE CREDITS</label>
                   </div>
                   <div className="font-headline font-extrabold text-3xl text-white tracking-tighter flex items-end gap-2">
-                    {availableServiceCredits.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}
-                    <span className="font-label text-[10px] font-bold uppercase tracking-widest text-white/50 mb-1.5">Credits/yr</span>
+                    {pendingServiceCredits.toLocaleString(undefined, {minimumFractionDigits: 4, maximumFractionDigits: 6})}
+                    <span className="font-label text-[10px] font-bold uppercase tracking-widest text-white/50 mb-1.5">CREDITS</span>
+                  </div>
+                  <div className="text-[10px] text-white/30 font-bold mt-1 uppercase tracking-widest">
+                    Rate: {availableServiceCredits.toFixed(2)} Credits/yr
                   </div>
                 </div>
                 <div className="relative z-10 w-12 h-12 rounded-full border border-white/10 flex items-center justify-center bg-white/5 shadow-[0_0_15px_rgba(255,255,255,0.05)]">

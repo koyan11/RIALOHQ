@@ -89,6 +89,7 @@ export default function BridgePage() {
           updateBalance('ETH_RIALO', parseFloat(amount));
         } else {
           updateBalance('ETH_RIALO', -parseFloat(amount));
+          updateBalance('ETH', parseFloat(amount)); // Increase ETH balance on withdrawal
         }
       }
       
