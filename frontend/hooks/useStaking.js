@@ -20,20 +20,28 @@ export function useStaking() {
       setTotalStaked(ethers.formatEther(total));
 
       if (address) {
-        const stakeInfo = await contract.stakes(address);
-        // Ethers v6 returns a Result object which can be accessed by index or name
-        const rawAmount = stakeInfo.amount || stakeInfo[0] || 0n;
+        const checksummed = ethers.getAddress(address);
+        const stakeInfo = await contract.stakes(checksummed);
+        
+        // Ethers v6 Result parsing - more robust check
+        let rawAmount = 0n;
+        let rawSfsFraction = 0n;
+
+        if (stakeInfo && typeof stakeInfo === 'object') {
+          rawAmount = stakeInfo.amount ?? stakeInfo[0] ?? 0n;
+          rawSfsFraction = stakeInfo.sfsFraction ?? stakeInfo[3] ?? 0n;
+        }
+
         const formattedStaked = ethers.formatEther(rawAmount);
+        console.log(`[Staking Debug] User: ${checksummed}, Raw: ${rawAmount}, Staked: ${formattedStaked}, Sfs: ${rawSfsFraction}`);
         
-        console.log(`[Staking Debug] Address: ${address}, Staked: ${formattedStaked}`);
         setStakedBalance(formattedStaked);
+        setSfsFraction(Number(rawSfsFraction) / 100); 
         
-        setSfsFraction(Number(stakeInfo.sfsFraction || stakeInfo[3] || 0) / 100); 
-        
-        const rewards = await contract.calculateRewards(address);
+        const rewards = await contract.calculateRewards(checksummed);
         setPendingRewards(ethers.formatEther(rewards));
 
-        const paths = await contract.getSponsorshipPaths(address);
+        const paths = await contract.getSponsorshipPaths(checksummed);
         setSponsorshipPaths(paths.map(p => ({
             address: p.destination,
             amount: parseFloat(ethers.formatEther(p.amount))

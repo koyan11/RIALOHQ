@@ -313,15 +313,16 @@ export default function StakingPage() {
                       <button 
                         onClick={handleUpdateFraction}
                         disabled={isUpdatingFraction}
-                        className="text-[9px] font-bold text-white/70 hover:text-white uppercase tracking-widest border border-white/30 px-2 py-1 rounded transition-all"
+                        className={`text-[9px] font-bold uppercase tracking-widest border px-3 py-1.5 rounded transition-all ${localSfsFraction !== contractSfsFraction ? 'pulse-sync' : 'text-white/70 hover:text-white border-white/30'}`}
                       >
-                        {isUpdatingFraction ? 'Syncing...' : 'Sync'}
+                        {isUpdatingFraction ? 'Syncing...' : 'SYNC PHI'}
                       </button>
                     )}
                   </div>
                 </div>
                 <p className="font-body text-[11px] text-white/40 mb-5 leading-relaxed">
                   Route a percentage of your yield to the <span className="text-white border-b border-white/20 border-dashed">ServicePaymaster</span> for gas costs.
+                  {contractSfsFraction === 0 && <span className="block text-primary font-bold mt-1">⚠️ Please SYNC to activate credits.</span>}
                 </p>
                 <input 
                   type="range" 
@@ -520,6 +521,17 @@ export default function StakingPage() {
         }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover {
           background: rgba(255, 255, 255, 0.1);
+        }
+        .pulse-sync {
+          animation: pulse-sync 1.5s infinite;
+          background-color: #fff !important;
+          color: #000 !important;
+          border-color: #fff !important;
+        }
+        @keyframes pulse-sync {
+          0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255,255,255,0.7); }
+          70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(255,255,255,0); }
+          100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255,255,255,0); }
         }
       `}</style>
     </div>
