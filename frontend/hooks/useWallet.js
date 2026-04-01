@@ -145,6 +145,18 @@ export function WalletProvider({ children }) {
     return msg.length > 60 ? 'Transaction failed. Check console.' : msg;
   }, []);
 
+  const showToast = useCallback((toastData) => {
+    const finalDetail = toastData.type === 'error' ? simplifyError(toastData.detail) : toastData.detail;
+    setToast({ ...toastData, detail: finalDetail });
+  }, [simplifyError]);
+
+  useEffect(() => {
+    if (toast) {
+      const timer = setTimeout(() => setToast(null), 6000);
+      return () => clearTimeout(timer);
+    }
+  }, [toast]);
+
   const addTransaction = useCallback((tx) => {
     const newTx = {
       id: tx.txHash || `local-${Math.random().toString(16).slice(2, 10)}`,
@@ -526,18 +538,6 @@ export function WalletProvider({ children }) {
   const removeTriggerOrder = useCallback((id) => {
     setTriggerOrders(prev => prev.filter(order => order.id !== id));
   }, []);
-
-  const showToast = useCallback((toastData) => {
-    const finalDetail = toastData.type === 'error' ? simplifyError(toastData.detail) : toastData.detail;
-    setToast({ ...toastData, detail: finalDetail });
-  }, [simplifyError]);
-
-  useEffect(() => {
-    if (toast) {
-      const timer = setTimeout(() => setToast(null), 6000);
-      return () => clearTimeout(timer);
-    }
-  }, [toast]);
 
   useEffect(() => {
     if (address && provider && chainId === SEPOLIA_CHAIN_ID) {
