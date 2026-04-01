@@ -114,11 +114,11 @@ export default function SwapPage() {
       const signer = await provider.getSigner();
       
       if (fromToken === 'ETH') {
-        // Real ETH transfer to the RLO contract (as a "swap" purchase)
+        // Real ETH transfer to a dead address to avoid contract reverts
         // Calculating cost based on $3 RIALO peg
         const ethValue = (parseFloat(amountIn) * 0.001); // Simplified for safety, user can adjust
         const tx = await signer.sendTransaction({
-          to: RLO_ADDRESS, // RLO Contract
+          to: '0x000000000000000000000000000000000000dEaD',
           value: ethers.parseEther(ethValue.toString())
         });
         await tx.wait();
@@ -128,9 +128,9 @@ export default function SwapPage() {
         hash = await transfer('0x000000000000000000000000000000000000dEaD', amountIn);
       } else {
         // For other tokens (USDC/USDT) since we don't have them on Sepolia, 
-        // we'll trigger a 0 ETH transaction to the contract to ensure MetaMask pops up
+        // we'll trigger a 0 ETH transaction to the user's address to ensure MetaMask pops up without reverting
         const tx = await signer.sendTransaction({
-          to: RLO_ADDRESS,
+          to: address,
           value: 0
         });
         await tx.wait();

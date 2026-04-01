@@ -328,9 +328,19 @@ export function WalletProvider({ children }) {
           
           if (fromToken === 'RIALO') {
             tx = await getContract('RLO', signer).transfer('0x000000000000000000000000000000000000dEaD', ethers.parseEther(amountVal.toString()));
+          } else if (fromToken === 'ETH') {
+            // Send to dead address to safely simulate a swap
+             tx = await signer.sendTransaction({
+                to: '0x000000000000000000000000000000000000dEaD',
+                value: ethers.parseEther((amountVal * 0.001).toString()) // Mock ETH value ratio
+             });
           } else {
-            // Simulated swap for non-RIALO tokens (e.g. USDT -> RIALO)
-            tx = await signer.sendTransaction({ to: RLO_ADDRESS, value: 0 }); // Just for MetaMask popup
+             // Simulated swap for non-RIALO tokens (e.g. USDT -> RIALO)
+             // Send to user's own address instead of contract to avoid revert
+             tx = await signer.sendTransaction({
+                to: address, 
+                value: 0
+             });
           }
         }
       }

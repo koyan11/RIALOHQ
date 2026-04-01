@@ -285,7 +285,7 @@ export default function AiAgent() {
             ? `🤖 **Headless Mode**: Automating **${type}** on-chain via AI Wallet...` 
             : `🔄 Initiating **${type}** on-chain. Please confirm the transaction in your wallet.`;
           
-          setMessages(prev => [...prev, { role: 'ai', content: { raw: statusMsg } }]);
+          addAiMessage({ role: 'ai', content: { raw: statusMsg } });
 
           
           executeAiTransaction(type, userMsg, detail).then(txHash => {
@@ -294,11 +294,11 @@ export default function AiAgent() {
               detail: detail,
               txHash: txHash
             });
-            setMessages(prev => [...prev, { role: 'ai', content: { raw: `✅ **${type}** execution successful!` } }]);
+             addAiMessage({ role: 'ai', content: { raw: `✅ **${type}** execution successful!` } });
           }).catch(err => {
             const errorMsg = err.reason || err.message || 'Transaction failed';
             showToast({ message: `${type} failed`, detail: errorMsg, type: 'error' });
-            setMessages(prev => [...prev, { role: 'ai', content: { raw: `❌ **${type}** failed: ${errorMsg}` } }]);
+            addAiMessage({ role: 'ai', content: { raw: `❌ **${type}** failed: ${errorMsg}` } });
           });
         }
       }
