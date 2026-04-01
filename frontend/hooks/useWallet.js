@@ -341,13 +341,19 @@ export function WalletProvider({ children }) {
     if (!address || !provider) throw new Error('Wallet not connected');
     try {
       // Parse swap details BEFORE branching so all code paths share the same variables
-      let parsedFromToken = null, parsedToToken = null, parsedAmountVal = null;
+      let parsedFromToken = null, parsedToToken = null, parsedAmountVal = null, parsedAmountOut = null;
+      let displayAmount = actionDetail; // Use original by default
       if (txType === 'Swap') {
-        const match = actionDetail.match(/([\d.]+)\s+([A-Z0-9]+)\s+->\s+([A-Z0-9]+)/i);
+        // Regex improved to optionally catch the output amount if it's already there
+        const match = actionDetail.match(/([\d.]+)\s+([A-Z0-9]+)\s+->\s+(?:[\d.]+\s+)?([A-Z0-9]+)/i);
         if (match) {
           parsedAmountVal = parseFloat(match[1]);
           parsedFromToken = match[2].toUpperCase();
           parsedToToken   = match[3].toUpperCase();
+          const rate = globalRates[parsedFromToken]?.[parsedToToken] || 1;
+          parsedAmountOut = parsedAmountVal * rate;
+          // Format it beautifully so users see exactly how much they received
+          displayAmount = `${parsedAmountVal} ${parsedFromToken} -> ${parseFloat(parsedAmountOut.toFixed(4))} ${parsedToToken}`;
         }
       }
 
@@ -363,16 +369,14 @@ export function WalletProvider({ children }) {
 
         // Handle mock balance updates for simulated transactions
         if (txType === 'Swap' && parsedFromToken && parsedToToken && parsedAmountVal) {
-          const rate = globalRates[parsedFromToken]?.[parsedToToken] || 1;
-          const amountOut = parsedAmountVal * rate;
           updateBalances({
             [parsedFromToken]: -parsedAmountVal,
-            [parsedToToken]:   amountOut
+            [parsedToToken]:   parsedAmountOut
           });
         }
 
-        addTransaction({ type: txType, amount: actionDetail, details: 'AI Auto Execution (Simulated)', txHash: fakeHash, source: 'AI Agent' });
-        return fakeHash;
+        addTransaction({ type: txType, amount: displayAmount, details: 'AI Auto Execution (Simulated)', txHash: fakeHash, source: 'AI Agent' });
+        return { hash: fakeHash, detail: displayAmount };
       } else {
         // Fallback to MetaMask (will pop up)
         signer = await provider.getSigner();
@@ -416,15 +420,13 @@ export function WalletProvider({ children }) {
 
       if (tx) {
         // Add to history immediately for instant feedback
-        addTransaction({ type: txType, amount: actionDetail, details: 'AI Strategy', txHash: tx.hash, source: 'AI Agent' });
+        addTransaction({ type: txType, amount: displayAmount, details: 'AI Strategy', txHash: tx.hash, source: 'AI Agent' });
 
         // Optimistically update balances immediately for a snappy UX
         if (txType === 'Swap' && parsedFromToken && parsedToToken && parsedAmountVal !== null) {
-          const rate = globalRates[parsedFromToken]?.[parsedToToken] || 1;
-          const amountOut = parsedAmountVal * rate;
           updateBalances({
             [parsedFromToken]: -parsedAmountVal,
-            [parsedToToken]:   amountOut
+            [parsedToToken]:   parsedAmountOut
           });
         }
         if (txType === 'Bridge' && actionDetail) {
@@ -440,15 +442,15 @@ export function WalletProvider({ children }) {
         // Wait for actual chain confirmation softly in the background
         tx.wait().then(() => {
           if (isAuto) {
-            addAiMessage({ role: 'ai', content: { raw: `Successfully confirmed background ${txType} on-chain: ${actionDetail}` } });
+            addAiMessage({ role: 'ai', content: { raw: `Successfully confirmed background ${txType} on-chain: ${displayAmount}` } });
           }
         }).catch(err => {
           console.error('Transaction failed after wait:', err);
         });
 
-        return tx.hash;
+        return { hash: tx.hash, detail: displayAmount };
       }
-      return '0x' + Math.random().toString(16).slice(2, 42);
+      return { hash: '0x' + Math.random().toString(16).slice(2, 42), detail: displayAmount };
     } catch (err) { throw err; }
   }, [address, provider, addTransaction, updateBalances, aiPrivateKey, globalRates, updateBalance, addAiMessage]);
 
@@ -460,10 +462,10 @@ export function WalletProvider({ children }) {
         const next = [];
         prev.forEach(tx => {
           if (tx.remainingSec <= 1) {
-            executeAiTransaction(tx.type, tx.userMsg, tx.detail, true).then(txHash => {
-              setToast({ message: `Auto ${tx.type} completed!`, detail: tx.detail, txHash: txHash });
+            executeAiTransaction(tx.type, tx.userMsg, tx.detail, true).then(res => {
+              setToast({ message: `Auto ${tx.type} completed!`, detail: res.detail, txHash: res.hash });
             }).catch(err => {
-              showToast({ message: `Auto ${tx.type} failed`, detail: err, type: 'error' });
+              showToast({ message: `Auto ${tx.type} failed`, detail: err.message, type: 'error' });
             });
           } else {
             next.push({ ...tx, remainingSec: tx.remainingSec - 1 });
@@ -473,7 +475,7 @@ export function WalletProvider({ children }) {
       });
     }, 1000);
     return () => clearInterval(interval);
-  }, [scheduledTxs, executeAiTransaction]);
+  }, [scheduledTxs, executeAiTransaction, showToast]);
 
   // Automation: Watch for Price Triggers (Limit Orders)
   useEffect(() => {
@@ -498,9 +500,9 @@ export function WalletProvider({ children }) {
         
         const detail = `${order.amountIn} ${order.fromToken} -> ${order.toToken}`;
         executeAiTransaction('Swap', `Limit Order Triggered: ${detail}`, detail, true)
-          .then(txHash => {
-            setToast({ message: `Limit Order Executed!`, detail: detail, txHash: txHash });
-            setTriggerOrders(prev => prev.map(o => o.id === order.id ? { ...o, status: 'Executed', executedRate: currentRate, txHash: txHash } : o));
+          .then(res => {
+            setToast({ message: `Limit Order Executed!`, detail: res.detail, txHash: res.hash });
+            setTriggerOrders(prev => prev.map(o => o.id === order.id ? { ...o, status: 'Executed', executedRate: currentRate, txHash: res.hash } : o));
           })
           .catch(err => {
             console.error('Trigger execution failed:', err);

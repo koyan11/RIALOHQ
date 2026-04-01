@@ -294,11 +294,11 @@ export default function AiAgent() {
           addAiMessage({ role: 'ai', content: { raw: statusMsg } });
 
           
-          executeAiTransaction(type, userMsg, detail).then(txHash => {
+          executeAiTransaction(type, userMsg, detail).then(res => {
             showToast({
               message: `${type} successful!`,
-              detail: detail,
-              txHash: txHash
+              detail: res.detail,
+              txHash: res.hash
             });
              addAiMessage({ role: 'ai', content: { raw: `✅ **${type}** execution successful!` } });
           }).catch(err => {
