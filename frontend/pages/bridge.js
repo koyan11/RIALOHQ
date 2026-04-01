@@ -8,13 +8,10 @@ import { ethers } from 'ethers';
 
 const CHAINS = [
   { id: '1', name: 'Ethereum', icon: '/eth-icon-new.png', isImage: true },
-  { id: '42161', name: 'Arbitrum', icon: 'layers' },
-  { id: '10', name: 'Optimism', icon: 'layers' },
-  { id: '137', name: 'Polygon', icon: 'layers' },
 ];
 
 export default function BridgePage() {
-  const { isConnected, address, provider, connect, balances: walletBalances, addTransaction, globalRates, fetchEthBalance, updateBalance } = useWallet();
+  const { isConnected, address, provider, connect, balances: walletBalances, addTransaction, globalRates, fetchEthBalance, updateBalance, updateBalances } = useWallet();
   const { balance: rloBal, fetchBalance: fetchRloBalance } = useRLO();
   const [fromChain, setFromChain] = useState('1');
   const [amount, setAmount] = useState('');
@@ -84,12 +81,17 @@ export default function BridgePage() {
         fetchRloBalance();
       }
       
-      if (updateBalance) {
+      if (updateBalances) {
         if (isDeposit) {
-          updateBalance('ETH_RIALO', parseFloat(amount));
+          updateBalances({
+            'ETH': -parseFloat(amount),
+            'ETH_RIALO': parseFloat(amount)
+          });
         } else {
-          updateBalance('ETH_RIALO', -parseFloat(amount));
-          updateBalance('ETH', parseFloat(amount)); // Increase ETH balance on withdrawal
+          updateBalances({
+            'ETH_RIALO': -parseFloat(amount),
+            'ETH': parseFloat(amount)
+          });
         }
       }
       

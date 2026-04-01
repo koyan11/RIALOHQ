@@ -48,25 +48,31 @@ const getAiResponse = (input, globalRates) => {
     };
   }
 
-  // Direct bridge execution (ETH to RIALO only)
-  const bridgeMatch = lower.match(/(?:bridge|kirim)\s+([\d.]+)\s+eth\s+(?:to|ke)\s+rialo/i);
-  if (bridgeMatch) {
+  // Direct bridge execution (ETH <-> RIALO)
+  const bridgeMatch = lower.match(/(?:bridge|kirim)\s+([\d.]+)\s+([a-z0-9]+)\s+(?:to|ke)\s+([a-z0-9]+)/i);
+  if (bridgeMatch && lower.includes('bridge')) {
     const amount = parseFloat(bridgeMatch[1]);
-    if (amount < 0.01) {
+    const fromToken = bridgeMatch[2].toUpperCase();
+    const toToken = bridgeMatch[3].toUpperCase();
+
+    if ((fromToken === 'ETH' && toToken === 'RIALO') || (fromToken === 'RIALO' && toToken === 'ETH')) {
+      if (amount < 0.01) {
+        return {
+          insight: "Bridge requirements not met.",
+          options: ["1. Increase amount to 0.01 ETH or more"],
+          recommendation: "Minimal bridge amount is 0.01 ETH.",
+          action: "Failed: Minimal bridge is 0.01 ETH."
+        };
+      }
+      const dir = fromToken === 'ETH' ? 'ETH -> Rialo L1' : 'Rialo L1 -> ETH';
       return {
-        insight: "Bridge requirements not met.",
-        options: ["1. Increase amount to 0.01 ETH or more"],
-        recommendation: "Minimal bridge amount is 0.01 ETH.",
-        action: "Failed: Minimal bridge is 0.01 ETH."
+        insight: `Rialo Bridge is clear. ${dir} migration processed.${delaySec ? ` (Scheduled in ${delayMatch[1]} ${delayMatch[2]})` : ''}`,
+        options: [`1. Native Rialo Bridge (${fromToken} to ${toToken})`],
+        recommendation: "Bridge protocol initiated successfully.",
+        action: delaySec ? `Scheduled: ${amount} ${dir}` : `Transaction successful. ${amount} ${dir} has been completed.`,
+        delaySec: delaySec
       };
     }
-    return {
-      insight: `Rialo Bridge is clear. ETH -> RIALO migration processed.${delaySec ? ` (Scheduled in ${delayMatch[1]} ${delayMatch[2]})` : ''}`,
-      options: ["1. Native Rialo Bridge (Executed)"],
-      recommendation: "Bridge protocol completed successfully.",
-      action: delaySec ? `Scheduled: ${amount} ETH -> RIALO` : `Transaction successful. ${amount} ETH -> RIALO has been completed.`,
-      delaySec: delaySec
-    };
   }
 
   // Direct stake execution (e.g., "stake 1000 rialo")

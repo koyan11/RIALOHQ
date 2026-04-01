@@ -68,6 +68,7 @@ export function WalletProvider({ children }) {
   // SSR-safe default — same value on server and client to avoid hydration mismatch.
   // The real saved values are loaded from localStorage in a useEffect below.
   const [balances, setBalances] = useState({ 'ETH': 0, 'RIALO': 0, 'BTC': 0, 'SOL': 0, 'BNB': 0, 'USDC': 0, 'USDT': 0 });
+  const [simulatedDeltas, setSimulatedDeltas] = useState({});
 
   // SSR-safe defaults — same on server and client.
   const [transactions, setTransactions] = useState([]);
@@ -77,13 +78,16 @@ export function WalletProvider({ children }) {
   const [toast, setToast] = useState(null);
   
   // Track last manual update per token to prevent immediate contract sync overwrites in demo
-  const [lastManualUpdates, setLastManualUpdates] = useState({});
+  const lastManualUpdates = useRef({});
 
   // STEP 1: After mount, load all saved data from localStorage into state.
   // This runs only on the client, after hydration, so there's no SSR mismatch.
   useEffect(() => {
     const savedBalances = localStorage.getItem('rialo_balances');
     if (savedBalances) setBalances(JSON.parse(savedBalances));
+
+    const savedDeltas = localStorage.getItem('rialo_simulated_deltas');
+    if (savedDeltas) setSimulatedDeltas(JSON.parse(savedDeltas));
 
     const savedTxs = localStorage.getItem('rialo_transactions');
     if (savedTxs) setTransactions(JSON.parse(savedTxs));
@@ -113,12 +117,13 @@ export function WalletProvider({ children }) {
     localStorage.setItem('rialo_scheduled_txs', JSON.stringify(scheduledTxs));
     localStorage.setItem('rialo_ai_messages', JSON.stringify(aiMessages));
     localStorage.setItem('rialo_balances', JSON.stringify(balances));
+    localStorage.setItem('rialo_simulated_deltas', JSON.stringify(simulatedDeltas));
     if (aiPrivateKey) {
       localStorage.setItem('rialo_ai_private_key', aiPrivateKey);
     } else {
       localStorage.removeItem('rialo_ai_private_key');
     }
-  }, [transactions, triggerOrders, scheduledTxs, aiMessages, balances, aiPrivateKey]);
+  }, [transactions, triggerOrders, scheduledTxs, aiMessages, balances, simulatedDeltas, aiPrivateKey]);
 
   const simplifyError = useCallback((err) => {
     if (!err) return null;
@@ -165,42 +170,75 @@ export function WalletProvider({ children }) {
   }, []);
 
   const updateBalance = useCallback((symbol, delta) => {
-    setLastManualUpdates(prev => ({ ...prev, [symbol]: Date.now() }));
+    const d = Number(delta);
+    lastManualUpdates.current[symbol] = Date.now();
+    
+    setSimulatedDeltas(prev => ({
+      ...prev,
+      [symbol]: (prev[symbol] || 0) + d
+    }));
+
     setBalances(prev => ({
       ...prev,
-      [symbol]: Math.max(0, (prev[symbol] || 0) + delta)
+      [symbol]: Math.max(0, Number(prev[symbol] || 0) + d)
     }));
   }, []);
 
+  const updateBalances = useCallback((deltas) => {
+    setSimulatedDeltas(prev => {
+        const next = { ...prev };
+        for (const [symbol, delta] of Object.entries(deltas)) {
+            next[symbol] = (next[symbol] || 0) + Number(delta);
+        }
+        return next;
+    });
+
+    setBalances(prev => {
+      const next = { ...prev };
+      for (const [symbol, delta] of Object.entries(deltas)) {
+        lastManualUpdates.current[symbol] = Date.now();
+        next[symbol] = Math.max(0, Number(prev[symbol] || 0) + Number(delta));
+      }
+      return next;
+    });
+  }, []);
+
   const setTokenBalance = useCallback((symbol, val) => {
-    // Only allow contract sync to overwrite if it's been more than 60s since manual adjustment
-    const lastManual = lastManualUpdates[symbol] || 0;
-    if (Date.now() - lastManual < 60000) return;
+    // Contract sync: base + persistent simulated gains
+    const baseBal = parseFloat(val);
+    const delta = simulatedDeltas[symbol] || 0;
+    
+    // Only allow contract sync to overwrite if it's been more than 30s since manual adjustment
+    const lastManual = lastManualUpdates.current[symbol] || 0;
+    if (Date.now() - lastManual < 30000) return;
 
     setBalances(prev => ({
       ...prev,
-      [symbol]: parseFloat(val)
+      [symbol]: baseBal + delta
     }));
-  }, [lastManualUpdates]);
+  }, [simulatedDeltas]);
 
   const fetchEthBalance = useCallback(async (addr, prov) => {
     try {
       const bal = await prov.getBalance(addr);
       
       setBalances(prev => {
-        // Only allow ETH contract sync to overwrite if it's been more than 60s since manual adjustment
-        const lastManual = lastManualUpdates['ETH'] || 0;
-        if (Date.now() - lastManual < 60000) return prev; // Preserve simulated balance
+        const delta = simulatedDeltas['ETH'] || 0;
+        const baseBal = parseFloat(ethers.formatEther(bal));
+
+        // Only allow ETH contract sync to overwrite if it's been more than 30s since manual adjustment
+        const lastManual = lastManualUpdates.current['ETH'] || 0;
+        if (Date.now() - lastManual < 30000) return prev; // Preserve simulated balance
         
         return { 
           ...prev, 
-          'ETH': parseFloat(ethers.formatEther(bal)) 
+          'ETH': baseBal + delta
         };
       });
     } catch (err) {
       console.error('Error fetching ETH balance:', err);
     }
-  }, [lastManualUpdates]);
+  }, []);
 
   const switchNetwork = useCallback(async () => {
     if (typeof window !== 'undefined' && window.ethereum) {
@@ -381,30 +419,28 @@ export function WalletProvider({ children }) {
             const rate = globalRates[fromToken]?.[toToken] || 1;
             const amountOut = amountVal * rate;
             
-            if (fromToken !== 'ETH' && fromToken !== 'RIALO') {
-              updateBalance(fromToken, -amountVal);
-            }
-            if (toToken !== 'ETH' && toToken !== 'RIALO') {
-              updateBalance(toToken, amountOut);
-            }
-            
-            if (toToken === 'RIALO') {
-              updateBalance('RIALO', amountOut);
-            }
-            if (toToken === 'ETH') {
-              updateBalance('ETH', amountOut);
-            }
+            // Instantly apply balance changes for ALL tokens explicitly for smooth UI
+            updateBalances({
+                [fromToken]: -amountVal,
+                [toToken]: amountOut
+            });
           }
 
-          if (txType === 'Bridge') {
+          if (txType === 'Bridge' && actionDetail) {
             const amount = parseFloat(actionDetail.match(/[\d.]+/)?.[0] || '0');
-            if (actionDetail.toLowerCase().includes('rialo l1') || actionDetail.toLowerCase().includes('to rialo')) {
-               // Bridge Out (Deposit)
-               updateBalance('ETH_RIALO', amount);
-            } else {
-               // Bridge In (Withdraw)
-               updateBalance('ETH_RIALO', -amount);
-               updateBalance('ETH', amount);
+            const detailLower = actionDetail.toLowerCase();
+            if (detailLower.includes('rialo l1') || detailLower.includes('to rialo')) {
+               // Bridge Out (Deposit ETH to Rialo L1)
+               updateBalances({
+                   'ETH': -amount,
+                   'ETH_RIALO': amount
+               });
+            } else if (detailLower.includes('from rialo') || detailLower.includes('to eth')) {
+               // Bridge In (Withdraw Rialo L1 to ETH)
+               updateBalances({
+                   'ETH_RIALO': -amount,
+                   'ETH': amount
+               });
             }
           }
 
@@ -520,7 +556,7 @@ export function WalletProvider({ children }) {
         isWrongNetwork: chainId !== null && chainId !== SEPOLIA_CHAIN_ID,
         shortAddress: address ? `${address.slice(0, 6)}...${address.slice(-4)}` : null,
         isConnected: !!address,
-        balances, transactions, globalRates, triggerOrders, updateBalance, setTokenBalance, fetchEthBalance,
+        balances, transactions, globalRates, triggerOrders, updateBalance, updateBalances, setTokenBalance, fetchEthBalance,
         addTransaction, addTriggerOrder, executeAiTransaction,
         scheduledTxs, addScheduledTx, removeScheduledTx, removeTriggerOrder,
         aiPrivateKey, setAiPrivateKey,

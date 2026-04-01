@@ -16,7 +16,7 @@ const TOKENS = [
 ];
 
 export default function SwapPage() {
-  const { isConnected, address, provider, connect, balances: walletBalances, updateBalance, addTransaction, globalRates, addTriggerOrder, fetchEthBalance, aiPrivateKey, setAiPrivateKey } = useWallet();
+  const { isConnected, address, provider, connect, balances: walletBalances, updateBalance, updateBalances, addTransaction, globalRates, addTriggerOrder, fetchEthBalance, aiPrivateKey, setAiPrivateKey } = useWallet();
   const { balance: rloBal, claimFaucet, loading: faucetLoading, transfer, fetchBalance: fetchRloBalance } = useRLO();
   const [fromToken, setFromToken] = useState('ETH');
   const [toToken, setToToken] = useState('RIALO');
@@ -147,19 +147,11 @@ export default function SwapPage() {
       const outVal = parseFloat(estimatedOut);
       const inVal = parseFloat(amountIn);
 
-      // Decrease source (if not handled by on-chain fetch immediately)
-      if (fromToken !== 'ETH' && fromToken !== 'RIALO') {
-        updateBalance(fromToken, -inVal);
-      }
-      
-      // Increase destination (crucial fix for user report)
-      if (toToken === 'RIALO') {
-        updateBalance('RIALO', outVal);
-      } else if (toToken === 'ETH') {
-        updateBalance('ETH', outVal);
-      } else {
-        updateBalance(toToken, outVal);
-      }
+      // Update balances atomically for instant feedback
+      updateBalances({
+        [fromToken]: -inVal,
+        [toToken]: outVal
+      });
       
       // Add to history
       addTransaction({
