@@ -139,8 +139,8 @@ export default function LearnPage() {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-[1200px] mx-auto">
               {[
-                { name: 'Hakii', handle: '@frhakii', role: 'Builder', initials: 'HK', color: 'bg-black text-white hover:bg-black/80', image: '/hakii.png', link: 'https://x.com/frhakii' },
-                { name: 'Luzzy', handle: '@luzzyzz97', role: 'Builder', initials: 'LZ', color: 'bg-black text-white hover:bg-black/80', image: '/luzzy.jpg', link: 'https://x.com/luzzyzz97' },
+                { name: 'HAKII', handle: '@frhakii', role: 'Builder', initials: 'HK', color: 'bg-black text-white hover:bg-black/80', image: '/hakii.png', link: 'https://x.com/frhakii' },
+                { name: 'LUZZY', handle: '@luzzyzz97', role: 'Builder', initials: 'LZ', color: 'bg-black text-white hover:bg-black/80', image: '/luzzy.jpg', link: 'https://x.com/luzzyzz97' },
                 { name: 'GOAT', handle: '@Mantle57222', role: 'Builder', initials: 'GT', color: 'bg-black text-white hover:bg-black/80', image: '/goat.png', link: 'https://x.com/Mantle57222' }
               ].map((dev) => (
                 <a 
@@ -148,7 +148,7 @@ export default function LearnPage() {
                   href={dev.link}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="bg-surface-container-lowest border border-outline-variant/10 p-6 rounded-2xl flex items-center gap-5 transition-all hover:border-outline-variant/30 hover:shadow-lg group"
+                  className="bg-black border border-white/10 p-6 rounded-2xl flex items-center gap-5 transition-all hover:border-white/30 hover:shadow-lg group"
                 >
                   <div className={`w-14 h-14 rounded-2xl flex items-center justify-center font-headline font-bold text-lg overflow-hidden transition-colors ${dev.color}`}>
                     {dev.image ? (
@@ -158,11 +158,11 @@ export default function LearnPage() {
                     )}
                   </div>
                   <div>
-                    <h3 className="font-headline text-xl font-bold text-black group-hover:text-primary transition-colors">{dev.name}</h3>
+                    <h3 className="font-headline text-xl font-bold text-white group-hover:text-primary transition-colors">{dev.name}</h3>
                     <div className="flex items-center gap-2 mt-1">
-                      <span className="font-label text-[10px] uppercase tracking-widest text-on-surface/40 font-bold">{dev.role}</span>
-                      <span className="w-1 h-1 rounded-full bg-outline-variant/30"></span>
-                      <span className="font-body text-sm text-on-surface/60">{dev.handle}</span>
+                      <span className="font-label text-[10px] uppercase tracking-widest text-white/40 font-bold">{dev.role}</span>
+                      <span className="w-1 h-1 rounded-full bg-white/20"></span>
+                      <span className="font-body text-sm text-white/60">{dev.handle}</span>
                     </div>
                   </div>
                 </a>
