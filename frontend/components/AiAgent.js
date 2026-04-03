@@ -220,6 +220,7 @@ export default function AiAgent() {
   const [showSchedulePanel, setShowSchedulePanel] = useState(false);
   const [showAiWalletPanel, setShowAiWalletPanel] = useState(false);
   const [sessionBalance, setSessionBalance] = useState('0');
+  const [sessionDuration, setSessionDuration] = useState(1);
   const [isSeeding, setIsSeeding] = useState(false);
   const [schedData, setSchedData] = useState({ type: 'Swap', amount: '10', fromToken: 'USDC', toToken: 'RIALO', timeVal: '5', timeUnit: 'minutes' });
   const [loading, setLoading] = useState(false);
@@ -957,20 +958,36 @@ export default function AiAgent() {
                     </button>
                   </div>
                 ) : (
-                  <button 
-                    className="ai-sched-btn" 
-                    onClick={async () => {
-                      try {
-                        await activateSession(1);
-                        setShowAiWalletPanel(false);
-                        showToast({ message: "Session Started!", detail: "Zero-popup automation active for 1 hour." });
-                      } catch (e) {
-                        showToast({ message: "Activation Failed", detail: e.message, type: 'error' });
-                      }
-                    }}
-                  >
-                    Authorize 1-Hour Session
-                  </button>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.6)' }}>Session Duration</span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <input 
+                          type="range" 
+                          min="1" 
+                          max="24" 
+                          value={sessionDuration}
+                          onChange={(e) => setSessionDuration(parseInt(e.target.value))}
+                          style={{ accentColor: '#10b981', cursor: 'pointer' }}
+                        />
+                        <span style={{ fontSize: '13px', color: '#10b981', fontWeight: '800', minWidth: '45px' }}>{sessionDuration}H</span>
+                      </div>
+                    </div>
+                    <button 
+                      className="ai-sched-btn" 
+                      onClick={async () => {
+                        try {
+                          await activateSession(sessionDuration);
+                          setShowAiWalletPanel(false);
+                          showToast({ message: "Session Started!", detail: `Zero-popup automation active for ${sessionDuration} hour(s).` });
+                        } catch (e) {
+                          showToast({ message: "Activation Failed", detail: e.message, type: 'error' });
+                        }
+                      }}
+                    >
+                      Authorize {sessionDuration}-Hour Session
+                    </button>
+                  </div>
                 )}
               </div>
             )}
