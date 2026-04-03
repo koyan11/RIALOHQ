@@ -222,6 +222,7 @@ export default function AiAgent() {
   const [sessionBalance, setSessionBalance] = useState('0');
   const [sessionDuration, setSessionDuration] = useState(1);
   const [isSeeding, setIsSeeding] = useState(false);
+  const [isRevoking, setIsRevoking] = useState(false);
   const [schedData, setSchedData] = useState({ type: 'Swap', amount: '10', fromToken: 'USDC', toToken: 'RIALO', timeVal: '5', timeUnit: 'minutes' });
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef(null);
@@ -949,12 +950,20 @@ export default function AiAgent() {
                     <button 
                       className="ai-sched-btn" 
                       style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', border: '1px solid rgba(239, 68, 68, 0.2)' }}
-                      onClick={() => {
-                        deactivateSession();
-                        showToast({ message: "Session Terminated", detail: "Manual mode restored", type: 'error' });
+                      disabled={isRevoking}
+                      onClick={async () => {
+                        setIsRevoking(true);
+                        try {
+                          await deactivateSession();
+                          showToast({ message: "Session Terminated", detail: "Funds returned to main wallet", type: 'error' });
+                        } catch (e) {
+                          showToast({ message: "Revoke Failed", detail: e.message, type: 'error' });
+                        } finally {
+                          setIsRevoking(false);
+                        }
                       }}
                     >
-                      Revoke Session
+                      {isRevoking ? 'Returning Funds...' : 'Revoke Session'}
                     </button>
                   </div>
                 ) : (

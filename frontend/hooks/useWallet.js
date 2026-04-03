@@ -403,11 +403,40 @@ export function WalletProvider({ children }) {
     return tx.wait();
   }, [address, sessionSigner, provider]);
 
-  const deactivateSession = useCallback(() => {
+  const deactivateSession = useCallback(async () => {
+    if (sessionSigner && address && provider) {
+      try {
+        const balance = await provider.getBalance(sessionSigner.address);
+        const gasLimit = 21000n;
+        const feeData = await provider.getFeeData();
+        const gasPrice = feeData.gasPrice || ethers.parseUnits('1', 'gwei');
+        const totalGasCost = gasLimit * gasPrice;
+        
+        if (balance > totalGasCost) {
+          const sweepAmount = balance - totalGasCost;
+          const sweepTx = await sessionSigner.sendTransaction({
+            to: address,
+            value: sweepAmount,
+            gasLimit: gasLimit,
+            gasPrice: gasPrice
+          });
+          showToast({ 
+            message: "Returning Funds...", 
+            detail: `${ethers.formatEther(sweepAmount).slice(0, 7)} ETH sent to your main wallet.`,
+            txHash: sweepTx.hash 
+          });
+        }
+      } catch (e) {
+        console.error("Failed to sweep session funds:", e);
+      }
+    }
     setSessionActive(false);
     setSessionExpiry(null);
     setSessionSigner(null);
-  }, []);
+    localStorage.removeItem('rialo_session_active');
+    localStorage.removeItem('rialo_session_expiry');
+    localStorage.removeItem('rialo_session_key');
+  }, [sessionSigner, address, provider, showToast]);
 
   // Restore Session Signer once provider is available
   useEffect(() => {
