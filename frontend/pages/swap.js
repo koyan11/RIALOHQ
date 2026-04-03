@@ -16,7 +16,7 @@ const TOKENS = [
 ];
 
 export default function SwapPage() {
-  const { isConnected, address, provider, connect, balances: walletBalances, updateBalance, updateBalances, addTransaction, globalRates, addTriggerOrder, fetchEthBalance, aiPrivateKey, setAiPrivateKey } = useWallet();
+  const { isConnected, address, provider, connect, balances: walletBalances, updateBalance, updateBalances, addTransaction, globalRates, addTriggerOrder, fetchEthBalance, sessionActive, activateSession, deactivateSession } = useWallet();
   const { balance: rloBal, claimFaucet, loading: faucetLoading, transfer, fetchBalance: fetchRloBalance } = useRLO();
   const [fromToken, setFromToken] = useState('ETH');
   const [toToken, setToToken] = useState('RIALO');
@@ -294,17 +294,27 @@ export default function SwapPage() {
                     </div>
                     <div className="mt-6 pt-6 border-t border-white/5">
                       <div className="flex items-center justify-between mb-3">
-                        <label className="font-label text-xs uppercase tracking-widest text-white/30 font-bold">AI Wallet Secret</label>
-                        <span className="material-symbols-outlined text-primary text-xs">auto_fix</span>
+                        <label className="font-label text-xs uppercase tracking-widest text-white/30 font-bold">AI Session Control</label>
+                        <span className="material-symbols-outlined text-primary text-xs">{sessionActive ? 'shield_person' : 'no_accounts'}</span>
                       </div>
-                      <p className="text-[10px] text-white/20 mb-3 leading-relaxed">Enter a private key for automated AI execution. This key will be used to sign transactions without manual approval.</p>
-                      <input 
-                        type="password" 
-                        placeholder="0x..."
-                        value={aiPrivateKey || ''}
-                        onChange={(e) => setAiPrivateKey(e.target.value)}
-                        className="w-full bg-[#0c0c0c] border border-white/5 rounded-xl px-4 py-3 text-xs font-mono text-white placeholder:text-white/5 focus:border-primary/50 outline-none transition-all"
-                      />
+                      <p className="text-[10px] text-white/20 mb-3 leading-relaxed">
+                        {sessionActive 
+                          ? "Session Active: AI can execute transactions from the inside without popups." 
+                          : "No session active. All transactions will require manual MetaMask approval."}
+                      </p>
+                      <button
+                        onClick={async () => {
+                          if (sessionActive) deactivateSession();
+                          else await activateSession(1);
+                        }}
+                        className={`w-full py-3 rounded-xl text-xs font-bold transition-all border ${
+                          sessionActive 
+                            ? 'bg-red-500/10 text-red-500 border-red-500/20 hover:bg-red-500/20' 
+                            : 'bg-primary/10 text-primary border-primary/20 hover:bg-primary/20'
+                        }`}
+                      >
+                        {sessionActive ? 'End Session' : 'Start 1-Hour Session'}
+                      </button>
                     </div>
                   </div>
                 )}

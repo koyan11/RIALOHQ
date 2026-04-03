@@ -215,11 +215,10 @@ export default function AiAgent() {
   const [showSchedulePanel, setShowSchedulePanel] = useState(false);
   const [showAiWalletPanel, setShowAiWalletPanel] = useState(false);
   const [schedData, setSchedData] = useState({ type: 'Swap', amount: '10', fromToken: 'USDC', toToken: 'RIALO', timeVal: '5', timeUnit: 'minutes' });
-  const [localKey, setLocalKey] = useState(aiPrivateKey || '');
+  const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef(null);
 
   const scrollToBottom = () => {
-
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
