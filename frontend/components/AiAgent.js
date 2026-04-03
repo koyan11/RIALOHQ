@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { useWallet } from '../hooks/useWallet';
+import { ethers } from 'ethers';
 
 // Mock logic matching the system prompt
 const getAiResponse = (input, globalRates) => {
