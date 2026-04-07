@@ -324,6 +324,7 @@ export default function Home() {
                               onChange={(e) => setRloAmount(e.target.value)}
                               className="bg-transparent text-2xl md:text-3xl font-bold text-white outline-none w-full placeholder-slate-700"
                               placeholder="0.0"
+                            />
                             <div className="text-[11px] text-white/50 font-medium mt-1">≈ ${((parseFloat(rloAmount) || 0) * 3).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
                           </div>
                           <div className="flex items-center gap-2 shrink-0">
