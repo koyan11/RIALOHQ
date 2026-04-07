@@ -10,7 +10,7 @@ import { useRouter } from 'next/router';
 import { Droplet, Activity, Loader2, CheckCircle2, AlertCircle, Route, Flame } from "lucide-react";
 
 export default function Rewards() {
-  const { isConnected, address, provider, connect } = useWallet();
+  const { isConnected, address, provider, connect, addTransaction } = useWallet();
   const { 
     pendingRewards: pendingRewStr, 
     loading: stakingLoading, 
@@ -36,6 +36,7 @@ export default function Rewards() {
     }
     try {
       const hash = await claimAction();
+      addTransaction({ type: 'Claim', amount: `${realPendingRewards.toFixed(2)} RLO`, details: 'Claimed Staking Rewards', txHash: hash });
       setToast({ message: "Rewards claimed successfully!", type: "success", txHash: hash });
       if (address && provider) {
         fetchStakingData();

@@ -21,7 +21,7 @@ export default function Toast({ message, type = 'success', txHash, onClose }) {
   };
 
   return (
-    <div className={`fixed top-8 left-1/2 transform -translate-x-1/2 z-[100] flex items-center gap-4 px-6 py-3.5 rounded-full shadow-[0_8px_32px_rgba(0,0,0,0.4)] border border-white/20 backdrop-blur-xl transition-all animate-in fade-in slide-in-from-top-6 duration-500 max-w-md ${type === 'error' ? 'bg-red-500/90' : 'bg-white/90'}`}>
+    <div className={`fixed bottom-8 right-8 z-[100] flex items-center gap-4 px-6 py-3.5 rounded-full shadow-[0_8px_32px_rgba(0,0,0,0.4)] border border-white/20 backdrop-blur-xl transition-all animate-in fade-in slide-in-from-bottom-6 duration-500 max-w-md ${type === 'error' ? 'bg-red-500/90' : 'bg-white/90'}`}>
       <span className={`material-symbols-outlined text-xl ${type === 'error' ? 'text-white' : 'text-black'}`}>{icons[type]}</span>
       <div className="flex-1 min-w-0">
         <p className={`font-headline font-bold text-sm ${type === 'error' ? 'text-white' : 'text-black'}`}>{message}</p>

@@ -123,14 +123,17 @@ export default function Home() {
         if (assetType === 'solo_rlo') {
             if (numRlo < 10) { setToast({ message: "Min 10 RLO", type: "error" }); setIsSimulating(false); return; }
             await stakeRlo(numRlo.toString(), lockDuration);
+            addTransaction({ type: 'Stake', amount: `${numRlo.toLocaleString('en-US')} RLO`, details: 'Staked RLO (Solo)', txHash: null });
             setToast({ message: `Successfully staked ${numRlo.toLocaleString('en-US')} RLO!`, type: "success" });
         } else if (assetType === 'solo_eth') {
             if (numEth <= 0) { setToast({ message: "Invalid ETH Amount", type: "error" }); setIsSimulating(false); return; }
             await stakeEth(numEth.toString(), lockDuration);
+            addTransaction({ type: 'Stake', amount: `${numEth} ETH`, details: 'Staked ETH (Solo)', txHash: null });
             setToast({ message: `Successfully staked ${numEth} ETH!`, type: "success" });
         } else if (assetType === 'pair') {
             if (numRlo < 10 || numEth <= 0) { setToast({ message: "Invalid Pair Amount", type: "error" }); setIsSimulating(false); return; }
             const hash = await stakePair(numRlo.toString(), numEth.toString(), lockDuration);
+            addTransaction({ type: 'Stake', amount: 'LP Pair', details: `Staked ${numRlo} RLO + ${numEth} ETH`, txHash: hash });
             setToast({ message: `Successfully staked Pair!`, type: "success", txHash: hash });
         }
         setRloAmount("");
@@ -142,6 +145,7 @@ export default function Home() {
           return;
         }
         const hash = await withdraw();
+        addTransaction({ type: 'Unstake', amount: 'All Assets', details: 'Unstaked RLO/ETH', txHash: hash });
         setToast({ message: `Successfully unstaked!`, type: "success", txHash: hash });
       }
       
