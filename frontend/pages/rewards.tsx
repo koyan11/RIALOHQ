@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import Toast from '../components/Toast';
 import { useWallet } from '../hooks/useWallet';
 import { useStaking } from '../hooks/useStaking';
 import { useRouter } from 'next/router';
@@ -17,7 +18,7 @@ export default function Rewards() {
     fetchStakingData
   } = useStaking();
 
-  const [toast, setToast] = useState<{message: string, type: 'success' | 'error'} | null>(null);
+  const [toast, setToast] = useState(null);
   const realPendingRewards = parseFloat(pendingRewStr || '0');
 
   useEffect(() => {
@@ -34,8 +35,8 @@ export default function Rewards() {
       return;
     }
     try {
-      await claimAction();
-      setToast({ message: "Rewards claimed successfully!", type: "success" });
+      const hash = await claimAction();
+      setToast({ message: "Rewards claimed successfully!", type: "success", txHash: hash });
       if (address && provider) {
         fetchStakingData();
       }
@@ -47,13 +48,7 @@ export default function Rewards() {
   return (
     <main className="min-h-screen bg-background text-on-background font-body antialiased selection:bg-primary/30 flex flex-col relative">
       
-      {/* Toast Notification */}
-      {toast && (
-        <div className={`fixed top-6 left-1/2 transform -translate-x-1/2 z-50 flex items-center gap-2 px-5 py-3 rounded-full shadow-2xl transition-all animate-in fade-in slide-in-from-top-5 duration-300 bg-white/90 backdrop-blur-md`}>
-          {toast.type === 'success' ? <CheckCircle2 className="w-5 h-5 text-black" /> : <AlertCircle className="w-5 h-5 text-black" />}
-          <span className="font-medium text-sm text-black">{toast.message}</span>
-        </div>
-      )}
+      {toast && <Toast {...toast} onClose={() => setToast(null)} />}
 
       <Navbar />
 

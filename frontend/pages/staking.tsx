@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import Toast from '../components/Toast';
 import { useWallet } from '../hooks/useWallet';
 import { useRLO } from '../hooks/useRLO';
 import { useStaking } from '../hooks/useStaking';
@@ -103,7 +104,7 @@ export default function Home() {
   const [isExploringRwa, setIsExploringRwa] = useState<boolean>(false);
 
   // Toast
-  const [toast, setToast] = useState<{message: string, type: 'success' | 'error'} | null>(null);
+  const [toast, setToast] = useState(null);
 
   // Clear toast after 3s
   useEffect(() => {
@@ -129,8 +130,8 @@ export default function Home() {
             setToast({ message: `Successfully staked ${numEth} ETH!`, type: "success" });
         } else if (assetType === 'pair') {
             if (numRlo < 10 || numEth <= 0) { setToast({ message: "Invalid Pair Amount", type: "error" }); setIsSimulating(false); return; }
-            await stakePair(numRlo.toString(), numEth.toString(), lockDuration);
-            setToast({ message: `Successfully staked Pair!`, type: "success" });
+            const hash = await stakePair(numRlo.toString(), numEth.toString(), lockDuration);
+            setToast({ message: `Successfully staked Pair!`, type: "success", txHash: hash });
         }
         setRloAmount("");
         setEthAmount("0");
@@ -140,8 +141,8 @@ export default function Home() {
           setIsSimulating(false);
           return;
         }
-        await withdraw();
-        setToast({ message: `Successfully unstaked!`, type: "success" });
+        const hash = await withdraw();
+        setToast({ message: `Successfully unstaked!`, type: "success", txHash: hash });
       }
       
       if (address && provider) {
@@ -177,8 +178,8 @@ export default function Home() {
       return;
     }
     try {
-      await claimAction();
-      setToast({ message: "Rewards claimed successfully!", type: "success" });
+      const hash = await claimAction();
+      setToast({ message: "Rewards claimed successfully!", type: "success", txHash: hash });
       if (address && provider) {
         fetchEthBalance(address, provider);
         fetchRloBalance();
@@ -220,13 +221,7 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-background text-on-background font-body antialiased selection:bg-primary/30 flex flex-col relative">
       
-      {/* Toast Notification */}
-      {toast && (
-        <div className={`fixed top-6 left-1/2 transform -translate-x-1/2 z-50 flex items-center gap-2 px-5 py-3 rounded-full shadow-2xl transition-all animate-in fade-in slide-in-from-top-5 duration-300 ${toast.type === 'success' ? 'bg-white/90' : 'bg-white/90'} backdrop-blur-md`}>
-          {toast.type === 'success' ? <CheckCircle2 className="w-5 h-5 text-black" /> : <AlertCircle className="w-5 h-5 text-black" />}
-          <span className="font-medium text-sm text-black">{toast.message}</span>
-        </div>
-      )}
+      {toast && <Toast {...toast} onClose={() => setToast(null)} />}
 
       <Navbar />
 
