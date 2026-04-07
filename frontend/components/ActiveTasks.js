@@ -11,8 +11,8 @@ export default function ActiveTasks() {
       <style>{`
         .active-tasks-container {
           position: fixed;
-          bottom: 100px;
-          right: 24px;
+          bottom: 120px;
+          right: 32px;
           z-index: 9999;
           display: flex;
           flex-direction: column;

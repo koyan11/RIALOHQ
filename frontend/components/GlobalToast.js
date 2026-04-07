@@ -11,20 +11,22 @@ export default function GlobalToast() {
       <style>{`
         .global-toast {
           position: fixed;
-          bottom: 24px;
-          right: 24px;
+          bottom: 32px;
+          right: 32px;
           z-index: 10000;
           display: flex;
           align-items: center;
-          gap: 12px;
-          background: #000;
+          gap: 16px;
+          background: rgba(17, 17, 17, 0.9);
+          backdrop-filter: blur(20px);
           color: #fff;
-          padding: 10px 20px;
-          border-radius: 999px;
-          box-shadow: 0 12px 48px rgba(0,0,0,0.5);
-          animation: slideInToast 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+          padding: 14px 24px;
+          border-radius: 16px;
+          box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+          animation: slideInToast 0.5s cubic-bezier(0.16, 1, 0.3, 1);
           border: 1px solid rgba(255,255,255,0.1);
-          min-width: 280px;
+          min-width: 320px;
+          max-width: 420px;
         }
 
         @keyframes slideInToast {
@@ -33,39 +35,44 @@ export default function GlobalToast() {
         }
 
         .toast-icon {
-          width: 24px;
-          height: 24px;
+          width: 28px;
+          height: 28px;
           background: #fff;
           color: #000;
-          border-radius: 50%;
+          border-radius: 8px;
           display: flex;
           align-items: center;
           justify-content: center;
           flex-shrink: 0;
+          box-shadow: 0 4px 12px rgba(255,255,255,0.1);
         }
 
         .toast-content {
           flex: 1;
           display: flex;
           flex-direction: column;
+          min-width: 0;
         }
 
         .toast-title {
           font-weight: 700;
-          font-size: 13px;
+          font-size: 14px;
           letter-spacing: -0.01em;
+          color: #fff;
         }
 
         .toast-link {
           font-size: 11px;
-          color: rgba(255,255,255,0.6);
+          font-weight: 600;
+          color: var(--primary-color, #f97316);
           text-decoration: underline;
-          margin-top: 2px;
-          transition: color 0.2s;
+          margin-top: 4px;
+          transition: opacity 0.2s;
+          opacity: 0.7;
         }
 
         .toast-link:hover {
-          color: #fff;
+          opacity: 1;
         }
       `}</style>
 
