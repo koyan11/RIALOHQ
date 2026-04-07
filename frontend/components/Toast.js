@@ -22,8 +22,9 @@ export default function Toast({ message, type = 'success', txHash, onClose }) {
 
   return (
     <div 
-      className={`fixed z-[99999] flex items-center gap-4 px-6 py-3.5 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-white/10 backdrop-blur-2xl transition-all animate-in fade-in slide-in-from-bottom-10 duration-500 max-w-md ${type === 'error' ? 'bg-red-500/90' : 'bg-[#111111]/90'}`}
-      style={{ bottom: '32px', right: '32px' }}
+      id="protocol-toast-root"
+      className={`!fixed !bottom-8 !right-8 !z-[999999] flex items-center gap-4 px-6 py-3.5 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-white/10 backdrop-blur-2xl transition-all animate-in fade-in slide-in-from-bottom-10 duration-500 max-w-md ${type === 'error' ? 'bg-red-500/90' : 'bg-[#111111]/95'}`}
+      style={{ left: 'auto', top: 'auto', bottom: '32px', right: '32px' }}
     >
       <span className={`material-symbols-outlined text-xl ${type === 'error' ? 'text-white' : 'text-white/90'}`}>{icons[type]}</span>
       <div className="flex-1 min-w-0">
