@@ -164,8 +164,12 @@ export default function SwapPage() {
       
       setAmountIn('');
     } catch (err) {
-      const msg = err.response?.data?.error || err.message || 'Swap failed';
-      setToast({ message: msg, type: 'error' });
+      const msg = err.message || "";
+      if (msg.includes('user rejected') || msg.includes('4001')) {
+        setToast({ message: "Transaction rejected in MetaMask.", type: "error" });
+      } else {
+        setToast({ message: `Swap failed. ${msg.slice(0, 60)}${msg.length > 60 ? '...' : ''}`, type: "error" });
+      }
     } finally {
       setLoading(false);
     }

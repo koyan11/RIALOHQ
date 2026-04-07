@@ -154,8 +154,13 @@ export default function Home() {
         fetchRloBalance();
         fetchStakingData();
       }
-    } catch (e) {
-      setToast({ message: `${isStaking ? 'Staking' : 'Unstaking'} failed. Ensure your lock duration is over.`, type: "error" });
+    } catch (e: any) {
+      const msg = e.message || "";
+      if (msg.includes('user rejected') || msg.includes('4001')) {
+        setToast({ message: "Transaction rejected in MetaMask.", type: "error" });
+      } else {
+        setToast({ message: `${isStaking ? 'Staking' : 'Unstaking'} failed. ${msg.slice(0, 60)}${msg.length > 60 ? '...' : ''}`, type: "error" });
+      }
     } finally {
       setIsSimulating(false);
     }

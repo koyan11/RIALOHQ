@@ -98,7 +98,12 @@ export default function BridgePage() {
       setAmount('');
 
     } catch (err) {
-      setToast({ message: err.reason || err.message || 'Bridge failed', type: 'error' });
+      const msg = err.message || "";
+      if (msg.includes('user rejected') || msg.includes('4001')) {
+        setToast({ message: "Transaction rejected in MetaMask.", type: "error" });
+      } else {
+        setToast({ message: `Bridge failed. ${msg.slice(0, 60)}${msg.length > 60 ? '...' : ''}`, type: 'error' });
+      }
     } finally {
       setLoading(false);
     }
