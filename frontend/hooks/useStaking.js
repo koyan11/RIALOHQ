@@ -383,6 +383,7 @@ export function useStaking() {
     stakedEthBalance,
     pendingRewards, 
     tickingRewards,
+    tickingCredits,
     totalStaked, 
     sfsFraction, 
     rwaAllocation,

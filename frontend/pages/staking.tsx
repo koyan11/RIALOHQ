@@ -622,7 +622,7 @@ export default function Home() {
                       Available Service Credits
                     </h3>
                     <div className="text-[3.5rem] md:text-[4.5rem] font-headline font-extrabold text-white leading-none mb-2 z-10 tracking-tighter">
-                      {tickingCredits.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      {(tickingCredits || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </div>
                     <span className="text-white/10 font-bold tracking-[0.3em] uppercase text-[10px] mt-2 z-10 font-label">Credits</span>
 
