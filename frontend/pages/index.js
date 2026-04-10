@@ -1,4 +1,4 @@
-import Spline from '@splinetool/react-spline/next';
+import Spline from '@splinetool/react-spline';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { useWallet } from '../hooks/useWallet';
