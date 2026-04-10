@@ -42,7 +42,7 @@ export default function Home() {
               <div className="relative w-full aspect-square max-w-[500px] bg-[#e6e2d1] rounded-[3rem] shadow-2xl p-6 flex items-center justify-center overflow-hidden border-8 border-white/5 group hover:scale-[1.02] transition-transform duration-500">
                 <Spline
                   scene="https://prod.spline.design/s45hkf6lCVUq7PZ4/scene.splinecode" 
-                  className="w-full h-full object-contain mix-blend-multiply opacity-90 scale-110"
+                  className="w-[120%] h-[120%] object-contain"
                 />
               </div>
             </div>
