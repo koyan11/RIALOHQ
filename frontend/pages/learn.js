@@ -5,48 +5,48 @@ const articles = [
   {
     category: 'Foundations',
     title: 'What is Rialo?',
-    desc: 'An in-depth technical analysis of our unique consensus mechanism and the architectural philosophy of the Void.',
-    cta: 'Begin Exploration',
+    desc: 'Dive into the mechanics of our Dual-Engine architecture, ServicePaymaster credits, and how we merge DeFi yields with Real-World Assets (RWA).',
+    cta: 'READ THE DOCS',
     span: 'md:col-span-8',
     imgUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDMsCt6_s7u6hzeC9Hxw7MFj_lIsVfVYasK6ntTO90wqSsUKOC1rLtMcuoV1lHtzkg1vZaxEh7PkBxYea7irVSu3zdE5BITZ0eRFTuZ4xReV-vdvtC5kwq5vEEYLqqTJk8ccEvPRdA8pzCTmz4qKJ74Kja5v3eVRpf3UqfS0dz-ZAYb8aYSor6Od9Z-4Dh9XLlJgRmPzMuyZBbbuPy1zKbN1BuSMS-Fbrvnn2FqvArZ3uYHFw71TPfMcU70XtDNn0Xc7jSUSXPUi3y4',
   },
 ];
 
 const guides = [
-  { num: '01', label: 'Wallet Selection' },
-  { num: '02', label: 'Faucet Guide' },
-  { num: '03', label: 'Network RPC' },
+  { num: '01', label: 'Wallet Setup & Bridging' },
+  { num: '02', label: 'Staking & Earning Credits' },
+  { num: '03', label: 'AI Agent Auto-Routing' },
 ];
 
 const topics = [
-  { icon: 'water_drop', title: 'Staking 101', desc: 'Learn how to select pools, manage risk, and maximise your staking yield on the Rialo network.', tag: 'Beginner' },
-  { icon: 'swap_horiz', title: 'Trading & Swaps', desc: 'Understand price impact, liquidity pools, and how to execute precise trades.', tag: 'Intermediate' },
-  { icon: 'hub', title: 'Bridge Deep Dive', desc: 'The technical mechanics behind cross-chain settlement and asset security.', tag: 'Advanced' },
-  { icon: 'code', title: 'Developer SDK', desc: 'Integrate Rialo into your application with our open-source SDK and API documentation.', tag: 'Developer' },
+  { icon: 'water_drop', title: 'Zero-Gas Staking', desc: 'Learn how to maximize your RLO yield and generate Service Credits to completely eliminate gas fees.', tag: 'Beginner' },
+  { icon: 'swap_horiz', title: 'The RWA Hub', desc: 'Understand how to automatically diversify your crypto yield directly into stable assets like US Treasuries and Gold.', tag: 'Intermediate' },
+  { icon: 'hub', title: 'The AI Agent', desc: 'Discover how our AI Agent works 24/7 to auto-compound your yield and execute smart swaps using your Credits.', tag: 'Advanced' },
+  { icon: 'code', title: 'Developer SDK', desc: "Integrate the ServicePaymaster and Rialo's routing logic into your own dApp with our open-source tools.", tag: 'Developer' },
 ];
 
 export default function LearnPage() {
   return (
-    <div className="bg-surface font-body text-on-surface antialiased selection:bg-primary selection:text-on-primary min-h-screen">
+    <div className="bg-white font-body text-zinc-900 antialiased selection:bg-black selection:text-white min-h-screen">
       <Navbar />
       <main className="max-w-[1200px] mx-auto px-8 py-24">
         {/* Hero */}
         <header className="mb-24 max-w-3xl">
-          <div className="inline-flex items-center px-4 py-1.5 rounded-full bg-surface-container-high text-primary mb-6 border border-outline-variant/20 shadow-sm">
+          <div className="inline-flex items-center px-4 py-1.5 rounded-full bg-zinc-50 text-black mb-6 border border-zinc-200 shadow-sm">
             <span className="material-symbols-outlined text-sm mr-2">school</span>
             <span className="font-label text-xs font-bold tracking-widest uppercase">Knowledge Base</span>
           </div>
-          <h1 className="font-headline text-6xl font-extrabold tracking-tight mb-8 leading-[1.1] text-black">
-            The Architectural Void of Knowledge.
+          <h1 className="text-6xl text-black mb-8">
+            Master the Dual-Engine Ecosystem.
           </h1>
-          <p className="font-body text-xl text-on-surface/60 leading-relaxed">
-            Master the nuances of the Rialo ecosystem. From initial setup to high-yield staking strategies, explore the technical foundations of our Layer 1.
+          <p className="font-body text-xl text-zinc-500 leading-relaxed font-medium">
+            Master the nuances of the Rialo ecosystem. From zero-gas staking to automated RWA accumulation, explore the mechanics of intelligent yield.
           </p>
         </header>
 
         {/* Featured Bento */}
         <section className="grid grid-cols-1 md:grid-cols-12 gap-8 mb-32">
-          <div className="md:col-span-8 group relative overflow-hidden rounded-2xl bg-surface-container-lowest border border-outline-variant/10 shadow-lg transition-transform duration-500 hover:scale-[1.01]">
+          <div className="md:col-span-8 group relative overflow-hidden rounded-2xl bg-[#0c0c0c] border border-white/5 shadow-2xl transition-transform duration-500 hover:scale-[1.01]">
             <div className="p-10 h-full flex flex-col">
               <div className="mb-10 aspect-[16/7] bg-[#e6e2d1] rounded-xl overflow-hidden shadow-inner relative group flex items-center justify-center">
                 <video
@@ -59,18 +59,18 @@ export default function LearnPage() {
                 />
               </div>
               <div className="mt-auto">
-                <span className="font-label text-xs font-bold tracking-[0.2em] uppercase text-primary mb-3 block">Foundations</span>
-                <h2 className="font-headline text-3xl font-bold mb-4 text-black">What is Rialo?</h2>
-                <p className="font-body text-on-surface/70 mb-8 max-w-xl leading-relaxed">An in-depth technical analysis of our unique consensus mechanism and the architectural philosophy of the Void.</p>
-                <a href="#" className="inline-flex items-center font-label text-sm font-bold uppercase tracking-wider group/link text-primary hover:text-black transition-colors">
-                  Begin Exploration
+                <span className="font-label text-xs font-bold tracking-[0.2em] uppercase text-white/40 mb-3 block">Foundations</span>
+                <h2 className="font-headline text-3xl font-bold mb-4 text-white">What is Rialo?</h2>
+                <p className="font-body text-white/50 mb-8 max-w-xl leading-relaxed">Dive into the mechanics of our Dual-Engine architecture, ServicePaymaster credits, and how we merge DeFi yields with Real-World Assets (RWA).</p>
+                <a href="#" className="inline-flex items-center font-label text-sm font-bold uppercase tracking-wider group/link text-white hover:text-white/80 transition-colors">
+                  READ THE DOCS
                   <span className="material-symbols-outlined ml-2 transition-transform group-hover/link:translate-x-1">arrow_forward</span>
                 </a>
               </div>
             </div>
           </div>
 
-          <div className="md:col-span-4 bg-black text-white rounded-2xl p-10 flex flex-col justify-between shadow-xl transition-transform duration-500 hover:scale-[1.01]">
+          <div className="md:col-span-4 bg-black text-white rounded-3xl p-10 flex flex-col justify-between shadow-2xl transition-transform duration-500 hover:scale-[1.01] border border-white/5">
             <div>
               <span className="material-symbols-outlined text-4xl mb-8 block opacity-90">speed</span>
               <h2 className="font-headline text-2xl font-bold mb-4">Getting Started</h2>
@@ -91,28 +91,27 @@ export default function LearnPage() {
         <section className="mb-32">
           <div className="flex items-end justify-between mb-12">
             <div>
-              <span className="font-label text-xs uppercase tracking-[0.2em] text-on-surface/50 mb-2 block">Learn By Topic</span>
-              <h2 className="font-headline text-3xl font-bold text-black">Explore the Ecosystem</h2>
+              <span className="font-label text-xs uppercase tracking-[0.2em] text-zinc-400 mb-2 block">Learn By Topic</span>
+              <h2 className="font-headline text-3xl font-bold text-black uppercase">Explore the Ecosystem</h2>
             </div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {topics.map(({ icon, title, desc, tag }) => (
-              <div key={title} className="bg-surface-container-lowest p-8 rounded-2xl border border-outline-variant/10 shadow-sm group cursor-pointer hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
-                <div className="w-12 h-12 rounded-xl bg-surface-container-low flex items-center justify-center mb-6 group-hover:bg-primary group-hover:text-white transition-colors">
-                  <span className="material-symbols-outlined">{icon}</span>
+            {topics.map(({ icon, title, desc }) => (
+              <div key={title} className="bg-[#0c0c0c] p-8 rounded-3xl border border-white/5 shadow-2xl group cursor-pointer hover:-translate-y-1 transition-all duration-300">
+                <div className="w-12 h-12 rounded-xl bg-[#161616] border border-white/10 flex items-center justify-center mb-8 group-hover:bg-white group-hover:text-black transition-all duration-300">
+                  <span className="material-symbols-outlined text-[20px] text-white/70 group-hover:text-black transition-colors">{icon}</span>
                 </div>
-                <span className="font-label text-[10px] uppercase tracking-widest text-on-surface/40 mb-3 block">{tag}</span>
-                <h3 className="font-headline text-lg font-bold mb-3 text-black">{title}</h3>
-                <p className="text-on-surface/60 text-sm leading-relaxed">{desc}</p>
+                <h3 className="font-headline text-xl font-bold mb-4 text-white">{title}</h3>
+                <p className="text-white/40 text-sm leading-relaxed">{desc}</p>
               </div>
             ))}
           </div>
         </section>
 
         {/* Contributors Section */}
-        <section className="p-12 md:p-24 text-center mb-32 bg-surface-container-low rounded-[3rem] shadow-inner">
-          <h2 className="font-headline text-[3.5rem] font-extrabold mb-6 tracking-tight text-black">Contributors</h2>
-          <p className="max-w-[800px] mx-auto text-on-surface/60 mb-20 text-lg leading-relaxed font-body">
+        <section className="p-12 md:p-24 text-center mb-32 bg-zinc-50 rounded-[3rem] border border-zinc-100">
+          <h2 className="font-headline text-[3.5rem] font-extrabold mb-6 tracking-tight text-black uppercase">Contributors</h2>
+          <p className="max-w-[800px] mx-auto text-zinc-500 mb-20 text-lg leading-relaxed font-body font-medium">
             A team of experienced builders and researchers from leading blockchain and high-growth companies, working together to build next-generation decentralized networks.
           </p>
           <div className="mt-20 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-x-12 gap-y-16 items-center w-full max-w-[1000px] mx-auto">

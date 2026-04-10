@@ -8,7 +8,7 @@ export default function ActiveTasks() {
 
   return (
     <>
-      <style>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         .active-tasks-container {
           position: fixed;
           bottom: 120px;
@@ -92,7 +92,7 @@ export default function ActiveTasks() {
         .task-cancel:hover {
           color: #ff4b4b;
         }
-      `}</style>
+      `}} />
 
       <div className="active-tasks-container">
         {scheduledTxs.map(tx => (

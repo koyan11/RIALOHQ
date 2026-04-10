@@ -56,25 +56,24 @@
           position: relative;
           display: flex;
           align-items: center;
-          /* Match tighter Figma spacing: 8px-12px horizontal padding. Letter-spacing optical center fix kept on left limit. */
-          padding: 8px 8px 8px calc(8px + 0.12em);
+          padding: 8px 12px;
           border-radius: 9999px;
-          font-size: 10px;
-          font-weight: 700;
-          letter-spacing: 0.12em;
+          font-size: 11px;
+          font-weight: 800;
+          letter-spacing: -0.01em;
           text-transform: uppercase;
-          color: rgba(255,255,255,0.35);
+          color: rgba(255,255,255,0.45);
           text-decoration: none;
           white-space: nowrap;
-          transition: color 0.18s, background 0.18s;
+          transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .nav-link:hover {
-          color: rgba(255,255,255,0.75);
-          background: rgba(255,255,255,0.07);
+          color: #fff;
+          background: rgba(255,255,255,0.08);
         }
         .nav-link.active {
           color: #fff;
-          background: rgba(255,255,255,0.11);
+          background: rgba(255,255,255,0.15);
         }
         .nav-link.active::after {
           content: '';
@@ -85,31 +84,34 @@
           width: 14px;
           height: 2px;
           border-radius: 2px;
-          background: rgba(255,255,255,0.45);
+          background: rgba(255,255,255,0.6);
         }
 
         /* ── Right section ── */
-        .nav-right { display: flex; align-items: center; gap: 8px; }
+        .nav-right { display: flex; align-items: center; gap: 12px; }
 
         /* ── Wallet Button ── */
         .wallet-btn {
           display: flex;
           align-items: center;
-          gap: 7px;
-          padding: 9px 20px;
+          gap: 8px;
+          padding: 10px 22px;
           border-radius: 9999px;
-          font-size: 10.5px;
-          font-weight: 700;
-          letter-spacing: 0.14em;
+          font-size: 11px;
+          font-weight: 800;
+          letter-spacing: -0.01em;
           text-transform: uppercase;
           cursor: pointer;
           border: none;
           outline: none;
           white-space: nowrap;
-          transition: transform 0.18s, box-shadow 0.18s, background 0.2s, color 0.2s;
+          transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .wallet-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-        .wallet-btn:not(:disabled):hover { transform: translateY(-1px); }
+        .wallet-btn:not(:disabled):hover { 
+          transform: translateY(-2px);
+          scale: 1.02;
+        }
 
         /* dark bg → white button | light bg → black button */
         .wallet-btn.on-dark {

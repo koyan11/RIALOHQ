@@ -8,7 +8,7 @@ export default function GlobalToast() {
 
   return (
     <>
-      <style>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         .global-toast {
           position: fixed;
           bottom: 32px;
@@ -74,7 +74,7 @@ export default function GlobalToast() {
         .toast-link:hover {
           opacity: 1;
         }
-      `}</style>
+      `}} />
 
       <div className="global-toast">
         <div className="toast-icon">

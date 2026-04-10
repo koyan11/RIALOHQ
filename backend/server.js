@@ -12,6 +12,23 @@ const stakingABI = require('./abi/staking.json');
 const swapABI = require('./abi/swap.json');
 const bridgeABI = require('./abi/bridge.json');
 const rewardsABI = require('./abi/rewards.json');
+const fs = require('fs');
+const path = require('path');
+
+const DB_PATH = path.join(__dirname, 'db.json');
+
+function readDb() {
+  try {
+    const data = fs.readFileSync(DB_PATH, 'utf8');
+    return JSON.parse(data);
+  } catch (err) {
+    return { users: {} };
+  }
+}
+
+function writeDb(db) {
+  fs.writeFileSync(DB_PATH, JSON.stringify(db, null, 2));
+}
 
 // Provider & signer setup
 function getProvider() {
@@ -41,7 +58,7 @@ function validateAddress(address) {
   if (!address || !ethers.isAddress(address)) {
     throw new Error('Valid wallet address required');
   }
-  return address;
+  return ethers.getAddress(address);
 }
 
 // POST /api/swap
@@ -119,11 +136,23 @@ app.post('/api/stake', async (req, res) => {
     // Simulate network delay
     await new Promise(resolve => setTimeout(resolve, 2000));
 
+    // PERSISTENCE UPDATE
+    const db = readDb();
+    const cleanAddr = validateAddress(userAddress);
+    if (!db.users[cleanAddr]) db.users[cleanAddr] = { stakedRlo: 0, stakedEth: 0, rewards: 0 };
+    
+    if (pool?.toLowerCase().includes('eth')) {
+      db.users[cleanAddr].stakedEth += parseFloat(amount);
+    } else {
+      db.users[cleanAddr].stakedRlo += parseFloat(amount);
+    }
+    writeDb(db);
+
     res.json({
       success: true,
       txHash: mockTxHash,
       status: 'confirmed',
-      message: `Successfully staked ${amount} RLO in pool ${pool} (Mocked)`
+      message: `Successfully staked ${amount} in pool ${pool} (Mocked & Persisted)`
     });
   } catch (err) {
     console.error('Stake error:', err.message);
@@ -147,11 +176,23 @@ app.post('/api/unstake', async (req, res) => {
     // Simulate network delay
     await new Promise(resolve => setTimeout(resolve, 2000));
 
+    // PERSISTENCE UPDATE
+    const db = readDb();
+    const cleanAddr = validateAddress(userAddress);
+    if (db.users[cleanAddr]) {
+      if (pool?.toLowerCase().includes('eth')) {
+        db.users[cleanAddr].stakedEth = Math.max(0, db.users[cleanAddr].stakedEth - parseFloat(amount));
+      } else {
+        db.users[cleanAddr].stakedRlo = Math.max(0, db.users[cleanAddr].stakedRlo - parseFloat(amount));
+      }
+      writeDb(db);
+    }
+
     res.json({
       success: true,
       txHash: mockTxHash,
       status: 'confirmed',
-      message: `Successfully unstaked ${amount} RLO from pool ${pool} (Mocked)`
+      message: `Successfully unstaked ${amount} from pool ${pool} (Mocked & Persisted)`
     });
   } catch (err) {
     console.error('Unstake error:', err.message);
@@ -257,6 +298,38 @@ app.get('/api/pools', async (req, res) => {
 // Health check
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
+// GET /api/user-staking/:address
+app.get('/api/user-staking/:address', (req, res) => {
+  try {
+    const addr = validateAddress(req.params.address);
+    const db = readDb();
+    const userData = db.users[addr] || { stakedRlo: 0, stakedEth: 0, rewards: 0, lastUpdate: Date.now() };
+    res.json({ success: true, ...userData });
+  } catch (err) {
+    res.status(400).json({ success: false, error: err.message });
+  }
+});
+
+// POST /api/user-staking/:address (For rewards progress sync)
+app.post('/api/user-staking/:address', (req, res) => {
+  try {
+    const addr = validateAddress(req.params.address);
+    const { rewards, stakedRlo, stakedEth } = req.body;
+    const db = readDb();
+    if (!db.users[addr]) db.users[addr] = { stakedRlo: 0, stakedEth: 0, rewards: 0 };
+    
+    if (rewards !== undefined) db.users[addr].rewards = parseFloat(rewards);
+    if (stakedRlo !== undefined) db.users[addr].stakedRlo = parseFloat(stakedRlo);
+    if (stakedEth !== undefined) db.users[addr].stakedEth = parseFloat(stakedEth);
+    db.users[addr].lastUpdate = Date.now();
+    
+    writeDb(db);
+    res.json({ success: true, message: 'Data persisted' });
+  } catch (err) {
+    res.status(400).json({ success: false, error: err.message });
+  }
 });
 
 const PORT = process.env.PORT || 3001;

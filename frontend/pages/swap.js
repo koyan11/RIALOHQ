@@ -179,7 +179,7 @@ export default function SwapPage() {
     <div className="relative">
       <button
         onClick={() => setShow(!show)}
-        className="flex items-center gap-2 bg-surface-container-lowest px-3 py-1.5 rounded-full shadow-sm hover:bg-surface-container-high transition-colors"
+        className="flex items-center gap-2 bg-white/5 px-3 py-1.5 rounded-full shadow-sm hover:bg-white/10 transition-colors border border-white/10"
       >
         <div className={`w-6 h-6 rounded-full flex items-center justify-center overflow-hidden ${TOKENS.find(t => t.symbol === value)?.iconClass}`}>
           {TOKENS.find(t => t.symbol === value)?.isImage ? (
@@ -190,16 +190,16 @@ export default function SwapPage() {
             </span>
           )}
         </div>
-        <span className="font-headline font-bold text-sm">{value}</span>
-        <span className="material-symbols-outlined text-sm">expand_more</span>
+        <span className="font-headline font-bold text-sm text-white">{value}</span>
+        <span className="material-symbols-outlined text-sm text-white/60">expand_more</span>
       </button>
       {show && (
-        <div className="absolute right-0 top-full mt-2 bg-surface-container-lowest rounded-xl shadow-xl border border-outline-variant/10 z-20 min-w-[140px]">
+        <div className="absolute right-0 top-full mt-2 bg-[#161616] rounded-xl shadow-xl border border-white/10 z-20 min-w-[140px] overflow-hidden">
           {TOKENS.filter(t => t.symbol !== excludeToken).map(t => (
             <button
               key={t.symbol}
               onClick={() => { onChange(t.symbol); setShow(false); }}
-              className="flex items-center gap-2 w-full px-4 py-3 hover:bg-surface-container-low transition-colors first:rounded-t-xl last:rounded-b-xl"
+              className="flex items-center gap-2 w-full px-4 py-3 hover:bg-white/5 transition-colors text-white"
             >
               <div className={`w-6 h-6 rounded-full flex items-center justify-center overflow-hidden ${t.iconClass}`}>
                 {t.isImage ? (
@@ -208,7 +208,7 @@ export default function SwapPage() {
                   <span className="material-symbols-outlined text-[14px]" style={{ fontVariationSettings: "'FILL' 1" }}>{t.icon}</span>
                 )}
               </div>
-              <span className="font-headline font-bold text-sm">{t.symbol}</span>
+              <span className="font-headline font-bold text-sm text-white">{t.symbol}</span>
             </button>
           ))}
         </div>
@@ -217,14 +217,14 @@ export default function SwapPage() {
   );
 
   return (
-    <div className="bg-surface font-body text-on-surface antialiased selection:bg-primary-container selection:text-on-primary-container">
+    <div className="bg-white font-body text-zinc-900 antialiased selection:bg-primary-container selection:text-zinc-900">
       <Navbar />
       <main className="min-h-[calc(100vh-250px)] flex items-center justify-center px-4 py-20">
         <div className="w-full max-w-[480px]">
           {/* Header */}
           <div className="mb-8 text-center">
-            <h1 className="font-headline font-extrabold tracking-tighter text-primary mb-2" style={{ fontSize: '3.5rem' }}>Swap.</h1>
-            <p className="font-body text-on-surface/50 mb-6">Seamless trading across the unified ecosystem</p>
+            <h1 className="text-black mb-2" style={{ fontSize: '3.5rem' }}>Swap</h1>
+            <p className="font-body text-zinc-500 mb-6">Seamless trading across the unified ecosystem</p>
             
             {isConnected && (
               <button 
@@ -388,13 +388,13 @@ export default function SwapPage() {
               <div className="bg-[#161616] rounded-2xl p-6 mb-8 transition-all border border-white/5 space-y-4">
                 <div>
                   <div className="flex justify-between flex-wrap gap-2 mb-2">
-                    <span className="font-label text-xs uppercase tracking-widest text-white/30 font-bold">Trigger Price</span>
-                    <span className="font-label text-xs text-white/40">Current: {currentRateValue.toFixed(4)} {toToken}</span>
+                    <span className="font-label text-xs uppercase tracking-widest text-zinc-400 font-bold">Trigger Price</span>
+                    <span className="font-label text-xs text-zinc-400">Current: {currentRateValue.toFixed(4)} {toToken}</span>
                   </div>
-                  <div className="flex items-center justify-between bg-[#0c0c0c] p-4 rounded-2xl border border-white/5 transition-all focus-within:border-white/20 overflow-hidden">
+                  <div className="flex items-center justify-between bg-[#0c0c0c] p-4 rounded-2xl border border-white/10 transition-all focus-within:border-white/20 overflow-hidden">
                     <div className="flex flex-col">
-                      <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-white/20 mb-1">Trigger Rate</span>
-                      <span className="font-headline font-bold text-sm text-white/40 whitespace-nowrap">1 {fromToken} =</span>
+                      <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-white/40 mb-1">Trigger Rate</span>
+                      <span className="font-headline font-bold text-sm text-white/80 whitespace-nowrap">1 {fromToken} =</span>
                     </div>
                     <input
                       type="text"
@@ -411,18 +411,18 @@ export default function SwapPage() {
                   <div className="relative">
                     <button
                       onClick={() => setShowExpirationList(!showExpirationList)}
-                      className="w-full flex items-center justify-between bg-[#0c0c0c] p-3 rounded-xl border border-white/5 hover:border-white/10 transition-colors"
+                      className="w-full flex items-center justify-between bg-[#0c0c0c] p-3 rounded-xl border border-white/5 hover:border-white/10 transition-colors text-white"
                     >
                       <span className="font-headline font-bold text-sm">{expiration}</span>
-                      <span className="material-symbols-outlined text-sm">expand_more</span>
+                      <span className="material-symbols-outlined text-sm text-white/60">expand_more</span>
                     </button>
                     {showExpirationList && (
-                      <div className="absolute left-0 top-full mt-2 w-full bg-surface-container-lowest rounded-xl shadow-xl border border-outline-variant/10 z-20">
+                      <div className="absolute left-0 top-full mt-2 w-full bg-[#161616] rounded-xl shadow-xl border border-white/10 z-20 overflow-hidden">
                         {['1 Hour', '1 Day', '1 Week', '30 Days'].map(opt => (
                           <button
                             key={opt}
                             onClick={() => { setExpiration(opt); setShowExpirationList(false); }}
-                            className="w-full text-left px-4 py-3 hover:bg-surface-container-low font-headline font-bold text-sm transition-colors first:rounded-t-xl last:rounded-b-xl"
+                            className="w-full text-left px-4 py-3 hover:bg-white/5 text-white font-headline font-bold text-sm transition-colors"
                           >
                             {opt}
                           </button>
@@ -474,18 +474,18 @@ export default function SwapPage() {
 
           {/* Contextual Info */}
           <div className="mt-8 grid grid-cols-2 gap-4">
-            <div className="bg-surface-container-low/50 p-4 rounded-xl border border-outline-variant/10">
-              <p className="font-label text-xs uppercase text-on-surface/40 mb-1">Network Status</p>
+            <div className="bg-[#0c0c0c] p-4 rounded-xl border border-white/5 shadow-xl">
+              <p className="font-label text-xs uppercase text-white/20 mb-1">Network Status</p>
               <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-primary animate-pulse"></div>
-                <span className="font-headline font-bold text-sm">Testnet Node Active</span>
+                <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                <span className="font-headline font-bold text-sm text-white">Testnet Node Active</span>
               </div>
             </div>
-            <div className="bg-surface-container-low/50 p-4 rounded-xl border border-outline-variant/10">
-              <p className="font-label text-xs uppercase text-on-surface/40 mb-1">Gas Estimation</p>
+            <div className="bg-[#0c0c0c] p-4 rounded-xl border border-white/5 shadow-xl">
+              <p className="font-label text-xs uppercase text-white/20 mb-1">Gas Estimation</p>
               <div className="flex items-center gap-2">
-                <span className="material-symbols-outlined text-sm text-on-surface/40">local_gas_station</span>
-                <span className="font-headline font-bold text-sm">$4.12 USD</span>
+                <span className="material-symbols-outlined text-sm text-white/20">local_gas_station</span>
+                <span className="font-headline font-bold text-sm text-white">$4.12 USD</span>
               </div>
             </div>
           </div>

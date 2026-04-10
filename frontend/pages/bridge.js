@@ -110,13 +110,13 @@ export default function BridgePage() {
   };
 
   return (
-    <div className="bg-surface text-on-surface antialiased selection:bg-primary selection:text-on-primary font-body">
+    <div className="bg-white text-zinc-900 antialiased selection:bg-primary selection:text-white font-body">
       <Navbar />
       <main className="min-h-[819px] flex flex-col items-center justify-center px-6 py-20">
         {/* Hero */}
         <div className="text-center mb-12">
-          <h1 className="text-5xl font-extrabold tracking-tighter text-primary mb-4 font-headline">Bridge Assets</h1>
-          <p className="text-on-surface/60 max-w-md mx-auto">Seamlessly move your assets across networks. A simplified bridging experience designed to remove complexity</p>
+          <h1 className="text-5xl text-black mb-4">Bridge Assets</h1>
+          <p className="text-zinc-500 max-w-md mx-auto font-medium">Seamlessly move your assets across networks. A simplified bridging experience designed to remove complexity</p>
         </div>
 
         {/* Bridge Card */}
@@ -265,10 +265,10 @@ export default function BridgePage() {
             { icon: 'bolt', title: 'Instant Settlement', desc: 'Cross-chain transfers finalize in under 4 minutes using the Rialo relay network.' },
             { icon: 'hub', title: '12 Networks Supported', desc: 'Bridge between all major EVM chains and Layer 2 rollups with unified liquidity.' },
           ].map(({ icon, title, desc }) => (
-            <div key={title} className="bg-surface-container-low p-8 rounded-xl border border-outline-variant/5">
-              <span className="material-symbols-outlined text-primary/40 mb-4 block">{icon}</span>
-              <h3 className="text-lg font-bold text-primary mb-2">{title}</h3>
-              <p className="text-sm text-on-surface/60">{desc}</p>
+            <div key={title} className="bg-[#0c0c0c] p-8 rounded-2xl border border-white/5 shadow-2xl">
+              <span className="material-symbols-outlined text-white/20 mb-4 block">{icon}</span>
+              <h3 className="text-lg font-bold text-white mb-2">{title}</h3>
+              <p className="text-sm text-white/40">{desc}</p>
             </div>
           ))}
         </div>

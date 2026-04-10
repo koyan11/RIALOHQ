@@ -28,22 +28,22 @@ const displayBalances = {
 };
 
 return (
-  <div className="min-h-screen bg-background text-on-background font-body antialiased selection:bg-primary/30 flex flex-col relative overflow-x-hidden">
+  <div className="min-h-screen bg-white text-zinc-900 font-body antialiased selection:bg-primary/30 flex flex-col relative overflow-x-hidden">
     <Navbar />
     
     {/* Ambient backgrounds */}
-    <div className="fixed top-0 left-0 w-full h-[800px] pointer-events-none overflow-hidden z-0 opacity-40">
-      <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-surface-container-high rounded-full blur-[120px] animate-pulse"></div>
-      <div className="absolute top-[10%] right-[-10%] w-[40%] h-[40%] bg-secondary-container/50 rounded-full blur-[100px] delay-700 animate-pulse"></div>
+    <div className="fixed top-0 left-0 w-full h-[800px] pointer-events-none overflow-hidden z-0 opacity-20">
+      <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-zinc-100 rounded-full blur-[120px]"></div>
+      <div className="absolute top-[10%] right-[-10%] w-[40%] h-[40%] bg-zinc-50 rounded-full blur-[100px]"></div>
     </div>
 
     <main className="max-w-7xl mx-auto px-6 py-12 flex-grow w-full relative z-10">
       {/* Header */}
       <header className="mb-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
-        <h1 className="font-headline text-5xl md:text-6xl font-extrabold text-primary leading-none tracking-tight mb-4">
+        <h1 className="text-5xl md:text-6xl text-black mb-4">
           Architectural Dashboard
         </h1>
-        <p className="font-body text-on-surface/60 max-w-2xl text-lg">
+        <p className="font-body text-zinc-500 max-w-2xl text-lg font-medium">
           A comprehensive overview of your position within the Rialo ecosystem. Monitor your assets, yield, and network participation.
         </p>
       </header>
@@ -52,12 +52,12 @@ return (
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-16">
           <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
               {[
-                  { symbol: 'RIALO', label: 'Ecosystem Token', color: 'bg-primary' },
-                  { symbol: 'ETH', label: 'Ethereum Testnet', color: 'bg-[#627EEA]' },
-                  { symbol: 'USDC', label: 'USD Coin', color: 'bg-[#2775CA]' },
-                  { symbol: 'STAKED', label: 'Total Staked', color: 'bg-emerald-500' },
+                  { symbol: 'RIALO', label: 'Ecosystem Token', color: 'bg-primary', icon: 'currency_exchange' },
+                  { symbol: 'ETH', label: 'Ethereum Testnet', color: 'bg-[#627EEA]', icon: 'water_drop' },
+                  { symbol: 'USDC', label: 'USD Coin', color: 'bg-[#2775CA]', icon: 'attach_money' },
+                  { symbol: 'USDT', label: 'Tether USD', color: 'bg-[#26A17B]', icon: 'monetization_on' },
               ].map((token, i) => (
-                  <div key={token.symbol} className="bg-[#0c0c0c] text-white rounded-3xl p-8 border border-white/5 shadow-[0_20px_50px_rgba(0,0,0,0.1)] relative overflow-hidden group hover:bg-[#111111] hover:border-white/10 transition-all duration-500 flex flex-col justify-between h-[200px] animate-in fade-in slide-in-from-bottom-4" style={{ animationDelay: `${i * 100}ms` }}>
+                  <div key={token.symbol} className="bg-[#0c0c0c] text-white rounded-3xl p-8 border border-white/5 shadow-[0_20px_50px_rgba(0,0,0,0.1)] relative overflow-hidden group hover:bg-[#111111] hover:border-white/10 transition-all duration-500 flex flex-col justify-between h-[230px] animate-in fade-in slide-in-from-bottom-4" style={{ animationDelay: `${i * 100}ms` }}>
                       <div className="relative z-10 flex justify-between items-start">
                           <div>
                               <span className="font-label text-[10px] text-white/40 uppercase tracking-[0.2em] font-bold mb-3 block">{token.label}</span>
@@ -66,9 +66,9 @@ return (
                               </h2>
                           </div>
                       </div>
-                      <div className="relative z-10 flex items-center gap-2">
-                        <div className="w-6 h-6 rounded-md bg-white/5 border border-white/10 flex items-center justify-center">
-                            <span className="text-[10px] font-bold text-white/50">{token.symbol.slice(0,1)}</span>
+                      <div className="relative z-10 flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-[#161616] border border-white/10 flex items-center justify-center group-hover:bg-white group-hover:text-black transition-all duration-300">
+                            <span className="material-symbols-outlined text-[18px] text-white/70 group-hover:text-black transition-colors">{token.icon}</span>
                         </div>
                         <p className="text-white/30 text-[10px] font-bold uppercase tracking-widest">{token.symbol}</p>
                       </div>
@@ -85,13 +85,13 @@ return (
       <section className="mb-24 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-400">
         <div className="flex justify-between items-center mb-8 px-2">
           <div>
-            <h3 className="font-headline font-bold text-primary text-2xl flex items-center gap-3">
-                <div className="p-2 bg-primary/10 rounded-xl">
-                    <span className="material-symbols-outlined text-primary text-xl">history</span>
+            <h3 className="font-headline font-bold text-black text-2xl flex items-center gap-3">
+                <div className="p-2 bg-[#0c0c0c] rounded-xl">
+                    <span className="material-symbols-outlined text-white text-xl">history</span>
                 </div>
                 Transaction History
             </h3>
-            <p className="text-[10px] text-on-surface/50 uppercase tracking-widest mt-2">{transactions.length} total operations recorded</p>
+            <p className="text-[10px] text-zinc-400 uppercase tracking-widest mt-2">{transactions.length} total operations recorded</p>
           </div>
         </div>
 
