@@ -40,17 +40,8 @@ export default function Home() {
     updateSfsFraction,
     updateRwaAllocation,
     fetchStakingData,
-    tickingRewards
+    tickingCredits
   } = useStaking();
-
-  const [tickingCredits, setTickingCredits] = useState(1250);
-
-  useEffect(() => {
-    const int = setInterval(() => {
-      setTickingCredits(prev => prev + 0.01);
-    }, 2000);
-    return () => clearInterval(int);
-  }, []);
 
   const { sessionActive, activateSession, seedSession, showToast: walletToast } = useWallet();
 

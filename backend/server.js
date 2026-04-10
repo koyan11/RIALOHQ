@@ -335,11 +335,20 @@ app.get('/api/user-staking/:address', (req, res) => {
   try {
     const addr = validateAddress(req.params.address);
     const db = readDb();
-    const userData = db.users[addr] || { stakedRlo: 0, stakedEth: 0, rewards: 0, lastUpdate: Date.now() };
+    const userData = db.users[addr] || { stakedRlo: 0, stakedEth: 0, rewards: 0, credits: 0, lastUpdate: Date.now() };
     
-    console.log(`[GET] Staking Data for ${addr}: RLO=${userData.stakedRlo}, ETH=${userData.stakedEth}`);
+    // Ensure default structure
+    const result = {
+      stakedRlo: userData.stakedRlo || 0,
+      stakedEth: userData.stakedEth || 0,
+      rewards: userData.rewards || 0,
+      credits: userData.credits || 0,
+      lastUpdate: userData.lastUpdate || Date.now()
+    };
     
-    res.json({ success: true, ...userData });
+    console.log(`[GET] Staking Data for ${addr}: RLO=${result.stakedRlo}, ETH=${result.stakedEth}, Credits=${result.credits}`);
+    
+    res.json({ success: true, ...result });
   } catch (error) {
     console.error(`[GET] Staking Error for ${req.params.address}:`, error.message);
     res.status(400).json({ success: false, error: 'Invalid address' });
@@ -349,19 +358,20 @@ app.get('/api/user-staking/:address', (req, res) => {
 app.post('/api/user-staking/:address', (req, res) => {
   try {
     const addr = validateAddress(req.params.address);
-    const { rewards, stakedRlo, stakedEth } = req.body;
+    const { rewards, stakedRlo, stakedEth, credits } = req.body;
     const db = readDb();
     
     if (!db.users) db.users = {};
-    if (!db.users[addr]) db.users[addr] = { stakedRlo: 0, stakedEth: 0, rewards: 0 };
+    if (!db.users[addr]) db.users[addr] = { stakedRlo: 0, stakedEth: 0, rewards: 0, credits: 0 };
     
     if (rewards !== undefined) db.users[addr].rewards = parseFloat(rewards);
     if (stakedRlo !== undefined) db.users[addr].stakedRlo = parseFloat(stakedRlo);
     if (stakedEth !== undefined) db.users[addr].stakedEth = parseFloat(stakedEth);
+    if (credits !== undefined) db.users[addr].credits = parseFloat(credits);
     
     db.users[addr].lastUpdate = Date.now();
     
-    console.log(`[POST] Syncing ${addr}: RLO=${db.users[addr].stakedRlo}, ETH=${db.users[addr].stakedEth}`);
+    console.log(`[POST] Syncing ${addr}: RLO=${db.users[addr].stakedRlo}, ETH=${db.users[addr].stakedEth}, Credits=${db.users[addr].credits}`);
     
     writeDb(db);
     res.json({ success: true, userData: db.users[addr] });

@@ -7,6 +7,7 @@ export function useStaking() {
   const { address, provider, isConnected } = useWallet();
   const [stakedBalance, setStakedBalance] = useState('0');
   const [stakedEthBalance, setStakedEthBalance] = useState('0');
+  const [tickingCredits, setTickingCredits] = useState(0);
   
   // Initial balance sync will now be handled by the effect below the fetchStakingData definition
 
@@ -46,22 +47,25 @@ export function useStaking() {
       // 1. Fetch from Backend FIRST (Persistence Layer)
       let simRlo = 0;
       let simEth = 0;
+      let simCredits = 0;
       try {
         const res = await fetch(`${baseUrl}/api/user-staking/${address}`);
         const backendData = await res.json();
         if (backendData.success) {
           simRlo = backendData.stakedRlo || 0;
           simEth = backendData.stakedEth || 0;
+          simCredits = backendData.credits || 0;
           
           // Set initial values from backend immediately for better UX
           setStakedBalance(simRlo.toString());
           setStakedEthBalance(simEth.toString());
+          setTickingCredits(simCredits);
           
           if (backendData.rewards !== undefined) {
             setPendingRewards(backendData.rewards.toString());
             setTickingRewards(backendData.rewards);
           }
-          console.log(`[useStaking] Backend Load: RLO=${simRlo}, ETH=${simEth}`);
+          console.log(`[useStaking] Backend Load: RLO=${simRlo}, ETH=${simEth}, Credits=${simCredits}`);
         }
       } catch (e) {
         console.warn('[useStaking] Backend fetch failed, using defaults:', e);
@@ -136,7 +140,36 @@ export function useStaking() {
     }
   }, [isConnected, address, fetchStakingData]);
 
-  // REAL-TIME TICKING LOGIC (100ms for premium smoothness)
+  // REAL-TIME CREDIT GENERATION LOGIC
+  useEffect(() => {
+    const rloVal = parseFloat(stakedBalance);
+    const ethVal = parseFloat(stakedEthBalance);
+    
+    if (isConnected && (rloVal > 0 || ethVal > 0)) {
+      const tickInterval = setInterval(() => {
+        // Calculation: 1000 RLO-equivalent staked = 1 credit per hour (visual speed)
+        // CPS = TotalRloEq / 3600
+        const totalRloEq = rloVal + (ethVal * 2000);
+        const cps = totalRloEq / 3600;
+        const increment = cps / 10; // 10 ticks per second (100ms)
+        
+        setTickingCredits(prev => prev + increment);
+      }, 100);
+      return () => clearInterval(tickInterval);
+    }
+  }, [isConnected, stakedBalance, stakedEthBalance]);
+
+  // BACKGROUND SYNC: Save credits to backend every 30s
+  useEffect(() => {
+    if (isConnected && address && tickingCredits > 0) {
+      const syncInterval = setInterval(() => {
+        syncWithBackend(address, { credits: tickingCredits });
+      }, 30000);
+      return () => clearInterval(syncInterval);
+    }
+  }, [isConnected, address, tickingCredits, syncWithBackend]);
+
+  // REAL-TIME REWARD TICKING LOGIC (100ms for premium smoothness)
   useEffect(() => {
     if (rewardRate > 0 && tickingRewards >= 0 && (parseFloat(stakedBalance) > 0 || parseFloat(stakedEthBalance) > 0)) {
       const tickInterval = setInterval(() => {
