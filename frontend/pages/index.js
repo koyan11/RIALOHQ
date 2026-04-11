@@ -9,12 +9,17 @@ export default function Home() {
   const router = useRouter();
 
   return (
-    <div className="bg-[#0c0c0c] font-body text-zinc-900 antialiased">
+    <div className="bg-black font-body text-zinc-900 antialiased relative min-h-screen overflow-hidden">
+      {/* Global Seamless Light Wash - Focused and Dimmed */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[120%] h-[800px] pointer-events-none z-0">
+        <div className="absolute top-[-25%] left-0 w-full h-full bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.03)_0%,transparent_50%)] blur-[120px]"></div>
+      </div>
+
       <Navbar />
-      <main>
+      <main className="relative z-10">
         {/* Hero Section Updated to Dark */}
-        <section className="relative overflow-hidden pt-20 pb-32 bg-[#0c0c0c]">
-          <div className="max-w-[1200px] mx-auto px-8 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+        <section className="relative pt-20 pb-48 bg-black/0">
+          <div className="max-w-[1200px] mx-auto px-8 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center relative z-10">
             <div className="z-10 text-white">
               <h1 className="text-[3.5rem] md:text-[4.5rem] leading-[1.05] mb-6 mt-10 text-white font-extrabold tracking-tight">
                 Unified DeFi Ecosystem.
@@ -37,17 +42,37 @@ export default function Home() {
                   </button>
                 </div>
             </div>
-            <div className="relative flex items-center justify-center pt-10">
-              <div className="absolute inset-0 bg-primary/10 rounded-full blur-[100px]"></div>
-              <div className="relative w-full aspect-square max-w-[550px] flex items-center justify-center">
+            <div className="relative flex items-center justify-center pt-10 min-h-[500px]">
+              {/* Cinematic Lighting Effect - Handled by Global Wash above */}
+
+              {/* Inject stealth CSS to eradicate Spline logo cleanly */}
+              <style jsx global>{`
+                canvas + div[style*="position: absolute"] {
+                  display: none !important;
+                  opacity: 0 !important;
+                  pointer-events: none !important;
+                }
+                a[href*="spline.design"] {
+                  display: none !important;
+                }
+              `}</style>
+              <div className="relative w-full aspect-square max-w-[650px] flex items-center justify-center">
+                {/* Strong Silhouette White Backlight - Centered behind the robot */}
+                <div 
+                  className="absolute inset-0 flex items-center justify-center pointer-events-none z-0 transform -translate-y-12"
+                >
+                  {/* Outer Diffused Halo */}
+                  <div className="absolute w-[80%] h-[80%] bg-white/[0.08] blur-[160px] rounded-full"></div>
+                  {/* Inner Strong Bloom */}
+                  <div className="absolute w-[45%] h-[45%] bg-white/[0.18] blur-[100px] rounded-full"></div>
+                  {/* Dense Core Highlight */}
+                  <div className="absolute w-[15%] h-[15%] bg-white/[0.2] blur-[40px] rounded-full"></div>
+                </div>
+
                 <Spline
-                  scene="https://prod.spline.design/lHIxJz2iiYiDzZRX/scene.splinecode" 
-                  className="w-full h-full transform scale-[1.15] relative z-10"
+                  scene="https://prod.spline.design/dCg8EODulIMNHTkv/scene.splinecode" 
+                  className="w-full h-full transform scale-[2.1] -translate-y-12 relative z-10"
                 />
-                
-                {/* Watermark Cover */}
-                <div className="absolute bottom-4 right-4 w-[160px] h-[50px] bg-[#0c0c0c] z-20 pointer-events-none rounded-xl blur-[2px]"></div>
-                <div className="absolute bottom-2 right-2 w-[170px] h-[60px] bg-[#0c0c0c] z-20 pointer-events-none rounded-lg"></div>
               </div>
             </div>
           </div>
