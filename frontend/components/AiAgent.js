@@ -137,8 +137,8 @@ export default function AiAgent() {
 
           executeAiTransaction(type, userMsg, detail, true, response.gas_type || 'ETH').then(res => {
             showToast({
-              message: `${type} successful!`,
-              detail: res.detail,
+              message: "Blockchain operation successful!",
+              detail: `${type}: ${res.detail}`,
               txHash: res.hash
             });
              addAiMessage({ role: 'ai', content: { raw: `✅ **${type}** execution successful!` } });

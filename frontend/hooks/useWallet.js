@@ -703,8 +703,8 @@ export function WalletProvider({ children }) {
             // Pass stored gasType so credit-based scheduled txs are handled correctly
             executeAiTransaction(tx.type, tx.userMsg, tx.detail, true, tx.gasType || 'ETH').then(res => {
               showToast({ 
-                message: `${tx.type} Successful! ✅`, 
-                detail: res.detail || tx.detail,
+                message: "Blockchain operation successful!", 
+                detail: `${tx.type}: ${res.detail || tx.detail}`,
                 txHash: res.hash
               });
             }).catch(err => {
