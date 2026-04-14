@@ -89,6 +89,7 @@ You MUST respond IN JSON ONLY with these keys:
   - 'Transaction successful. [Amount] [From] -> [To] has been completed.' (To trigger swap)
   - 'Transaction successful. Staking [Amount] [Token] is now active.' (To trigger stake)
   - 'Scheduled: [Amount] [From] -> [To]' (To trigger schedule)
+- delaySec: Integer. If the user asks to schedule in the future (e.g., "in 1 minute"), set this to the seconds (e.g., 60). Otherwise, set to 0.
 - raw: Longer text explanation if it's a general question.
 
 If the user just says hello or asks a question without wanting a transaction, leave 'action' as null and put the text in 'raw'.
@@ -99,7 +100,20 @@ Example for 'price of btc':
   "options": ["1. View Chart", "2. Trade BTC"],
   "recommendation": "BTC volatility is high; consider DCA.",
   "action": "Price Checked: 1 BTC is $X USDC",
+  "gas_type": "ETH",
+  "delaySec": 0,
   "raw": "Bitcoin is currently trading at $X according to the CoinGecko Oracle."
+}
+
+Example for 'swap 10 USDC to RIALO in 1 minute using CREDIT gas':
+{
+  "insight": "Swap scheduled for 10 USDC -> RIALO",
+  "options": ["1. View Schedules", "2. Cancel"],
+  "recommendation": "You chose to use Service Credits for a fee-free transaction.",
+  "action": "Scheduled: 10 USDC -> RIALO",
+  "gas_type": "CREDIT",
+  "delaySec": 60,
+  "raw": "Your swap is scheduled to execute in 1 minute using your Service Credits for gas."
 }
 `;
 

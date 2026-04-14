@@ -113,13 +113,14 @@ export default function AiAgent() {
             message: `Limit Order Placed!`,
             detail: detail
           });
-        } else if (response.delaySec > 0) {
+        } else if (response.action?.includes('Scheduled') || Number(response.delaySec) > 0) {
           // SCHEDULE IT (global — persists on navigation)
+          const delay = Number(response.delaySec) > 0 ? Number(response.delaySec) : 60; // Fallback to 60s if not specified
           addScheduledTx({
             type: type,
             userMsg: userMsg,
             detail: detail,
-            remainingSec: response.delaySec
+            remainingSec: delay
           });
           showToast({
             message: `Scheduled ${type}!`,
