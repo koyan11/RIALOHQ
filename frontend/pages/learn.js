@@ -98,7 +98,7 @@ export default function LearnPage() {
                 <span className="font-label text-xs font-bold tracking-[0.2em] uppercase text-white/40 mb-3 block">Foundations</span>
                 <h2 className="font-headline text-3xl font-bold mb-4 text-white">What is Rialo?</h2>
                 <p className="font-body text-white/50 mb-8 max-w-xl leading-relaxed">Dive into the mechanics of our Dual-Engine architecture, ServicePaymaster credits, and how we merge DeFi yields with Real-World Assets (RWA).</p>
-                <a href="#" className="inline-flex items-center font-label text-sm font-bold uppercase tracking-wider group/link text-white hover:text-white/80 transition-colors">
+                <a href="https://www.rialo.io/docs" target="_blank" rel="noopener noreferrer" className="inline-flex items-center font-label text-sm font-bold uppercase tracking-wider group/link text-white hover:text-white/80 transition-colors">
                   READ THE DOCS
                   <span className="material-symbols-outlined ml-2 transition-transform group-hover/link:translate-x-1">arrow_forward</span>
                 </a>
