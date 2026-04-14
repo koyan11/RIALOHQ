@@ -38,6 +38,15 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
+  // PRODUCTION GUARD: Check if API Key is configured in Vercel/Environment
+  if (!process.env.GROQ_API_KEY) {
+    console.error('CRITICAL: GROQ_API_KEY is not defined in the environment variables.');
+    return res.status(403).json({ 
+      error: 'API Key Missing', 
+      details: 'GROQ_API_KEY is not configured in Vercel Environment Variables.' 
+    });
+  }
+
   const { message, context } = req.body;
 
   try {
