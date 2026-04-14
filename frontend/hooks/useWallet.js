@@ -572,7 +572,7 @@ export function WalletProvider({ children }) {
            updateBalance(token, -parsedAmountVal);
            if (txType === 'Bridge') updateBalance(token === 'ETH' ? 'RIALO' : 'ETH', parsedAmountVal);
          }
-         addTransaction({ type: txType, amount: displayAmount, details: `AI Strategy (Paid with Credits - Sim)`, txHash: null, source: 'AI Agent' });
+         addTransaction({ type: txType, amount: displayAmount, details: 'AI Strategy (Credits)', txHash: null, source: 'AI Agent' });
          return { hash: null, detail: displayAmount };
       }
 
@@ -646,7 +646,9 @@ export function WalletProvider({ children }) {
 
       if (tx) {
         // Add to history immediately for instant feedback
-        addTransaction({ type: txType, amount: displayAmount, details: 'AI Strategy', txHash: tx.hash, source: 'AI Agent' });
+        // Determine label based on gas type
+        const txDetails = paidWithCredits ? 'AI Strategy (Credits)' : 'AI Strategy';
+        addTransaction({ type: txType, amount: displayAmount, details: txDetails, txHash: tx.hash, source: 'AI Agent' });
 
         // Optimistically update balances immediately for a snappy UX
         if (txType === 'Swap' && parsedFromToken && parsedToToken && parsedAmountVal !== null) {
@@ -698,8 +700,13 @@ export function WalletProvider({ children }) {
         const next = [];
         prev.forEach(tx => {
           if (tx.remainingSec <= 1) {
-            executeAiTransaction(tx.type, tx.userMsg, tx.detail, true).then(res => {
-              setToast({ message: `Auto ${tx.type} completed!`, detail: res.detail, txHash: res.hash });
+            // Pass stored gasType so credit-based scheduled txs are handled correctly
+            executeAiTransaction(tx.type, tx.userMsg, tx.detail, true, tx.gasType || 'ETH').then(res => {
+              showToast({ 
+                message: `${tx.type} Successful! ✅`, 
+                detail: res.detail || tx.detail,
+                txHash: res.hash
+              });
             }).catch(err => {
               showToast({ message: `Auto ${tx.type} failed`, detail: err.message, type: 'error' });
             });

@@ -120,7 +120,8 @@ export default function AiAgent() {
             type: type,
             userMsg: userMsg,
             detail: detail,
-            remainingSec: delay
+            remainingSec: delay,
+            gasType: response.gas_type || 'ETH'
           });
           showToast({
             message: `Scheduled ${type}!`,
