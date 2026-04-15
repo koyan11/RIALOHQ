@@ -4,15 +4,17 @@ import { getContract } from '../lib/ethers';
 import { useWallet } from './useWallet';
 
 export function useStaking() {
-  const { address, provider, isConnected, tickingCredits, setTickingCredits, deductCredits } = useWallet();
-  const [stakedBalance, setStakedBalance] = useState('0');
-  const [stakedEthBalance, setStakedEthBalance] = useState('0');
-  // Note: tickingCredits state lives in useWallet context (shared across all pages)
+  const { 
+    address, provider, isConnected, 
+    tickingCredits, setTickingCredits, deductCredits,
+    stakedBalance, setStakedBalance, 
+    stakedEthBalance, setStakedEthBalance,
+    tickingRewards, setTickingRewards,
+    rewardRate, setRewardRate,
+    totalStaked, setTotalStaked
+  } = useWallet();
   
   const [pendingRewards, setPendingRewards] = useState('0');
-  const [tickingRewards, setTickingRewards] = useState(0);
-  const [rewardRate, setRewardRate] = useState(0);
-  const [totalStaked, setTotalStaked] = useState('0');
   const [sfsFraction, setSfsFraction] = useState(0);
   const [rwaAllocation, setRwaAllocation] = useState(0);
   const [rwaTarget, setRwaTarget] = useState('');
@@ -150,24 +152,6 @@ export function useStaking() {
     }
   }, [address, provider]);
 
-  // Fast-boot initial state from cache — handles balances and credits
-  useEffect(() => {
-    if (address && typeof window !== 'undefined') {
-        const cachedRlo = localStorage.getItem(`rialo_staked_rlo_${address}`);
-        const cachedEth = localStorage.getItem(`rialo_staked_eth_${address}`);
-        if (cachedRlo) setStakedBalance(cachedRlo);
-        if (cachedEth) setStakedEthBalance(cachedEth);
-    }
-  }, [address]);
-
-  // Persistent state saving — save balances whenever they change
-  useEffect(() => {
-    if (address && typeof window !== 'undefined' && (stakedBalance !== '0' || stakedEthBalance !== '0')) {
-      localStorage.setItem(`rialo_staked_rlo_${address}`, stakedBalance);
-      localStorage.setItem(`rialo_staked_eth_${address}`, stakedEthBalance);
-    }
-  }, [address, stakedBalance, stakedEthBalance]);
-
   // Sync whenever address or provider changes
   useEffect(() => {
     if (isConnected && address) {
@@ -176,30 +160,6 @@ export function useStaking() {
       return () => clearInterval(interval);
     }
   }, [isConnected, address, fetchStakingData]);
-
-  // REAL-TIME CREDIT GENERATION LOGIC
-  useEffect(() => {
-    const rloVal = parseFloat(stakedBalance);
-    const ethVal = parseFloat(stakedEthBalance);
-    
-    if (isConnected && (rloVal > 0 || ethVal > 0)) {
-      const tickInterval = setInterval(() => {
-        const totalRloEq = rloVal + (ethVal * 2000);
-        const cps = totalRloEq / 3600;
-        const increment = cps / 10; // 10 ticks per second (100ms)
-        
-        setTickingCredits(prev => {
-          const nextVal = prev + increment;
-          // Persist to localStorage so it syncs across pages
-          if (typeof window !== 'undefined' && address) {
-            localStorage.setItem(`rialo_credits_${address}`, nextVal.toString());
-          }
-          return nextVal;
-        });
-      }, 100);
-      return () => clearInterval(tickInterval);
-    }
-  }, [isConnected, address, stakedBalance, stakedEthBalance, setTickingCredits]);
 
   // BACKGROUND SYNC: Save credits to backend every 30s
   useEffect(() => {
@@ -211,25 +171,7 @@ export function useStaking() {
     }
   }, [isConnected, address, tickingCredits, syncWithBackend]);
 
-  // REAL-TIME REWARD TICKING LOGIC (100ms for premium smoothness)
-  useEffect(() => {
-    if (rewardRate > 0 && tickingRewards >= 0 && (parseFloat(stakedBalance) > 0 || parseFloat(stakedEthBalance) > 0)) {
-      const tickInterval = setInterval(() => {
-        // User's Share = (UserStaked / totalProtocolStaked)
-        // Rate = Rewards emitted per second
-        // YieldPerTick(100ms) = (UserShare * Rate) / 10
-        const totalUserStaked = parseFloat(stakedBalance) + (parseFloat(stakedEthBalance) * 1500); // ETH weighted
-        const protocolTotalParsed = parseFloat(totalStaked) || 1000000;
-        
-        const userShare = totalUserStaked / protocolTotalParsed;
-        const yieldPerSecond = rewardRate * userShare;
-        const increment = yieldPerSecond / 10; 
-        
-        setTickingRewards(prev => prev + increment);
-      }, 100);
-      return () => clearInterval(tickInterval);
-    }
-  }, [rewardRate, tickingRewards, stakedBalance, stakedEthBalance, totalStaked]);
+  // Global tickers managed in useWallet.js for cross-page sync.
 
   const stakeRlo = useCallback(async (amount, lockMonths) => {
     if (!isConnected) return;

@@ -15,7 +15,8 @@ export default function Rewards() {
     pendingRewards: pendingRewStr, 
     loading: stakingLoading, 
     claimRewards: claimAction,
-    fetchStakingData
+    fetchStakingData,
+    tickingCredits
   } = useStaking();
 
   const [toast, setToast] = useState(null);
@@ -139,7 +140,7 @@ export default function Rewards() {
               </h3>
               <div className="flex flex-col mt-auto mb-8">
                 <div className="text-5xl md:text-6xl font-headline font-extrabold text-white leading-none tracking-tighter">
-                  1,250.00 <span className="text-xl md:text-2xl text-white/20 font-bold ml-1">ϕ</span>
+                  {(tickingCredits || 0).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})} <span className="text-xl md:text-2xl text-white/20 font-bold ml-1">ϕ</span>
                 </div>
                 <div className="text-white/20 font-bold uppercase tracking-widest text-[10px] mt-4">
                   Ready for Zero-Gas Transactions

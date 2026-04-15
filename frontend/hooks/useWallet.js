@@ -87,6 +87,11 @@ export function WalletProvider({ children }) {
 
   // SHARED credits state — single source of truth across all pages
   const [tickingCredits, setTickingCredits] = useState(0);
+  const [stakedBalance, setStakedBalance] = useState('0');
+  const [stakedEthBalance, setStakedEthBalance] = useState('0');
+  const [tickingRewards, setTickingRewards] = useState(0);
+  const [rewardRate, setRewardRate] = useState(0);
+  const [totalStaked, setTotalStaked] = useState('0');
   const creditsInitializedForAddress = useRef(null);
   
   // Track last manual update per token to prevent immediate contract sync overwrites in demo
@@ -132,19 +137,71 @@ export function WalletProvider({ children }) {
 
   }, []);
 
-  // Load credits from localStorage when address changes
+  // Load credits and staked balances from localStorage when address changes
   useEffect(() => {
     if (address && typeof window !== 'undefined') {
       if (creditsInitializedForAddress.current !== address) {
-        const saved = parseFloat(localStorage.getItem(`rialo_credits_${address}`) || '0');
-        setTickingCredits(saved);
+        const savedCredits = parseFloat(localStorage.getItem(`rialo_credits_${address}`) || '0');
+        const savedStakedRlo = localStorage.getItem(`rialo_staked_rlo_${address}`) || '0';
+        const savedStakedEth = localStorage.getItem(`rialo_staked_eth_${address}`) || '0';
+        
+        setTickingCredits(savedCredits);
+        setStakedBalance(savedStakedRlo);
+        setStakedEthBalance(savedStakedEth);
+        
         creditsInitializedForAddress.current = address;
       }
     } else if (!address) {
       setTickingCredits(0);
+      setStakedBalance('0');
+      setStakedEthBalance('0');
+      setTickingRewards(0);
       creditsInitializedForAddress.current = null;
     }
   }, [address]);
+
+  // GLOBAL TICKER: Real-time Credit Generation
+  useEffect(() => {
+    const rloVal = parseFloat(stakedBalance);
+    const ethVal = parseFloat(stakedEthBalance);
+    
+    if (address && (rloVal > 0 || ethVal > 0)) {
+      const tickInterval = setInterval(() => {
+        const totalRloEq = rloVal + (ethVal * 2000); // 1 ETH = 2000 RLO weight for credits
+        const cps = totalRloEq / 3600;
+        const increment = cps / 10; // 10 ticks per second (100ms)
+        
+        setTickingCredits(prev => {
+          const nextVal = prev + increment;
+          if (typeof window !== 'undefined' && address) {
+            localStorage.setItem(`rialo_credits_${address}`, nextVal.toString());
+          }
+          return nextVal;
+        });
+      }, 100);
+      return () => clearInterval(tickInterval);
+    }
+  }, [address, stakedBalance, stakedEthBalance]);
+
+  // GLOBAL TICKER: Real-time Reward Ticking
+  useEffect(() => {
+    const rloVal = parseFloat(stakedBalance);
+    const ethVal = parseFloat(stakedEthBalance);
+    
+    if (rewardRate > 0 && tickingRewards >= 0 && (rloVal > 0 || ethVal > 0)) {
+      const tickInterval = setInterval(() => {
+        const totalUserStaked = rloVal + (ethVal * 1500); // ETH weighted
+        const protocolTotalParsed = parseFloat(totalStaked) || 1000000;
+        
+        const userShare = totalUserStaked / protocolTotalParsed;
+        const yieldPerSecond = rewardRate * userShare;
+        const increment = yieldPerSecond / 10; 
+        
+        setTickingRewards(prev => prev + increment);
+      }, 100);
+      return () => clearInterval(tickInterval);
+    }
+  }, [rewardRate, tickingRewards, stakedBalance, stakedEthBalance, totalStaked]);
 
   // STEP 2: Persist state to localStorage on every change.
   // Skips the FIRST run (mount) where state still has stale zero defaults.
@@ -161,6 +218,11 @@ export function WalletProvider({ children }) {
     localStorage.setItem('rialo_ai_messages', JSON.stringify(aiMessages));
     localStorage.setItem('rialo_balances', JSON.stringify(balances));
     localStorage.setItem('rialo_simulated_deltas', JSON.stringify(simulatedDeltas));
+    
+    if (address) {
+      localStorage.setItem(`rialo_staked_rlo_${address}`, stakedBalance);
+      localStorage.setItem(`rialo_staked_eth_${address}`, stakedEthBalance);
+    }
     // Note: aiPrivateKey is no longer persisted as we moved to ephemeral Session Keys
     // Session Persistence
     if (sessionActive && sessionExpiry && sessionSigner) {
@@ -817,7 +879,9 @@ export function WalletProvider({ children }) {
         sessionActive, sessionExpiry, sessionSigner, activateSession, deactivateSession, seedSession, withdrawSessionBalance,
         aiMessages, addAiMessage,
         toast, showToast,
-        tickingCredits, setTickingCredits, deductCredits
+        tickingCredits, setTickingCredits, deductCredits,
+        stakedBalance, setStakedBalance, stakedEthBalance, setStakedEthBalance, 
+        tickingRewards, setTickingRewards, rewardRate, setRewardRate, totalStaked, setTotalStaked
       }}
     >
       {children}

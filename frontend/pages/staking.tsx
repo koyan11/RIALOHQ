@@ -39,7 +39,8 @@ export default function Home() {
     claimRewards: claimAction,
     updateSfsFraction,
     updateRwaAllocation,
-    fetchStakingData
+    fetchStakingData,
+    tickingCredits
   } = useStaking();
 
   const { sessionActive, activateSession, seedSession, showToast: walletToast } = useWallet();
@@ -710,9 +711,17 @@ export default function Home() {
                       Available Service Credits
                     </h3>
                     <div className="text-[3.5rem] md:text-[4.5rem] font-headline font-extrabold text-white leading-none mb-2 z-10 tracking-tighter">
-                      {rawYieldToServiceCredits.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      {(tickingCredits || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </div>
                     <span className="text-white/20 font-bold tracking-[0.3em] uppercase text-[10px] mt-2 z-10 font-label">Credits</span>
+
+                    {rawYieldToServiceCredits > 0 && (
+                      <div className="mt-4 px-3 py-1 bg-white/5 border border-white/10 rounded-full animate-pulse">
+                        <span className="text-white/40 text-[9px] font-bold uppercase tracking-widest">
+                          + {rawYieldToServiceCredits.toFixed(2)} Projected
+                        </span>
+                      </div>
+                    )}
 
                     <div className="absolute -right-6 -bottom-6 w-32 h-32 bg-gradient-to-br from-white/20/10 to-transparent/5 rounded-full flex items-center justify-center border border-white/20 shadow-[0_0_20px_rgba(249,115,22,0.1)] transform rotate-12 transition-transform duration-500 group-hover/card:rotate-0 group-hover/card:scale-110 opacity-70 pointer-events-none">
                       <Droplet className="w-14 h-14 text-white fill-white/20" />
