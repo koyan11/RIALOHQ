@@ -13,6 +13,7 @@ const TOKENS = [
   { symbol: 'ETH', icon: '/eth-icon.png', isImage: true, iconClass: 'p-0.5' },
   { symbol: 'RIALO', icon: '/rialo-icon.png', isImage: true, iconClass: 'p-0.5' },
   { symbol: 'USDC', icon: '/usdc-icon.webp', isImage: true, iconClass: 'p-0.5' },
+  { symbol: 'USDT', icon: '/usdt-icon.png', isImage: true, iconClass: 'p-0.5' },
 ];
 
 const TokenSelector = ({ value, onChange, show, setShow, excludeToken, walletBalances }) => (
