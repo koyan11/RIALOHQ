@@ -356,14 +356,14 @@ export default function Home() {
 
               {/* Header 1 (Stake Assets) */}
               <div className="lg:col-start-1 lg:row-start-1 text-center mb-6 lg:mb-12 min-h-[auto] lg:min-h-[120px] flex flex-col justify-center animate-in fade-in slide-in-from-bottom-2 duration-300 delay-100">
-                <h1 className="text-5xl font-headline font-extrabold mb-4 tracking-tighter text-primary">Stake Assets</h1>
-                <p className="text-on-surface/60 max-w-xl mx-auto font-medium">Stake RLO or ETH to mint yield-bearing assets and auto-generate credits for a completely gasless experience.</p>
+                <h1 className="text-5xl font-headline font-extrabold mb-4 tracking-tighter text-black">Stake Assets</h1>
+                <p className="text-black/60 max-w-xl mx-auto font-medium">Stake RLO or ETH to mint yield-bearing assets and auto-generate credits for a completely gasless experience.</p>
               </div>
 
               {/* Header 2 (Paymaster) */}
               <div className="lg:col-start-2 lg:row-start-1 text-center mb-6 lg:mb-12 min-h-[auto] lg:min-h-[120px] flex flex-col justify-center animate-in fade-in slide-in-from-bottom-2 duration-300 delay-200">
-                <h1 className="text-5xl font-headline font-extrabold mb-4 tracking-tighter text-primary">Paymaster</h1>
-                <p className="text-on-surface/60 max-w-xl mx-auto font-medium">Power your on-chain experience with automated gas routing and AI credits.</p>
+                <h1 className="text-5xl font-headline font-extrabold mb-4 tracking-tighter text-black">Paymaster</h1>
+                <p className="text-black/60 max-w-xl mx-auto font-medium">Power your on-chain experience with automated gas routing and AI credits.</p>
               </div>
 
               {/* Card 1 (Stake Assets Card) */}
@@ -788,11 +788,11 @@ export default function Home() {
           <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
             {/* Header Section */}
             <div className="text-center mb-12">
-              <h1 className="text-5xl font-headline font-extrabold mb-4 tracking-tighter text-primary">RWA Hub 🌍</h1>
-              <p className="text-on-surface/60 max-w-xl mx-auto font-medium">Automatically diversify your yield into stable, institutional-grade real-world assets.</p>
+              <h1 className="text-5xl font-headline font-extrabold mb-4 tracking-tighter text-black">RWA Hub 🌍</h1>
+              <p className="text-black/60 max-w-xl mx-auto font-medium">Automatically diversify your yield into stable, institutional-grade real-world assets.</p>
               <button
                 onClick={() => setActiveView('stake')}
-                className="mt-6 inline-flex items-center gap-2 text-primary font-bold text-sm hover:underline underline-offset-8 transition-all"
+                className="mt-6 inline-flex items-center gap-2 text-black font-bold text-sm hover:underline underline-offset-8 transition-all"
               >
                 <ArrowRight className="w-4 h-4 rotate-180" />
                 Return to Staking
