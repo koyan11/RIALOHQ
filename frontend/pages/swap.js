@@ -195,48 +195,51 @@ export default function SwapPage() {
     }
   };
 
-  const TokenSelector = ({ value, onChange, show, setShow, excludeToken }) => (
-    <div className="relative">
-      <button
-        onClick={() => setShow(!show)}
-        className="flex items-center gap-2 bg-white/5 px-3 py-1.5 rounded-full shadow-sm hover:bg-white/10 transition-colors border border-white/10"
-      >
-        <div className={`w-6 h-6 rounded-full flex items-center justify-center overflow-hidden ${TOKENS.find(t => t.symbol === value)?.iconClass}`}>
-          {TOKENS.find(t => t.symbol === value)?.isImage ? (
-            <img src={TOKENS.find(t => t.symbol === value)?.icon} className="w-full h-full object-contain" alt={value} />
-          ) : (
-            <span className="material-symbols-outlined text-[14px]" style={{ fontVariationSettings: "'FILL' 1" }}>
-              {TOKENS.find(t => t.symbol === value)?.icon}
-            </span>
-          )}
-        </div>
-        <span className="font-headline font-bold text-sm text-white">{value}</span>
-        <span className="material-symbols-outlined text-sm text-white/60">expand_more</span>
-      </button>
-      {show && (
-        <div className="absolute right-0 top-full mt-2 bg-[#161616] rounded-xl shadow-xl border border-white/10 z-20 min-w-[140px] overflow-hidden">
-          {TOKENS.filter(t => t.symbol !== excludeToken).map(t => (
-            <button
-              key={t.symbol}
-              onClick={() => { onChange(t.symbol); setShow(false); }}
-              className="flex items-center gap-2 w-full px-4 py-3 hover:bg-white/5 transition-colors text-white"
-            >
-              <div className={`w-6 h-6 rounded-full flex items-center justify-center overflow-hidden ${t.iconClass}`}>
-                {t.isImage ? (
-                  <img src={t.icon} className="w-full h-full object-contain" alt={t.symbol} />
-                ) : (
-                  <span className="material-symbols-outlined text-[14px]" style={{ fontVariationSettings: "'FILL' 1" }}>{t.icon}</span>
-                )}
-              </div>
-              <span className="font-headline font-bold text-sm text-white">{t.symbol}</span>
-            </button>
-          ))}
-        </div>
-      )}
-    </div>
-  );
+const TokenSelector = ({ value, onChange, show, setShow, excludeToken, walletBalances }) => (
+  <div className="relative">
+    <button
+      onClick={(e) => {
+        e.stopPropagation();
+        setShow(!show);
+      }}
+      className="flex items-center gap-2 bg-white/5 px-3 py-1.5 rounded-full shadow-sm hover:bg-white/10 active:scale-95 transition-all border border-white/10"
+    >
+      <div className={`w-6 h-6 rounded-full flex items-center justify-center overflow-hidden ${TOKENS.find(t => t.symbol === value)?.iconClass}`}>
+        {TOKENS.find(t => t.symbol === value)?.isImage ? (
+          <img src={TOKENS.find(t => t.symbol === value)?.icon} className="w-full h-full object-contain" alt={value} />
+        ) : (
+          <span className="material-symbols-outlined text-[14px]" style={{ fontVariationSettings: "'FILL' 1" }}>
+            {TOKENS.find(t => t.symbol === value)?.icon}
+          </span>
+        )}
+      </div>
+      <span className="font-headline font-bold text-sm text-white tracking-tight">{value}</span>
+      <span className="material-symbols-outlined text-sm text-white/60">expand_more</span>
+    </button>
+    {show && (
+      <div className="absolute right-0 top-full mt-2 bg-[#161616] rounded-xl shadow-2xl border border-white/10 z-[100] min-w-[140px] overflow-hidden animate-in fade-in slide-in-from-top-1 duration-200">
+        {TOKENS.filter(t => t.symbol !== excludeToken).map(t => (
+          <button
+            key={t.symbol}
+            onClick={() => { onChange(t.symbol); setShow(false); }}
+            className="flex items-center gap-2 w-full px-4 py-3 hover:bg-white/5 transition-colors text-white group"
+          >
+            <div className={`w-6 h-6 rounded-full flex items-center justify-center overflow-hidden ${t.iconClass} transition-transform group-hover:scale-110`}>
+              {t.isImage ? (
+                <img src={t.icon} className="w-full h-full object-contain" alt={t.symbol} />
+              ) : (
+                <span className="material-symbols-outlined text-[14px]" style={{ fontVariationSettings: "'FILL' 1" }}>{t.icon}</span>
+              )}
+            </div>
+            <span className="font-headline font-bold text-sm text-white group-hover:text-primary transition-colors">{t.symbol}</span>
+          </button>
+        ))}
+      </div>
+    )}
+  </div>
+);
 
-  return (
+export default function SwapPage() {
     <div className="bg-white font-body text-zinc-900 antialiased selection:bg-primary-container selection:text-zinc-900">
       <Navbar />
       <main className="min-h-[calc(100vh-250px)] flex items-center justify-center px-4 py-20">
@@ -365,6 +368,7 @@ export default function SwapPage() {
                   show={showFromTokenList}
                   setShow={setShowFromTokenList}
                   excludeToken={toToken}
+                  walletBalances={balances}
                 />
               </div>
             </div>
@@ -399,6 +403,7 @@ export default function SwapPage() {
                   show={showToTokenList}
                   setShow={setShowToTokenList}
                   excludeToken={fromToken}
+                  walletBalances={balances}
                 />
               </div>
             </div>
