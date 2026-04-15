@@ -266,7 +266,7 @@ export default function SwapPage() {
                   }
                 }}
                 disabled={faucetLoading}
-                className="inline-flex items-center gap-2 bg-primary/10 text-primary border border-primary/20 px-4 py-2 rounded-full text-[10px] font-bold uppercase tracking-widest hover:bg-primary/20 transition-all"
+                className="inline-flex items-center gap-2 bg-black/5 text-black border border-black/10 px-4 py-2 rounded-full text-[10px] font-bold uppercase tracking-widest hover:bg-black/10 transition-all"
               >
                 <span className="material-symbols-outlined text-sm">water_drop</span>
                 {faucetLoading ? 'Claiming...' : 'Claim 100 RLO Faucet'}
