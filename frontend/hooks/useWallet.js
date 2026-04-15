@@ -115,9 +115,6 @@ export function WalletProvider({ children }) {
     const savedScheduled = localStorage.getItem('rialo_scheduled_txs');
     if (savedScheduled) setScheduledTxs(JSON.parse(savedScheduled));
 
-    const savedMessages = localStorage.getItem('rialo_ai_messages');
-    if (savedMessages) setAiMessages(JSON.parse(savedMessages));
-
     const savedSessionActive = localStorage.getItem('rialo_session_active');
     const savedSessionExpiry = localStorage.getItem('rialo_session_expiry');
     const savedSessionKey    = localStorage.getItem('rialo_session_key');
@@ -215,7 +212,6 @@ export function WalletProvider({ children }) {
     localStorage.setItem('rialo_transactions', JSON.stringify(transactions));
     localStorage.setItem('rialo_trigger_orders', JSON.stringify(triggerOrders));
     localStorage.setItem('rialo_scheduled_txs', JSON.stringify(scheduledTxs));
-    localStorage.setItem('rialo_ai_messages', JSON.stringify(aiMessages));
     localStorage.setItem('rialo_balances', JSON.stringify(balances));
     localStorage.setItem('rialo_simulated_deltas', JSON.stringify(simulatedDeltas));
     
