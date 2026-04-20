@@ -853,7 +853,7 @@ export default function Home() {
               <p className="text-slate-500 max-w-xl mx-auto font-medium">Automatically diversify your yield into stable, institutional-grade real-world assets.</p>
               <button
                 onClick={() => setActiveView('stake')}
-                className="mt-6 inline-flex items-center gap-2 text-primary font-bold text-sm hover:underline underline-offset-8 transition-all"
+                className="mt-6 inline-flex items-center gap-2 bg-slate-900 text-white px-5 py-2.5 rounded-xl font-bold text-sm hover:bg-slate-700 transition-all shadow-md"
               >
                 <ArrowRight className="w-4 h-4 rotate-180" />
                 Return to Staking
