@@ -231,14 +231,14 @@ export default function SwapPage() {
   };
 
   return (
-    <div className="bg-black font-body text-zinc-900 antialiased relative min-h-screen">
+    <div className="bg-white font-body text-slate-900 antialiased relative min-h-screen transition-colors duration-500">
       <Navbar />
       <main className="min-h-[calc(100vh-250px)] flex items-center justify-center px-4 py-20">
         <div className="w-full max-w-[480px]">
           {/* Header */}
-          <div className="mb-8 text-center text-white">
-            <h1 className="mb-2" style={{ fontSize: '3.5rem' }}>Swap</h1>
-            <p className="font-body text-white/50 mb-6">Seamless trading across the unified ecosystem</p>
+          <div className="mb-8 text-center text-slate-900">
+            <h1 className="mb-2 font-headline font-extrabold tracking-tighter" style={{ fontSize: '3.5rem' }}>Swap</h1>
+            <p className="font-body text-slate-500 mb-6">Seamless trading across the unified ecosystem</p>
             
             {isConnected && (
               <button 
@@ -260,7 +260,7 @@ export default function SwapPage() {
                   }
                 }}
                 disabled={faucetLoading}
-                className="inline-flex items-center gap-2 bg-white/5 text-white border border-white/10 px-4 py-2 rounded-full text-[10px] font-bold uppercase tracking-widest hover:bg-white/10 transition-all font-label"
+                className="inline-flex items-center gap-2 bg-slate-900 text-white px-4 py-2 rounded-full text-[10px] font-bold uppercase tracking-widest hover:bg-slate-800 transition-all font-label shadow-lg"
               >
                 <span className="material-symbols-outlined text-sm">water_drop</span>
                 {faucetLoading ? 'Claiming...' : 'Claim 100 RLO Faucet'}
@@ -495,14 +495,14 @@ export default function SwapPage() {
 
           {/* Contextual Info */}
           <div className="mt-8 grid grid-cols-2 gap-4">
-            <div className="bg-[#0c0c0c] p-4 rounded-xl border border-white/5 shadow-xl">
+            <div className="bg-[#0c0c0c] p-4 rounded-xl border border-white/5 shadow-2xl">
               <p className="font-label text-xs uppercase text-white/20 mb-1">Network Status</p>
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
                 <span className="font-headline font-bold text-sm text-white">Testnet Node Active</span>
               </div>
             </div>
-            <div className="bg-[#0c0c0c] p-4 rounded-xl border border-white/5 shadow-xl">
+            <div className="bg-[#0c0c0c] p-4 rounded-xl border border-white/5 shadow-2xl">
               <p className="font-label text-xs uppercase text-white/20 mb-1">Gas Estimation</p>
               <div className="flex items-center gap-2">
                 <span className="material-symbols-outlined text-sm text-white/20">local_gas_station</span>
