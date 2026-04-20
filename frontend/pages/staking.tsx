@@ -405,7 +405,7 @@ export default function Home() {
 
       <Navbar />
 
-      <div className="max-w-7xl mx-auto flex-grow w-full mt-10 md:mt-16 px-4">
+      <div className="max-w-7xl mx-auto flex-grow w-full mt-10 md:mt-16 px-4 mb-24">
         {activeView === 'stake' ? (
           <>
             {/* Main Grid: 2 Columns for headers and cards */}
@@ -425,7 +425,7 @@ export default function Home() {
 
               {/* Card 1 (Stake Assets Card) */}
               <div className="lg:col-start-1 lg:row-start-2 flex flex-col animate-in fade-in slide-in-from-bottom-2 duration-300 delay-150 mb-12 lg:mb-0">
-                <div className="bg-[#0c0c0c] rounded-2xl p-8 md:p-12 shadow-2xl border border-white/5 relative overflow-hidden group/card transition-all duration-500 h-full min-h-[650px] flex flex-col text-white">
+                <div className="bg-[#0c0c0c] rounded-2xl p-8 md:p-12 shadow-2xl border border-white/5 relative overflow-hidden group/card transition-all duration-500 flex flex-col text-white">
                   <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -mr-16 -mt-16 blur-3xl opacity-50"></div>
                   <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-white/20 via-white/10 to-transparent opacity-90"></div>
 
@@ -765,7 +765,7 @@ export default function Home() {
 
               {/* Card 2 (Paymaster Card) */}
               <div className="lg:col-start-2 lg:row-start-2 flex flex-col animate-in fade-in slide-in-from-bottom-2 duration-300 delay-250">
-                <div className="bg-[#0c0c0c] rounded-2xl p-8 md:p-12 shadow-2xl border border-white/5 relative overflow-hidden group transition-all duration-500 h-full min-h-[650px] flex flex-col text-white">
+                <div className="bg-[#0c0c0c] rounded-2xl p-8 md:p-12 shadow-2xl border border-white/5 relative overflow-hidden group transition-all duration-500 flex flex-col text-white">
                   <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -mr-16 -mt-16 blur-3xl opacity-50"></div>
 
                   <div className="bg-[#161616] rounded-2xl p-10 border border-white/5 flex flex-col items-center shadow-inner w-full text-center relative overflow-hidden shrink-0 mb-8">
