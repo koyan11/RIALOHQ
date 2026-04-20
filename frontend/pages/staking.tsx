@@ -306,9 +306,8 @@ export default function Home() {
     ? 0.03 * assetMultiplier
     : (baseApy + ((lockDuration - 1) / 47) * 0.10) * assetMultiplier;
   // Flexible menggunakan proyeksi 1 bulan; locked menggunakan durasi penuh.
-  const totalYield = lockDuration === 0
-    ? effectivePrincipal * networkApy * (1 / 12)
-    : (effectivePrincipal * networkApy) * (lockDuration / 12);
+  const timeMultiplier = lockDuration === 0 ? (1 / 12) : (lockDuration / 12);
+  const totalYield = (effectivePrincipal * networkApy) * timeMultiplier;
 
   const yieldAllocatedToSfS = totalYield * (sfsFraction / 100) * creditsMultiplier;
   const rawYieldToServiceCredits = yieldAllocatedToSfS * 10;
@@ -588,16 +587,13 @@ export default function Home() {
                             </div>
                           </button>
                           <button
-                            disabled={assetType === 'solo_eth'}
                             onClick={() => {
                               if (assetType !== 'solo_eth') setPayoutType('rwa');
                             }}
                             className={`p-4 rounded-2xl border transition-all text-left flex flex-col gap-1.5 ${
-                              assetType === 'solo_eth'
-                                ? 'opacity-40 cursor-not-allowed border-white/5 bg-transparent'
-                                : payoutType === 'rwa' && assetType !== 'solo_eth'
-                                  ? 'bg-[#161616] border-white/20 shadow-inner'
-                                  : 'bg-transparent border-white/5 hover:border-white/10'
+                              payoutType === 'rwa' && assetType !== 'solo_eth'
+                                ? 'bg-[#161616] border-white/20 shadow-inner'
+                                : 'bg-transparent border-white/5 hover:border-white/10'
                             }`}
                           >
                             <div className="flex justify-between items-center w-full">
@@ -607,7 +603,7 @@ export default function Home() {
                           </button>
                         </div>
 
-                        {payoutType === 'rwa' && assetType !== 'solo_eth' && lockDuration > 0 && (
+                        {payoutType === 'rwa' && assetType !== 'solo_eth' && (
                           <div className="mt-4 animate-in fade-in slide-in-from-top-2 duration-300">
                             <p className="text-[11px] text-white/80 flex items-start gap-1.5 leading-snug font-medium bg-white/5 p-2.5 rounded-lg border border-white/10">
                               <Info className="w-3.5 h-3.5 shrink-0 mt-0.5 text-white" />
