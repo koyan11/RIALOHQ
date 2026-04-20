@@ -98,7 +98,7 @@ export default function SwapPage() {
   const currentRateValue = getRate(fromToken, toToken);
   const activeRate = orderType === 'limit' && targetPrice ? parseFloat(targetPrice) : currentRateValue;
   const estimatedOut = amountIn ? (parseFloat(amountIn) * activeRate).toFixed(4) : '';
-  const displayRate = `1 ${fromToken} ≈ ${activeRate.toFixed(fromToken === 'RIALO' ? 8 : 2)} ${toToken}`;
+  const displayRate = `1 ${fromToken} \u2248 ${activeRate.toFixed(fromToken === 'RIALO' ? 8 : 2)} ${toToken}`;
 
   useEffect(() => {
     setTargetPrice('');
@@ -144,7 +144,7 @@ export default function SwapPage() {
       
       addTransaction({
         type: 'Limit',
-        amount: `${amountIn} ${fromToken} → ${toToken}`,
+        amount: `${amountIn} ${fromToken} \u2192 ${toToken}`,
         details: `Limit Order Placed @ ${tp}`,
         source: 'Direct'
       });
@@ -156,7 +156,7 @@ export default function SwapPage() {
     }
 
     setLoading(true);
-    setToast({ message: 'Confirming actual transaction in MetaMask…', type: 'loading' });
+    setToast({ message: 'Confirming actual transaction in MetaMask\u2026', type: 'loading' });
     
 
 
@@ -190,6 +190,7 @@ export default function SwapPage() {
       setToast({ message: `Blockchain operation successful!`, type: 'success', txHash: hash });
       
 
+
       
       // Update balances from chain
       if (address && provider) {
@@ -210,7 +211,7 @@ export default function SwapPage() {
       // Add to history
       addTransaction({
         type: 'Swap',
-        amount: `${amountIn} ${fromToken} → ${estimatedOut} ${toToken}`,
+        amount: `${amountIn} ${fromToken} \u2192 ${estimatedOut} ${toToken}`,
         details: `${fromToken} to ${toToken}`,
         txHash: hash,
         source: 'Direct'
@@ -230,14 +231,14 @@ export default function SwapPage() {
   };
 
   return (
-    <div className="bg-white font-body text-zinc-900 antialiased selection:bg-primary-container selection:text-zinc-900">
+    <div className="bg-black font-body text-zinc-900 antialiased relative min-h-screen">
       <Navbar />
       <main className="min-h-[calc(100vh-250px)] flex items-center justify-center px-4 py-20">
         <div className="w-full max-w-[480px]">
           {/* Header */}
-          <div className="mb-8 text-center">
-            <h1 className="text-black mb-2" style={{ fontSize: '3.5rem' }}>Swap</h1>
-            <p className="font-body text-zinc-500 mb-6">Seamless trading across the unified ecosystem</p>
+          <div className="mb-8 text-center text-white">
+            <h1 className="mb-2" style={{ fontSize: '3.5rem' }}>Swap</h1>
+            <p className="font-body text-white/50 mb-6">Seamless trading across the unified ecosystem</p>
             
             {isConnected && (
               <button 
@@ -259,7 +260,7 @@ export default function SwapPage() {
                   }
                 }}
                 disabled={faucetLoading}
-                className="inline-flex items-center gap-2 bg-black/5 text-black border border-black/10 px-4 py-2 rounded-full text-[10px] font-bold uppercase tracking-widest hover:bg-black/10 transition-all"
+                className="inline-flex items-center gap-2 bg-white/5 text-white border border-white/10 px-4 py-2 rounded-full text-[10px] font-bold uppercase tracking-widest hover:bg-white/10 transition-all font-label"
               >
                 <span className="material-symbols-outlined text-sm">water_drop</span>
                 {faucetLoading ? 'Claiming...' : 'Claim 100 RLO Faucet'}
@@ -338,7 +339,7 @@ export default function SwapPage() {
               </div>
             </div>
 
-            {/* Input — You Pay */}
+            {/* Input \u2014 You Pay */}
             <div className="bg-[#161616] rounded-2xl p-6 mb-2 border border-white/5 focus-within:border-white/20">
               <div className="flex justify-between items-center mb-4">
                 <span className="font-label text-xs uppercase tracking-widest text-white/30 font-bold">You pay</span>
@@ -373,7 +374,7 @@ export default function SwapPage() {
               </button>
             </div>
 
-            {/* Output — You Receive */}
+            {/* Output \u2014 You Receive */}
             <div className={`bg-[#161616] rounded-2xl p-6 border border-white/5 focus-within:border-white/20 ${orderType === 'limit' ? 'mb-2' : 'mb-8'}`}>
               <div className="flex justify-between items-center mb-4">
                 <span className="font-label text-xs uppercase tracking-widest text-white/30 font-bold">You receive</span>
@@ -450,7 +451,7 @@ export default function SwapPage() {
             )}
 
             {/* Details */}
-            <div className="space-y-4 mb-6 px-2">
+            <div className="space-y-4 mb-6 px-2 text-white">
               <div className="flex justify-between items-center text-sm">
                 <span className="text-white/30 font-body">Exchange Rate</span>
                 <span className="font-headline font-bold text-white/80">{displayRate}</span>
@@ -487,7 +488,7 @@ export default function SwapPage() {
               ) : orderType === 'limit' ? (
                 `Place Limit Order`
               ) : (
-                `Swap ${fromToken} → ${toToken}`
+                `Swap ${fromToken} \u2192 ${toToken}`
               )}
             </button>
           </div>

@@ -1,23 +1,49 @@
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { ethers } from 'ethers';
 import { getContract } from '../lib/ethers';
 import { useWallet } from './useWallet';
 
+// ---------------------------------------------------------------------------
+// Module-level singleton for globalRwaYieldUsd
+// Allows the value to be shared across all components using useStaking()
+// without requiring React Context or an external state library.
+// ---------------------------------------------------------------------------
+let _globalRwaYieldUsd = 0;
+const _rwaYieldSubscribers = new Set();
+
+function _setGlobalRwaYieldUsd(value) {
+  _globalRwaYieldUsd = value;
+  _rwaYieldSubscribers.forEach((fn) => fn(value));
+}
+
 export function useStaking() {
-  const { 
-    address, provider, isConnected, 
-    tickingCredits, setTickingCredits, deductCredits,
-    stakedBalance, setStakedBalance, 
-    stakedEthBalance, setStakedEthBalance,
-    tickingRewards, setTickingRewards,
-    rewardRate, setRewardRate,
-    totalStaked, setTotalStaked,
-    lockEnd, setLockEnd,
-    lockStart, setLockStart,
-    stakingPositions, setStakingPositions
-  } = useWallet();
+  const { address, provider, isConnected } = useWallet();
+  const [stakedBalance, setStakedBalance] = useState('0');
+  const [stakedEthBalance, setStakedEthBalance] = useState('0');
+
+  // Shared global RWA Yield state — synced across all useStaking() consumers
+  const [globalRwaYieldUsd, _setLocalRwaYield] = useState(_globalRwaYieldUsd);
+
+  useEffect(() => {
+    // Subscribe this component instance to module-level updates
+    _rwaYieldSubscribers.add(_setLocalRwaYield);
+    return () => {
+      _rwaYieldSubscribers.delete(_setLocalRwaYield);
+    };
+  }, []);
+
+  const setGlobalRwaYieldUsd = useCallback((value) => {
+    _setGlobalRwaYieldUsd(value);
+  }, []);
   
+  // Load simulated staked balances on mount
+  useEffect(() => {
+    const savedEth = localStorage.getItem('rialo_staked_eth');
+    if (savedEth) setStakedEthBalance(savedEth);
+  }, []);
+
   const [pendingRewards, setPendingRewards] = useState('0');
+  const [totalStaked, setTotalStaked] = useState('0');
   const [sfsFraction, setSfsFraction] = useState(0);
   const [rwaAllocation, setRwaAllocation] = useState(0);
   const [rwaTarget, setRwaTarget] = useState('');
@@ -26,161 +52,71 @@ export function useStaking() {
 
   const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 
-  // PERSISTENCE: Sync with Backend
-  const syncWithBackend = useCallback(async (addr, data = {}) => {
-    try {
-      const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
-      await fetch(`${baseUrl}/api/user-staking/${addr}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-      });
-    } catch (e) {
-      console.warn('Backend sync failed:', e);
-    }
-  }, []);
-
   const fetchStakingData = useCallback(async () => {
-    if (!address) return;
-    
     try {
-      const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
-      const checksummed = ethers.getAddress(address);
-      
-      // 1. Fetch from Backend FIRST (Persistence Layer)
-      let simRlo = 0;
-      let simEth = 0;
-      let simCredits = 0;
-      try {
-        const res = await fetch(`${baseUrl}/api/user-staking/${address}`);
-        const backendData = await res.json();
-        if (backendData.success) {
-          simRlo = backendData.stakedRlo || 0;
-          simEth = backendData.stakedEth || 0;
-          simCredits = backendData.credits || 0;
-          
-          // Set initial values from backend immediately for better UX
-          setStakedBalance(simRlo.toString());
-          setStakedEthBalance(simEth.toString());
-          
-          // Persistence sync
-          if (typeof window !== 'undefined' && address) {
-            localStorage.setItem(`rialo_staked_rlo_${address}`, simRlo.toString());
-            localStorage.setItem(`rialo_staked_eth_${address}`, simEth.toString());
-          }
-
-          // Merge backend persistence with browser high-speed cache
-          let localCredits = 0;
-          if (typeof window !== 'undefined' && address) {
-            localCredits = parseFloat(localStorage.getItem(`rialo_credits_${address}`) || '0');
-          }
-          
-          // CRITICAL: Trust local credits above all else for deductions.
-          // Only use backend value if it's significantly higher (earned rewards)
-          // or if local credits haven't been initialized yet.
-          const finalCredits = (simCredits > localCredits + 0.1) ? simCredits : localCredits;
-          
-          setTickingCredits(prev => {
-            // Only update if we are initializing or if incoming data is newer/higher
-            return prev === 0 ? finalCredits : Math.max(prev, finalCredits);
-          });
-          
-          if (backendData.rewards !== undefined) {
-            setPendingRewards(backendData.rewards.toString());
-            setTickingRewards(backendData.rewards);
-          }
-          console.log(`[useStaking] Backend Load: RLO=${simRlo}, ETH=${simEth}, Credits=${simCredits}, Local=${localCredits}`);
-        }
-      } catch (e) {
-        console.warn('[useStaking] Backend fetch failed, using defaults:', e);
-      }
-
-      // 2. Fetch from Contract and MERGE
       const contract = getContract('Staking', provider);
       
-      // Protocol-wide constants
       try {
         const total = await contract.totalStaked();
         setTotalStaked(ethers.formatEther(total));
-        const rate = await contract.rewardRate();
-        setRewardRate(parseFloat(ethers.formatEther(rate)));
       } catch (e) {
-        console.warn('[useStaking] Failed to fetch constants from contract:', e);
+        console.warn('Failed to fetch total staked:', e);
       }
 
-      // User-specific data from contract
-      try {
-        const stakeInfo = await contract.stakes(checksummed);
-        if (stakeInfo) {
-          const rawAmount = (stakeInfo.amount !== undefined ? stakeInfo.amount : stakeInfo[0]) ?? 0n;
-          const rawLockEnd = (stakeInfo.lockEnd !== undefined ? stakeInfo.lockEnd : stakeInfo[1]) ?? 0n;
-          const rawLockStart = (stakeInfo.startTime !== undefined ? stakeInfo.startTime : stakeInfo[2]) ?? 0n;
-          const rawSfsFraction = (stakeInfo.sfsFraction !== undefined ? stakeInfo.sfsFraction : stakeInfo[3]) ?? 0n;
-          const realRlo = parseFloat(ethers.formatEther(rawAmount));
-          
-          console.log(`[useStaking] Contract Data: RLO=${realRlo}, Simulation=${simRlo}`);
-          
-          // Use the higher value or the contract value if non-zero
-          const finalRlo = Math.max(realRlo, simRlo);
-          setStakedBalance(finalRlo.toString());
-          setSfsFraction(Number(rawSfsFraction) / 100);
-          
-          if (rawLockEnd > 0n) setLockEnd(Number(rawLockEnd) * 1000); // to ms
-          if (rawLockStart > 0n) setLockStart(Number(rawLockStart) * 1000); // to ms
-        }
-      } catch (e) {
-        console.warn('[useStaking] Failed to fetch user stake from contract:', e);
-      }
-      
-      // Live rewards from contract (if any)
-      try {
-        const rewards = await contract.calculateRewards(checksummed);
-        const val = parseFloat(ethers.formatEther(rewards));
-        if (val > 0) {
-          setPendingRewards(val.toString());
-          setTickingRewards(val);
-        }
-      } catch (e) {
-        // Fallback already set from backend
-      }
+      const savedEth = localStorage.getItem('rialo_staked_eth') || '0';
+      setStakedEthBalance(savedEth);
 
-      // Sponsorship paths
-      try {
-        const paths = await contract.getSponsorshipPaths(checksummed);
-        setSponsorshipPaths(paths.map(p => ({
-          address: p.destination,
-          amount: parseFloat(ethers.formatEther(p.amount))
-        })));
-      } catch {
-        setSponsorshipPaths([]);
+      if (address) {
+        const checksummed = ethers.getAddress(address);
+        
+        try {
+          const stakeInfo = await contract.stakes(checksummed);
+          if (stakeInfo) {
+            const rawAmount = (stakeInfo.amount !== undefined ? stakeInfo.amount : stakeInfo[0]) ?? 0n;
+            const rawSfsFraction = (stakeInfo.sfsFraction !== undefined ? stakeInfo.sfsFraction : stakeInfo[3]) ?? 0n;
+            
+            // Combine real on-chain RLO with simulated RLO
+            const realBal = parseFloat(ethers.formatEther(rawAmount));
+            const simBal = parseFloat(localStorage.getItem('rialo_staked_rlo') || '0');
+            setStakedBalance((realBal + simBal).toString());
+            
+            setSfsFraction(Number(rawSfsFraction) / 100);
+          }
+        } catch (e) {
+          console.warn('Failed to fetch stake info:', e);
+          const simBal = parseFloat(localStorage.getItem('rialo_staked_rlo') || '0');
+          setStakedBalance(simBal.toString());
+        }
+        
+        try {
+          const rewards = await contract.calculateRewards(checksummed);
+          setPendingRewards(ethers.formatEther(rewards));
+        } catch (e) {
+          setPendingRewards('0');
+        }
+
+        try {
+          const paths = await contract.getSponsorshipPaths(checksummed);
+          setSponsorshipPaths(paths.map(p => ({
+            address: p.destination,
+            amount: parseFloat(ethers.formatEther(p.amount))
+          })));
+        } catch {
+          setSponsorshipPaths([]);
+        }
       }
-      
     } catch (error) {
-      console.error('[useStaking] General fetch error:', error);
+      console.error('Error fetching staking data:', error);
     }
   }, [address, provider]);
 
-  // Sync whenever address or provider changes
   useEffect(() => {
-    if (isConnected && address) {
-      fetchStakingData();
-      const interval = setInterval(fetchStakingData, 15000); // Poll contract/backend every 15s
-      return () => clearInterval(interval);
-    }
-  }, [isConnected, address, fetchStakingData]);
+    fetchStakingData();
+    const interval = setInterval(fetchStakingData, 15000);
+    return () => clearInterval(interval);
+  }, [fetchStakingData]);
 
-  // BACKGROUND SYNC: Save credits to backend every 30s
-  useEffect(() => {
-    if (isConnected && address && tickingCredits > 0) {
-      const syncInterval = setInterval(() => {
-        syncWithBackend(address, { credits: tickingCredits });
-      }, 10000);
-      return () => clearInterval(syncInterval);
-    }
-  }, [isConnected, address, tickingCredits, syncWithBackend]);
-
-  // Global tickers managed in useWallet.js for cross-page sync.
-
+  // stake(uint256 amount) — only 1 param in ABI, no lockMonths
   const stakeRlo = useCallback(async (amount, lockMonths) => {
     if (!isConnected) return;
     setLoading(true);
@@ -188,6 +124,7 @@ export function useStaking() {
       const signer = await provider.getSigner();
       const rlo = getContract('RLO', signer);
       const staking = getContract('Staking', signer);
+
       const parsedAmount = ethers.parseEther(amount);
       
       const allowance = await rlo.allowance(address, await staking.getAddress());
@@ -196,36 +133,17 @@ export function useStaking() {
         await approveTx.wait();
       }
 
+      // ABI: stake(uint256 amount) — one param only
       const tx = await staking.stake(parsedAmount);
       await tx.wait();
       
-      // Update backend for persistence
-      const current = parseFloat(stakedBalance);
-      const now = Date.now();
-      const end = now + (Number(lockMonths) * 30 * 24 * 60 * 60 * 1000);
-      
-      const newPosition = {
-        id: `stake-rlo-${tx.hash}`,
-        amount: amount,
-        token: 'RLO',
-        lockStart: now,
-        lockEnd: end,
-        timestamp: now,
-        txHash: tx.hash
-      };
+      // Update simulated balance for instant feedback
+      const currentSim = parseFloat(localStorage.getItem('rialo_staked_rlo') || '0');
+      const newSim = (currentSim + parseFloat(amount)).toString();
+      localStorage.setItem('rialo_staked_rlo', newSim);
+      setStakedBalance(prev => (parseFloat(prev) + parseFloat(amount)).toString());
 
-      setStakingPositions(prev => [newPosition, ...prev]);
-      
-      await syncWithBackend(address, { 
-        stakedRlo: (parseFloat(stakedBalance) + parseFloat(amount)).toString(),
-        lockEnd: end,
-        lockStart: now
-      });
-      
-      setStakedBalance((current + parseFloat(amount)).toString());
-      setLockEnd(end);
-      setLockStart(now);
-
+      // Wait for RPC node to propagate new state
       await sleep(2500);
       await fetchStakingData();
       return tx.hash;
@@ -235,44 +153,28 @@ export function useStaking() {
     } finally {
       setLoading(false);
     }
-  }, [isConnected, provider, address, fetchStakingData, stakedBalance, syncWithBackend]);
+  }, [isConnected, provider, address, fetchStakingData]);
 
+  // stakeEth not in ABI — simulate via ETH send to dead address
   const stakeEth = useCallback(async (ethAmount, lockMonths) => {
     if (!isConnected) return;
     setLoading(true);
     try {
       const signer = await provider.getSigner();
+      const parsedEth = ethers.parseEther(ethAmount);
+      // ETH staking not supported by contract — send to dead address as signal tx
       const tx = await signer.sendTransaction({
         to: '0x000000000000000000000000000000000000dEaD',
-        value: ethers.parseEther(ethAmount)
+        value: parsedEth
       });
       await tx.wait();
       
-      const current = parseFloat(stakedEthBalance);
-      const newVal = (current + parseFloat(ethAmount)).toString();
-      const now = Date.now();
-      const end = now + (Number(lockMonths) * 30 * 24 * 60 * 60 * 1000);
-
-      const newPosition = {
-        id: `stake-eth-${tx.hash}`,
-        amount: ethAmount,
-        token: 'ETH',
-        lockStart: now,
-        lockEnd: end,
-        timestamp: now,
-        txHash: tx.hash
-      };
-
-      setStakingPositions(prev => [newPosition, ...prev]);
-
-      await syncWithBackend(address, { 
-        stakedEth: newVal,
-        lockEnd: end,
-        lockStart: now
+      // Update simulated balance using functional update to avoid stale closure
+      setStakedEthBalance(prev => {
+        const newBal = (parseFloat(prev) + parseFloat(ethAmount)).toString();
+        localStorage.setItem('rialo_staked_eth', newBal);
+        return newBal;
       });
-      setStakedEthBalance(newVal);
-      setLockEnd(end);
-      setLockStart(now);
       
       return tx.hash;
     } catch (error) {
@@ -281,8 +183,9 @@ export function useStaking() {
     } finally {
       setLoading(false);
     }
-  }, [isConnected, provider, address, stakedEthBalance, syncWithBackend]);
+  }, [isConnected, provider]);
 
+  // stakePair not in ABI — stake RLO portion and send ETH to dead address
   const stakePair = useCallback(async (rloAmount, ethAmount, lockMonths) => {
     if (!isConnected) return;
     setLoading(true);
@@ -290,6 +193,7 @@ export function useStaking() {
       const signer = await provider.getSigner();
       const rlo = getContract('RLO', signer);
       const staking = getContract('Staking', signer);
+
       const parsedRlo = ethers.parseEther(rloAmount);
       const parsedEth = ethers.parseEther(ethAmount);
 
@@ -299,42 +203,23 @@ export function useStaking() {
         await approveTx.wait();
       }
 
+      // Stake RLO portion
       const tx = await staking.stake(parsedRlo);
       await tx.wait();
 
+      // Signal ETH portion
       const ethTx = await signer.sendTransaction({
         to: '0x000000000000000000000000000000000000dEaD',
         value: parsedEth
       });
       await ethTx.wait();
 
-      const curEth = parseFloat(stakedEthBalance);
-      const curRlo = parseFloat(stakedBalance);
-      const now = Date.now();
-      const end = now + (Number(lockMonths) * 30 * 24 * 60 * 60 * 1000);
-
-      const newPairPos = {
-        id: `stake-pair-${tx.hash}`,
-        amount: rloAmount,
-        ethAmount: ethAmount,
-        token: 'PAIR',
-        lockStart: now,
-        lockEnd: end,
-        timestamp: now,
-        txHash: tx.hash
-      };
-
-      setStakingPositions(prev => [newPairPos, ...prev]);
-
-      await syncWithBackend(address, { 
-        stakedEth: (curEth + parseFloat(ethAmount)).toString(),
-        stakedRlo: (curRlo + parseFloat(rloAmount)).toString(),
-        lockEnd: end,
-        lockStart: now
+      // Update simulated balance using functional update
+      setStakedEthBalance(prev => {
+        const newEthBal = (parseFloat(prev) + parseFloat(ethAmount)).toString();
+        localStorage.setItem('rialo_staked_eth', newEthBal);
+        return newEthBal;
       });
-      
-      setStakedEthBalance((curEth + parseFloat(ethAmount)).toString());
-      setStakedBalance((curRlo + parseFloat(rloAmount)).toString());
 
       await fetchStakingData();
       return tx.hash;
@@ -344,8 +229,28 @@ export function useStaking() {
     } finally {
       setLoading(false);
     }
-  }, [isConnected, provider, address, fetchStakingData, stakedEthBalance, stakedBalance, syncWithBackend]);
+  }, [isConnected, provider, address, fetchStakingData]);
 
+  const updateSfsFraction = useCallback(async (percentage) => {
+    if (!isConnected) return;
+    setLoading(true);
+    try {
+      const signer = await provider.getSigner();
+      const staking = getContract('Staking', signer);
+      const fraction = Math.round(percentage * 100);
+      const tx = await staking.setSfsFraction(fraction);
+      await tx.wait();
+      await fetchStakingData();
+      return tx.hash;
+    } catch (error) {
+      console.error('Update SfS fraction error:', error);
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  }, [isConnected, provider, fetchStakingData]);
+
+  // setRwaAllocation now connects to addSponsorshipPath for on-chain tracking
   const updateRwaAllocation = useCallback(async (target, percentage) => {
     if (!isConnected) return;
     setLoading(true);
@@ -353,6 +258,7 @@ export function useStaking() {
       const signer = await provider.getSigner();
       const staking = getContract('Staking', signer);
       
+      // Map targets to virtual vault addresses for Sepolia
       const vaultMap = {
         'treasury': '0x1111111111111111111111111111111111111111',
         'real-estate': '0x2222222222222222222222222222222222222222',
@@ -374,60 +280,94 @@ export function useStaking() {
     }
   }, [isConnected, provider, fetchStakingData]);
 
-  const withdraw = useCallback(async (positionId, amount, token) => {
+  const addSponsorshipPath = useCallback(async (dest, amount) => {
     if (!isConnected) return;
     setLoading(true);
     try {
       const signer = await provider.getSigner();
-      
-      // If it's an ETH position, we just "send it back" (demo logic)
-      // If it's RLO, we call the contract's withdraw/unstake
-      let tx;
-      if (token === 'ETH') {
-        tx = await signer.sendTransaction({ to: address, value: 0 }); // Placeholder for ETH withdrawal logic
-        await tx.wait();
-      } else {
-        const staking = getContract('Staking', signer);
-        tx = await staking.withdraw(ethers.parseEther(amount.toString()));
-        await tx.wait();
-      }
-      
-      if (positionId) {
-        setStakingPositions(prev => prev.filter(p => p.id !== positionId));
-      }
-
-      if (token === 'ETH') {
-        const newVal = (parseFloat(stakedEthBalance) - parseFloat(amount)).toString();
-        setStakedEthBalance(newVal);
-        await syncWithBackend(address, { stakedEth: newVal });
-      } else if (token === 'PAIR') {
-        // Assume amount here was RLO for calculation
-        // We'll find the specific position to get the ETH amount
-        const pos = stakingPositions.find(p => p.id === positionId);
-        const eAmt = pos?.ethAmount || '0';
-        const rAmt = pos?.amount || amount;
-        
-        const nextEth = (parseFloat(stakedEthBalance) - parseFloat(eAmt)).toString();
-        const nextRlo = (parseFloat(stakedBalance) - parseFloat(rAmt)).toString();
-        
-        setStakedEthBalance(nextEth);
-        setStakedBalance(nextRlo);
-        await syncWithBackend(address, { stakedEth: nextEth, stakedRlo: nextRlo });
-      } else {
-        const newVal = (parseFloat(stakedBalance) - parseFloat(amount)).toString();
-        setStakedBalance(newVal);
-        await syncWithBackend(address, { stakedRlo: newVal });
-      }
-
+      const staking = getContract('Staking', signer);
+      const tx = await staking.addSponsorshipPath(dest, ethers.parseEther(amount.toString()));
+      await tx.wait();
       await fetchStakingData();
       return tx.hash;
+    } catch (error) {
+      console.error('Add sponsorship path error:', error);
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  }, [isConnected, provider, fetchStakingData]);
+
+  // ABI: withdraw(uint256 amount) — needs amount param
+  const withdraw = useCallback(async () => {
+    if (!isConnected) return;
+    setLoading(true);
+    try {
+      const signer = await provider.getSigner();
+      const contract = getContract('Staking', provider);
+      const checksummed = ethers.getAddress(address);
+      let stakedAmt = 0n;
+      try {
+        const stakeInfo = await contract.stakes(checksummed);
+        stakedAmt = stakeInfo.amount ?? stakeInfo[0] ?? 0n;
+      } catch (e) {
+        console.warn('Withdraw: Failed to fetch on-chain stake, defaulting to simulated info', e);
+      }
+
+      const simEth = parseFloat(stakedEthBalance);
+      const simRlo = parseFloat(localStorage.getItem('rialo_staked_rlo') || '0');
+
+      if (stakedAmt === 0n && simEth === 0 && simRlo === 0) {
+        throw new Error('No staked balance to withdraw');
+      }
+
+      // Clear simulated balances
+      setStakedEthBalance('0');
+      localStorage.removeItem('rialo_staked_eth');
+      localStorage.removeItem('rialo_staked_rlo');
+
+      if (stakedAmt > 0n) {
+        const staking = getContract('Staking', signer);
+        const tx = await staking.withdraw(stakedAmt);
+        await tx.wait();
+        await fetchStakingData();
+        return tx.hash;
+      } else {
+        // Handle only simulated withdrawal
+        const tx = await signer.sendTransaction({
+          to: address,
+          value: 0
+        });
+        await tx.wait();
+        await fetchStakingData();
+        return tx.hash;
+      }
     } catch (error) {
       console.error('Withdraw error:', error);
       throw error;
     } finally {
       setLoading(false);
     }
-  }, [isConnected, provider, address, fetchStakingData, syncWithBackend, stakingPositions, setStakingPositions, stakedBalance, stakedEthBalance]);
+  }, [isConnected, provider, address, fetchStakingData, stakedEthBalance]);
+
+  const withdrawAmount = useCallback(async (rloAmt, ethAmt) => {
+    if (!isConnected) return;
+    setLoading(true);
+    try {
+      const signer = await provider.getSigner();
+      const staking = getContract('Staking', signer);
+      const pRlo = ethers.parseEther(rloAmt.toString());
+      const tx = await staking.withdraw(pRlo);
+      await tx.wait();
+      await fetchStakingData();
+      return tx.hash;
+    } catch (error) {
+      console.error('Withdraw amount error:', error);
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  }, [isConnected, provider, fetchStakingData]);
 
   const claimRewards = useCallback(async () => {
     if (!isConnected) return;
@@ -447,15 +387,10 @@ export function useStaking() {
     }
   }, [isConnected, provider, fetchStakingData]);
 
-  // Deduct credits — delegated to useWallet shared deductCredits
-  // Kept here for backward compatibility with any old callers
-  
   return { 
     stakedBalance, 
     stakedEthBalance,
     pendingRewards, 
-    tickingRewards,
-    tickingCredits,
     totalStaked, 
     sfsFraction, 
     rwaAllocation,
@@ -467,11 +402,13 @@ export function useStaking() {
     stakePair,
     updateRwaAllocation,
     withdraw, 
+    withdrawAmount,
     claimRewards, 
+    updateSfsFraction, 
+    addSponsorshipPath, 
     fetchStakingData,
-    deductCredits,
-    lockEnd,
-    lockStart,
-    stakingPositions
+    // Global RWA Yield state — shared across all pages via module-level singleton
+    globalRwaYieldUsd,
+    setGlobalRwaYieldUsd,
   };
 }
