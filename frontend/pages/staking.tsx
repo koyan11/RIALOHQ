@@ -425,12 +425,12 @@ export default function Home() {
 
               {/* Card 1 (Stake Assets Card) */}
               <div className="lg:col-start-1 lg:row-start-2 flex flex-col animate-in fade-in slide-in-from-bottom-2 duration-300 delay-150 mb-12 lg:mb-0">
-                <div className="bg-[#0c0c0c] rounded-2xl p-8 md:p-12 shadow-2xl border border-white/5 relative overflow-hidden group/card transition-all duration-500 flex flex-col text-white">
+                <div className="bg-[#0c0c0c] rounded-2xl p-6 md:p-8 shadow-2xl border border-white/5 relative overflow-hidden group/card transition-all duration-500 flex flex-col text-white">
                   <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -mr-16 -mt-16 blur-3xl opacity-50"></div>
                   <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-white/20 via-white/10 to-transparent opacity-90"></div>
 
                   {/* Tab Toggle Container */}
-                  <div className="flex bg-[#161616] rounded-2xl p-1 mb-8 border border-white/5 shadow-inner relative">
+                  <div className="flex bg-[#161616] rounded-2xl p-1 mb-5 border border-white/5 shadow-inner relative">
                     <button
                       onClick={() => setIsStaking(true)}
                       className={`flex-1 py-3 text-sm font-bold rounded-xl transition-all z-10 ${isStaking ? 'text-white' : 'text-white/30 hover:text-white/60'}`}
@@ -449,7 +449,7 @@ export default function Home() {
                   {isStaking ? (
                     <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
                       {/* Asset Selection */}
-                      <div className="mb-6">
+                      <div className="mb-4">
                         <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-300 font-label mb-3 block">Select Asset Tier</label>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                           {/* Card 1 */}
@@ -482,7 +482,7 @@ export default function Home() {
                       </div>
 
                       {/* Amount Inputs */}
-                      <div className={`grid gap-3 mb-6 ${assetType === 'pair' ? 'grid-cols-2' : 'grid-cols-1'}`}>
+                      <div className={`grid gap-3 mb-4 ${assetType === 'pair' ? 'grid-cols-2' : 'grid-cols-1'}`}>
                         {assetType !== 'solo_eth' && (
                           <div className="bg-[#161616] rounded-2xl p-5 border border-white/5 shadow-inner transition-all">
                             <div className="flex justify-between items-center mb-3">
@@ -547,7 +547,7 @@ export default function Home() {
                       </div>
 
                       {/* Lock Duration Slider */}
-                      <div className="bg-[#161616] rounded-2xl p-6 mb-6 border border-white/5 shadow-inner relative overflow-hidden group">
+                      <div className="bg-[#161616] rounded-2xl p-5 mb-4 border border-white/5 shadow-inner relative overflow-hidden group">
                         <div className="flex justify-between items-center mb-4 relative z-10">
                           <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-300 font-label">
                             Lock Duration (Multiplier)
@@ -574,7 +574,7 @@ export default function Home() {
                       </div>
 
                       {/* Yield Payout Selection */}
-                      <div className="mb-6">
+                      <div className="mb-4">
                         <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/30 font-label mb-3 block">Yield Payout Preference</label>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 relative">
                           <button
@@ -613,7 +613,7 @@ export default function Home() {
                         )}
                       </div>
 
-                      <div className="mb-6">
+                      <div className="mb-4">
                         <button
                           onClick={handleStake}
                           disabled={isSimulating}
@@ -632,7 +632,7 @@ export default function Home() {
                       </div>
 
 
-                      <div className="bg-[#161616] rounded-2xl p-6 mb-8 border border-white/5 shadow-inner relative overflow-hidden group">
+                      <div className="bg-[#161616] rounded-2xl p-5 mb-5 border border-white/5 shadow-inner relative overflow-hidden group">
                         <div className="flex justify-between items-center mb-4 relative z-10">
                           <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-300 font-label">
                             SfS Routing Fraction
