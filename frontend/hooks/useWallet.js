@@ -707,16 +707,18 @@ export function WalletProvider({ children }) {
            updateBalance(token, -parsedAmountVal);
            if (txType === 'Bridge') updateBalance(token === 'ETH' ? 'RIALO' : 'ETH', parsedAmountVal);
          }
-         addTransaction({ type: txType, amount: displayAmount, details: 'AI Strategy (Credits)', txHash: null, source: 'AI Agent' });
-         return { hash: null, detail: displayAmount };
+         const simulatedHash = 'simulated_' + Date.now();
+         addTransaction({ type: txType, amount: displayAmount, details: 'AI Strategy (Credits)', txHash: simulatedHash, source: 'AI Agent' });
+         return { hash: simulatedHash, detail: displayAmount };
       }
 
       if (!signer && isAuto) {
         if (txType === 'Swap' && parsedFromToken && parsedToToken && parsedAmountVal) {
           updateBalances({ [parsedFromToken]: -parsedAmountVal, [parsedToToken]: parsedAmountOut });
         }
-        addTransaction({ type: txType, amount: displayAmount, details: `AI Strategy Execution (Sim)`, txHash: null, source: 'AI Agent' });
-        return { hash: null, detail: displayAmount };
+        const simulatedHash = 'simulated_' + Date.now();
+        addTransaction({ type: txType, amount: displayAmount, details: `AI Strategy Execution (Sim)`, txHash: simulatedHash, source: 'AI Agent' });
+        return { hash: simulatedHash, detail: displayAmount };
       } else if (!signer) {
         signer = await provider.getSigner();
         isOnChain = true;
@@ -823,7 +825,7 @@ export function WalletProvider({ children }) {
 
         return { hash: tx.hash, detail: displayAmount };
       }
-      return { hash: null, detail: displayAmount };
+      return { hash: 'simulated_' + Date.now(), detail: displayAmount };
     } catch (err) { throw err; }
   }, [address, provider, addTransaction, updateBalances, aiPrivateKey, globalRates, updateBalance, addAiMessage]);
 

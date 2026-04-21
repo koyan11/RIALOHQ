@@ -81,14 +81,14 @@ export default function GlobalToast() {
           text-underline-offset: 4px;
           text-transform: uppercase;
           letter-spacing: 0.05em;
-          margin-top: 2px;
+          margin-top: 6px;
           display: flex;
           align-items: center;
           gap: 4px;
-          opacity: 0.6;
+          opacity: 0.9;
           transition: opacity 0.2s;
         }
-        .explorer-link:hover { opacity: 1; }
+        .explorer-link:hover { opacity: 1; text-decoration: none; }
 
         .toast-close {
           background: none;
