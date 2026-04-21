@@ -833,26 +833,39 @@ export function WalletProvider({ children }) {
   useEffect(() => {
     if (scheduledTxs.length === 0) return;
     const interval = setInterval(() => {
-      setScheduledTxs(prev => {
-        const next = [];
-        prev.forEach(tx => {
-          if (tx.remainingSec <= 1) {
-            // Pass stored gasType so credit-based scheduled txs are handled correctly
-            executeAiTransaction(tx.type, tx.userMsg, tx.detail, true, tx.gasType || 'ETH').then(res => {
+      // 1. Identify tasks that reached execution time
+      const readyToExecute = scheduledTxs.filter(tx => tx.remainingSec <= 1);
+      
+      if (readyToExecute.length > 0) {
+        // 2. Remove them from state FIRST
+        setScheduledTxs(prev => prev.filter(tx => tx.remainingSec > 1));
+        
+        // 3. Execute them sequentially
+        readyToExecute.forEach(tx => {
+          executeAiTransaction(tx.type, tx.userMsg, tx.detail, true, tx.gasType || 'ETH')
+            .then(res => {
               showToast({ 
                 message: "Blockchain operation successful!", 
                 detail: `${tx.type}: ${res.detail || tx.detail}`,
                 txHash: res.hash
               });
-            }).catch(err => {
-              showToast({ message: `Auto ${tx.type} failed`, detail: err.message, type: 'error' });
+            })
+            .catch(err => {
+              // Extract the most readable error message
+              const errorDetail = err.reason || err.message || "Unknown error";
+              showToast({ 
+                message: `Auto ${tx.type} failed`, 
+                detail: errorDetail, 
+                type: 'error' 
+              });
             });
-          } else {
-            next.push({ ...tx, remainingSec: tx.remainingSec - 1 });
-          }
         });
-        return next;
-      });
+      } else {
+        // Just tick the countdown for others
+        setScheduledTxs(prev => 
+          prev.map(tx => ({ ...tx, remainingSec: Math.max(0, tx.remainingSec - 1) }))
+        );
+      }
     }, 1000);
     return () => clearInterval(interval);
   }, [scheduledTxs, executeAiTransaction, showToast]);
