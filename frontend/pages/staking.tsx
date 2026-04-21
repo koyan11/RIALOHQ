@@ -591,7 +591,7 @@ export default function Home() {
                               <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-300 font-label">RLO Amount</span>
                               <span className="text-[10px] font-medium text-slate-300 uppercase tracking-wider">Balance: {parseFloat(rloBal || '0').toLocaleString('en-US')}</span>
                             </div>
-                            <div className="flex flex-col xl:flex-row xl:items-start justify-between gap-3">
+                            <div className="flex items-center justify-between gap-3">
                               <div className="w-full">
                                 <input
                                   type="number"
@@ -626,7 +626,7 @@ export default function Home() {
                               <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-300 font-label">ETH Amount</span>
                               <span className="text-[10px] font-medium text-slate-300 uppercase tracking-wider">Balance: {walletBalances['ETH']?.toFixed(2) || '0.00'}</span>
                             </div>
-                            <div className="flex flex-col xl:flex-row xl:items-start justify-between gap-3">
+                            <div className="flex items-center justify-between gap-3">
                               <div className="w-full">
                                 <input
                                   type="number"
@@ -754,7 +754,7 @@ export default function Home() {
                           ) : payoutType === 'rwa' ? (
                             "Stake & Claim Upfront Yield"
                           ) : (
-                            "Bridge Assets to Staking"
+                            "Staking"
                           )}
                         </button>
                       </div>
@@ -763,8 +763,16 @@ export default function Home() {
                         <div className="flex justify-between items-start text-white/80">
                           <span className="text-slate-300 font-medium">You will receive</span>
                           <div className="flex flex-col items-end gap-1">
-                            {assetType !== 'solo_eth' && <span className="font-semibold text-[14px] bg-[#111111] px-2 py-0.5 rounded border border-white/10">{numRlo.toLocaleString('en-US')} stRLO</span>}
-                            {assetType !== 'solo_rlo' && <span className="font-semibold text-[14px] text-white bg-white/10 px-2 py-0.5 rounded border border-white/20">{numEth.toLocaleString('en-US')} stETH</span>}
+                            {assetType !== 'solo_eth' && (
+                              <span className="font-semibold text-[14px] bg-[#111111] px-2 py-0.5 rounded border border-white/10 flex items-baseline gap-1">
+                                {numRlo.toLocaleString('en-US')} <span className="text-[10px] opacity-40">stRLO</span>
+                              </span>
+                            )}
+                            {assetType !== 'solo_rlo' && (
+                              <span className="font-semibold text-[14px] text-white bg-white/10 px-2 py-0.5 rounded border border-white/20 flex items-baseline gap-1">
+                                {numEth.toLocaleString('en-US')} <span className="text-[10px] opacity-40">stETH</span>
+                              </span>
+                            )}
                           </div>
                         </div>
                         <div className="flex justify-between items-center text-white/80">
@@ -809,8 +817,8 @@ export default function Home() {
                             <Info className="w-3.5 h-3.5 ml-1.5 text-white/40 group-hover:text-white/60 transition-colors" />
                           </span>
                           <div className="flex flex-col items-end">
-                            <span className="font-bold text-white tracking-wide drop-shadow-sm">
-                              {rawYieldToServiceCredits.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} <span className="text-white/60 text-xs ml-0.5">Credits</span>
+                            <span className="font-bold text-white tracking-wide drop-shadow-sm flex items-baseline gap-1">
+                              {rawYieldToServiceCredits.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} <span className="text-white/60 text-xs">Credits</span>
                             </span>
                             {lockDuration === 0 ? (
                               <span className="text-amber-400/60 text-[10px] mt-0.5">(Accrued Daily \u00B7 Flexible)</span>
@@ -973,8 +981,9 @@ export default function Home() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-10 relative z-10">
                 <div className="flex flex-col">
                   <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/30 font-label mb-3">Total Portfolio Value</span>
-                  <div className="text-5xl md:text-6xl font-headline font-extrabold text-white tracking-tighter">
+                  <div className="text-5xl md:text-6xl font-headline font-extrabold text-white tracking-tighter flex items-baseline gap-2">
                     ${remainingPortfolio.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    <span className="text-xl md:text-2xl text-white/20 font-bold">USD</span>
                   </div>
                 </div>
 

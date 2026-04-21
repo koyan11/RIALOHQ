@@ -83,19 +83,18 @@ return (
                   { symbol: 'USDT', label: 'Tether USD', color: 'bg-[#26A17B]', icon: 'monetization_on' },
               ].map((token, i) => (
                   <div key={token.symbol} className="bg-[#0c0c0c] text-white rounded-3xl p-8 border border-white/5 shadow-[0_20px_50px_rgba(0,0,0,0.1)] relative overflow-hidden group hover:bg-[#111111] hover:border-white/10 transition-all duration-500 flex flex-col justify-between h-[230px] animate-in fade-in slide-in-from-bottom-4" style={{ animationDelay: `${i * 100}ms` }}>
-                      <div className="relative z-10 flex justify-between items-start">
-                          <div>
-                              <span className="font-label text-[10px] text-white/40 uppercase tracking-[0.2em] font-bold mb-3 block">{token.label}</span>
-                              <h2 className="font-headline text-4xl font-extrabold text-white leading-none tracking-tighter">
-                                  {isConnected ? (displayBalances[token.symbol] || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0.00'}
-                              </h2>
-                          </div>
+                      <div className="relative z-10 flex flex-col gap-1">
+                        <div className="flex items-baseline gap-2">
+                          <h2 className="font-headline text-4xl font-extrabold text-white leading-none tracking-tighter">
+                            {isConnected ? (displayBalances[token.symbol] || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0.00'}
+                          </h2>
+                          <span className="text-white/30 text-[10px] font-bold uppercase tracking-widest">{token.symbol}</span>
+                        </div>
                       </div>
                       <div className="relative z-10 flex items-center gap-3">
                         <div className="w-10 h-10 rounded-xl bg-[#161616] border border-white/10 flex items-center justify-center group-hover:bg-white group-hover:text-black transition-all duration-300">
-                            <span className="material-symbols-outlined text-[18px] text-white/70 group-hover:text-black transition-colors">{token.icon}</span>
+                          <span className="material-symbols-outlined text-[18px] text-white/70 group-hover:text-black transition-colors">{token.icon}</span>
                         </div>
-                        <p className="text-white/30 text-[10px] font-bold uppercase tracking-widest">{token.symbol}</p>
                       </div>
                       <div className={`absolute -right-4 -bottom-4 w-32 h-32 ${token.color}/20 rounded-full blur-[40px] group-hover:${token.color}/30 transition-all duration-700`}></div>
                   </div>
@@ -168,8 +167,9 @@ return (
                          </div>
                          <span className="text-[10px] text-white/40 mt-1 font-medium">{new Date(tx.timestamp).toLocaleString()}</span>
                       </div>
-                      <div className="text-right">
+                      <div className="text-right flex items-baseline justify-end gap-2">
                         <span className="text-base font-bold text-white tracking-tighter">{tx.amount}</span>
+                        <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest">RIALO</span>
                       </div>
                       <div className="text-right">
                         {shortHash ? (

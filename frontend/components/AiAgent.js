@@ -35,6 +35,18 @@ export default function AiAgent() {
     scrollToBottom();
   }, [messages, scheduledTxs.map(tx => tx.id).join(',')]); 
 
+  // Reset fromToken/toToken if they become invalid for the current action type
+  useEffect(() => {
+    if ((schedData.type === 'Bridge' || schedData.type === 'Stake')) {
+      if (schedData.fromToken === 'USDC' || schedData.fromToken === 'USDT') {
+        setSchedData(prev => ({ ...prev, fromToken: 'RIALO' }));
+      }
+      if (schedData.toToken === 'USDC' || schedData.toToken === 'USDT') {
+        setSchedData(prev => ({ ...prev, toToken: 'ETH' }));
+      }
+    }
+  }, [schedData.type, schedData.fromToken, schedData.toToken]);
+
   // Persistence: Credits are managed globally via useWallet
 
   // PERSISTENT BALANCE TRACKING
@@ -186,10 +198,10 @@ export default function AiAgent() {
     let cmd = "";
     if (schedData.type === 'Swap') {
       cmd = `swap ${schedData.amount} ${schedData.fromToken} to ${schedData.toToken} in ${schedData.timeVal} ${schedData.timeUnit}`;
-    } else if (schedData.type === 'Bridge') {
-      cmd = `bridge ${schedData.amount} ETH to RIALO in ${schedData.timeVal} ${schedData.timeUnit}`;
+    } else if (schedData.type === 'Stake') {
+      cmd = `stake ${schedData.amount} ${schedData.fromToken} in ${schedData.timeVal} ${schedData.timeUnit} with ${schedData.lockMonths} months lock and ${schedData.sfsFraction}% SFS routing`;
     } else {
-      cmd = `stake ${schedData.amount} ${schedData.fromToken} in ${schedData.timeVal} ${schedData.timeUnit}`;
+      cmd = `bridge ${schedData.amount} ${schedData.fromToken} to ${schedData.toToken} in ${schedData.timeVal} ${schedData.timeUnit}`;
     }
     setInput(cmd);
     setShowSchedulePanel(false);
@@ -316,9 +328,9 @@ export default function AiAgent() {
                         value={schedData.type}
                         onChange={e => setSchedData({...schedData, type: e.target.value})}
                       >
-                        <option>Swap</option>
-                        <option>Bridge</option>
-                        <option>Stake</option>
+                        <option value="Swap">Swap</option>
+                        <option value="Bridge">Bridge</option>
+                        <option value="Stake">Stake</option>
                       </select>
                     </div>
                     <div className="ai-sched-field">
@@ -330,22 +342,29 @@ export default function AiAgent() {
                         onChange={e => setSchedData({...schedData, amount: e.target.value})}
                       />
                     </div>
-                    {schedData.type !== 'Bridge' && (
-                      <div className="ai-sched-field">
-                        <label className="ai-sched-label">Token</label>
-                        <select 
-                          className="ai-sched-select"
-                          value={schedData.fromToken}
-                          onChange={e => setSchedData({...schedData, fromToken: e.target.value})}
-                        >
-                          <option>RIALO</option>
-                          <option>USDC</option>
-                          <option>USDT</option>
-                          <option>ETH</option>
-                        </select>
-                      </div>
-                    )}
-                    {schedData.type === 'Swap' && (
+                    <div className="ai-sched-field">
+                      <label className="ai-sched-label">Token</label>
+                      <select 
+                        className="ai-sched-select"
+                        value={schedData.fromToken}
+                        onChange={e => setSchedData({...schedData, fromToken: e.target.value})}
+                      >
+                        {schedData.type === 'Swap' ? (
+                          <>
+                            <option value="RIALO">RIALO</option>
+                            <option value="USDC">USDC</option>
+                            <option value="USDT">USDT</option>
+                            <option value="ETH">ETH</option>
+                          </>
+                        ) : (
+                          <>
+                            <option value="RIALO">RIALO</option>
+                            <option value="ETH">ETH</option>
+                          </>
+                        )}
+                      </select>
+                    </div>
+                    {(schedData.type === 'Swap' || schedData.type === 'Bridge' || schedData.type === 'Stake') && (
                       <div className="ai-sched-field">
                         <label className="ai-sched-label">To Token</label>
                         <select 
@@ -353,10 +372,19 @@ export default function AiAgent() {
                           value={schedData.toToken}
                           onChange={e => setSchedData({...schedData, toToken: e.target.value})}
                         >
-                          <option>RIALO</option>
-                          <option>ETH</option>
-                          <option>USDC</option>
-                          <option>USDT</option>
+                          {(schedData.type === 'Bridge' || schedData.type === 'Stake') ? (
+                            <>
+                              <option value="RIALO">RIALO</option>
+                              <option value="ETH">ETH</option>
+                            </>
+                          ) : (
+                            <>
+                              <option value="RIALO">RIALO</option>
+                              <option value="ETH">ETH</option>
+                              <option value="USDC">USDC</option>
+                              <option value="USDT">USDT</option>
+                            </>
+                          )}
                         </select>
                       </div>
                     )}

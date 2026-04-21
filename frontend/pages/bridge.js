@@ -214,9 +214,12 @@ export default function BridgePage() {
                   <span className="text-[10px] text-white/20 tracking-wider font-bold uppercase mt-1">Destination Chain</span>
                 </div>
               </div>
-              <div className="text-right">
-                <span className="text-3xl font-headline font-extrabold text-white/10">
+              <div className="text-right flex items-baseline justify-end gap-2">
+                <span className="text-3xl font-headline font-extrabold text-white/20">
                   {receiveAmount}
+                </span>
+                <span className="text-xs font-bold text-white/10 tracking-widest uppercase">
+                  {isDeposit ? 'RIALO L1' : 'ETH'}
                 </span>
               </div>
             </div>
