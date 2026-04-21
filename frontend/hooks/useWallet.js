@@ -99,7 +99,6 @@ export function WalletProvider({ children }) {
   const [lockEnd, setLockEnd] = useState(0);
   const [lockStart, setLockStart] = useState(0);
   const [stakingPositions, setStakingPositions] = useState([]);
-  const [aiAccessExpiry, setAiAccessExpiry] = useState(0);
   const creditsInitializedForAddress = useRef(null);
   
   // Track last manual update per token to prevent immediate contract sync overwrites in demo
@@ -161,7 +160,6 @@ export function WalletProvider({ children }) {
         setStakedEthBalance(savedStakedEth);
         setLockEnd(parseInt(localStorage.getItem(`rialo_lock_end_${address}`) || '0'));
         setLockStart(parseInt(localStorage.getItem(`rialo_lock_start_${address}`) || '0'));
-        setAiAccessExpiry(parseInt(localStorage.getItem(`rialo_ai_access_expiry_${address}`) || '0'));
         
         const savedPositions = localStorage.getItem(`rialo_staking_positions_${address}`);
         if (savedPositions) {
@@ -206,7 +204,7 @@ export function WalletProvider({ children }) {
       setStakedEthBalance('0');
       setLockEnd(0);
       setLockStart(0);
-      setAiAccessExpiry(0);
+      setLockStart(0);
       setStakingPositions([]);
       setTickingRewards(0);
       creditsInitializedForAddress.current = null;
@@ -278,7 +276,7 @@ export function WalletProvider({ children }) {
       localStorage.setItem(`rialo_staked_eth_${address}`, stakedEthBalance);
       if (lockEnd > 0) localStorage.setItem(`rialo_lock_end_${address}`, lockEnd.toString());
       if (lockStart > 0) localStorage.setItem(`rialo_lock_start_${address}`, lockStart.toString());
-      localStorage.setItem(`rialo_ai_access_expiry_${address}`, aiAccessExpiry.toString());
+      if (lockStart > 0) localStorage.setItem(`rialo_lock_start_${address}`, lockStart.toString());
       localStorage.setItem(`rialo_staking_positions_${address}`, JSON.stringify(stakingPositions));
     }
     // Note: aiPrivateKey is no longer persisted as we moved to ephemeral Session Keys
@@ -665,15 +663,21 @@ export function WalletProvider({ children }) {
       }
 
       // Handling Credit Gas Logic
+      // NOTE: When isAuto === true (scheduled tx or trigger order firing), credits were already
+      // charged upfront at scheduling time (5 chat + 5 automation = 10 total). We only deduct
+      // the extra 5 here for direct, user-initiated credit-gas actions (isAuto === false).
       let paidWithCredits = false;
       if (gasType === 'CREDIT') {
-         const creditCost = 5; // 5 Credits per AI action
-         const currentCredits = parseFloat(localStorage.getItem(`rialo_credits_${address}`) || '0');
-         if (currentCredits < creditCost) {
-            throw new Error(`Insufficient Service Credits. Required: ${creditCost} Credits, Available: ${Math.floor(currentCredits)} Credits`);
+         if (!isAuto) {
+           // Only deduct if NOT an automated event — avoids double-charging the 10-credit fee
+           const creditCost = 5; // 5 Credits per direct AI action
+           const currentCredits = parseFloat(localStorage.getItem(`rialo_credits_${address}`) || '0');
+           if (currentCredits < creditCost) {
+              throw new Error(`Insufficient Service Credits. Required: ${creditCost} Credits, Available: ${Math.floor(currentCredits)} Credits`);
+           }
+           await deductCredits(creditCost);
          }
-         await deductCredits(creditCost);
-         paidWithCredits = true;
+         paidWithCredits = true; // Always mark for correct tx labelling
          // Do NOT return early. Continue to attempt on-chain signal if possible.
       }
 
@@ -1005,28 +1009,9 @@ export function WalletProvider({ children }) {
   const purchaseAiAccess = useCallback(async () => {
     if (!address) throw new Error('Wallet not connected');
     const cost = 5;
-    if (tickingCredits < cost) {
-      throw new Error(`Insufficient credits. Required: ${cost} ϕ, Available: ${tickingCredits.toFixed(2)} ϕ`);
-    }
-
-    await deductCredits(cost);
-    const duration = 7 * 24 * 60 * 60 * 1000;
-    const now = Date.now();
-    const currentExpiry = aiAccessExpiry > now ? aiAccessExpiry : now;
-    const nextExpiry = currentExpiry + duration;
-
-    setAiAccessExpiry(nextExpiry);
-    localStorage.setItem(`rialo_ai_access_expiry_${address}`, nextExpiry.toString());
-
-    addTransaction({ 
-      type: 'AI Access', 
-      amount: '5 ϕ', 
-      details: '7-Day AI Assistant Unlock', 
-      txHash: null 
-    });
-
-    return nextExpiry;
-  }, [address, tickingCredits, aiAccessExpiry, deductCredits, addTransaction]);
+    // Deprecated for Pay-per-Chat
+    return true;
+  }, []);
 
   return (
     <WalletContext.Provider
@@ -1053,8 +1038,7 @@ export function WalletProvider({ children }) {
         stakedBalance, setStakedBalance, stakedEthBalance, setStakedEthBalance, 
         tickingRewards, setTickingRewards, rewardRate, setRewardRate, totalStaked, setTotalStaked,
         lockEnd, setLockEnd, lockStart, setLockStart,
-        stakingPositions, setStakingPositions,
-        aiAccessExpiry, purchaseAiAccess
+        stakingPositions, setStakingPositions
       }}
     >
       {children}

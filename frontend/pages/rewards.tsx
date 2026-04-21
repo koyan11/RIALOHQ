@@ -290,6 +290,31 @@ export default function Rewards() {
 
           </div>
 
+          {/* RWA Banner Section */}
+          <div className="mt-12">
+            <div className="bg-[#0c0c0c] rounded-2xl p-8 shadow-2xl border border-white/5 relative overflow-hidden group text-white">
+              <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full -mr-32 -mt-32 blur-[100px] opacity-50"></div>
+              
+              <div className="flex flex-col md:flex-row items-center justify-between gap-8 relative z-10">
+                <div className="space-y-4 text-center md:text-left">
+                  <h2 className="text-3xl font-headline font-extrabold tracking-tighter text-white">
+                    RWA Hub 🌍
+                  </h2>
+                  <p className="text-white/40 text-sm font-medium max-w-md">
+                    Diversify your yield into Real-World Assets with institutional-grade stability. Automatically route your stRLO yield to Treasury Bills, Gold, or Real Estate.
+                  </p>
+                </div>
+                
+                <button 
+                  onClick={() => router.push('/staking')}
+                  className="bg-white text-black px-10 py-4 rounded-xl font-headline font-extrabold text-sm tracking-tight hover:bg-white/90 active:scale-[0.98] transition-all shadow-2xl"
+                >
+                  Explore RWA
+                </button>
+              </div>
+            </div>
+          </div>
+
           {/* Bottom Section: Yield Breakdown Table */}
           <div className="mt-12 bg-[#0c0c0c] rounded-2xl border border-white/10 overflow-hidden text-white">
             <div className="p-8 border-b border-white/5">

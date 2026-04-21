@@ -445,6 +445,10 @@ export default function Home() {
   const availableServiceCredits = Math.max(0, rawYieldToServiceCredits);
   const estimatedRwaYieldUsd = payoutType === 'rwa' ? yieldToWallet : 0;
 
+  // Aggregate History Totals
+  const totalStakedRloValue = stakingHistory.reduce((sum, pos) => sum + pos.amountRlo, 0);
+  const totalStakedEthValue = stakingHistory.reduce((sum, pos) => sum + pos.amountEth, 0);
+
   const [allocationPercent, setAllocationPercent] = useState<number>(100);
   const [remainingPortfolio, setRemainingPortfolio] = useState<number>(0);
 
@@ -516,27 +520,18 @@ export default function Home() {
 
       <Navbar />
 
-      <div className="max-w-7xl mx-auto flex-grow w-full mt-10 md:mt-16 px-4 mb-24">
+      <div className="max-w-4xl mx-auto flex-grow w-full mt-10 md:mt-16 px-4 mb-24">
         {activeView === 'stake' ? (
           <>
-            {/* Main Grid: 2 Columns for headers and cards */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-8 gap-y-0 lg:gap-y-0 items-stretch">
+            {/* Centered Header */}
+            <div className="text-center mb-12 animate-in fade-in slide-in-from-bottom-2 duration-300 delay-100">
+              <h1 className="text-5xl font-headline font-extrabold mb-4 tracking-tighter text-slate-900">Stake Assets</h1>
+              <p className="text-slate-500 max-w-xl mx-auto font-medium">Stake RLO or ETH to mint yield-bearing assets and auto-generate credits for a completely gasless experience.</p>
+            </div>
 
-              {/* Header 1 (Stake Assets) */}
-              <div className="lg:col-start-1 lg:row-start-1 text-center mb-6 lg:mb-12 min-h-[auto] lg:min-h-[120px] flex flex-col justify-center animate-in fade-in slide-in-from-bottom-2 duration-300 delay-100">
-                <h1 className="text-5xl font-headline font-extrabold mb-4 tracking-tighter text-slate-900">Stake Assets</h1>
-                <p className="text-slate-500 max-w-xl mx-auto font-medium">Stake RLO or ETH to mint yield-bearing assets and auto-generate credits for a completely gasless experience.</p>
-              </div>
-
-              {/* Header 2 (Paymaster) */}
-              <div className="lg:col-start-2 lg:row-start-1 text-center mb-6 lg:mb-12 min-h-[auto] lg:min-h-[120px] flex flex-col justify-center animate-in fade-in slide-in-from-bottom-2 duration-300 delay-200">
-                <h1 className="text-5xl font-headline font-extrabold mb-4 tracking-tighter text-slate-900">Paymaster</h1>
-                <p className="text-slate-500 max-w-xl mx-auto font-medium">Power your on-chain experience with automated gas routing and AI credits.</p>
-              </div>
-
-              {/* Card 1 (Stake Assets Card) */}
-              <div className="lg:col-start-1 lg:row-start-2 flex flex-col animate-in fade-in slide-in-from-bottom-2 duration-300 delay-150 mb-12 lg:mb-0">
-                <div className="bg-[#0c0c0c] rounded-2xl p-5 md:p-6 shadow-2xl border border-white/5 relative overflow-hidden group/card transition-all duration-500 h-full flex flex-col text-white">
+            {/* Main Staking Card */}
+            <div className="animate-in fade-in slide-in-from-bottom-2 duration-300 delay-150">
+              <div className="bg-[#0c0c0c] rounded-2xl p-5 md:p-6 shadow-2xl border border-white/5 relative overflow-hidden group/card transition-all duration-500 h-full flex flex-col text-white">
                   <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -mr-16 -mt-16 blur-3xl opacity-50"></div>
                   <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-white/20 via-white/10 to-transparent opacity-90"></div>
 
@@ -837,6 +832,17 @@ export default function Home() {
                           <h3 className="text-white font-headline font-extrabold text-xl tracking-tight">Active Positions</h3>
                           <p className="text-white/40 text-[11px] font-medium uppercase tracking-widest mt-1">Staking History</p>
                         </div>
+
+                        <div className="flex flex-col items-end mr-4">
+                          <div className="flex items-baseline gap-1.5 leading-none">
+                            <span className="text-white font-headline font-extrabold text-lg">{totalStakedRloValue.toLocaleString()}</span>
+                            <span className="text-[10px] text-white/30 font-bold uppercase tracking-widest">RLO</span>
+                          </div>
+                          <div className="flex items-baseline gap-1.5 mt-1 leading-none">
+                            <span className="text-white font-headline font-extrabold text-lg">{totalStakedEthValue.toLocaleString(undefined, { minimumFractionDigits: 3 })}</span>
+                            <span className="text-[10px] text-white/30 font-bold uppercase tracking-widest">ETH</span>
+                          </div>
+                        </div>
                         <button
                           onClick={() => fetchStakingData()}
                           className="p-2.5 rounded-xl bg-white/5 border border-white/5 text-white/40 hover:text-white transition-all"
@@ -877,11 +883,11 @@ export default function Home() {
                                 <div className="flex justify-between items-start mb-4 relative z-10">
                                   <div className="flex flex-col gap-1">
                                     <div className="flex items-center gap-2">
-                                      <span className="text-[10px] font-extrabold uppercase tracking-widest text-primary/80 bg-primary/10 px-2 py-0.5 rounded border border-primary/20">
+                                      <span className="text-[9px] font-extrabold uppercase tracking-widest text-primary/80 bg-primary/10 px-1.5 py-0.5 rounded border border-primary/20">
                                         {pos.assetType === 'pair' ? 'LP PAIR' : pos.assetType.replace('solo_', '').toUpperCase()}
                                       </span>
                                       {isMature && (
-                                        <span className="text-[10px] font-extrabold uppercase tracking-widest text-emerald-400 bg-emerald-400/10 px-2 py-0.5 rounded border border-emerald-400/20 animate-bounce">
+                                        <span className="text-[9px] font-extrabold uppercase tracking-widest text-emerald-400 bg-emerald-400/10 px-1.5 py-0.5 rounded border border-emerald-400/20 animate-bounce">
                                           Mature
                                         </span>
                                       )}
@@ -948,113 +954,7 @@ export default function Home() {
                   )}
                 </div>
               </div>
-
-              {/* Card 2 (Paymaster Card) */}
-              <div className="lg:col-start-2 lg:row-start-2 flex flex-col h-full animate-in fade-in slide-in-from-bottom-2 duration-300 delay-250">
-                <div className="bg-[#0c0c0c] rounded-2xl p-5 md:p-6 shadow-2xl border border-white/5 relative overflow-hidden group transition-all duration-500 h-full flex flex-col text-white">
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -mr-16 -mt-16 blur-3xl opacity-50"></div>
-
-                  <div className="bg-[#161616] rounded-2xl p-6 border border-white/5 flex flex-col items-center shadow-inner w-full text-center relative overflow-hidden shrink-0 mb-6">
-                    <h3 className="text-white/30 text-[10px] font-bold uppercase tracking-[0.2em] font-label mb-4 flex items-center gap-1.5">
-                      Available Service Credits
-                    </h3>
-                    <div className="text-[3.5rem] md:text-[4.5rem] font-headline font-extrabold text-white leading-none mb-2 z-10 tracking-tighter">
-                      {rawYieldToServiceCredits.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                    </div>
-                    <span className="text-white/20 font-bold tracking-[0.3em] uppercase text-[10px] mt-2 z-10 font-label">Credits</span>
-
-                    <div className="absolute -right-6 -bottom-6 w-32 h-32 bg-gradient-to-br from-white/20/10 to-transparent/5 rounded-full flex items-center justify-center border border-white/20 shadow-[0_0_20px_rgba(249,115,22,0.1)] transform rotate-12 transition-transform duration-500 group-hover/card:rotate-0 group-hover/card:scale-110 opacity-70 pointer-events-none">
-                      <Droplet className="w-14 h-14 text-white fill-white/20" />
-                    </div>
-                  </div>
-
-                  {/* Paymaster Fee Schedule */}
-                  <div className="mt-8 flex-1 flex flex-col">
-                    <h3 className="text-slate-300 text-[10px] font-bold uppercase tracking-[0.2em] font-label mb-4 flex items-center gap-2">
-                      Paymaster Fee Schedule
-                    </h3>
-
-                    <div className="space-y-0 bg-[#161616] rounded-2xl border border-white/5 shadow-inner flex flex-col">
-
-                      <div className="flex items-center justify-between text-sm p-5 border-b border-white/5">
-                        <span className="text-slate-300 font-medium">AI Chat (per message)</span>
-                        <span className="font-headline font-bold text-white text-[11px]">5 Credits</span>
-                      </div>
-                      <div className="flex items-center justify-between text-sm p-5 border-b border-white/5">
-                        <span className="text-slate-300 font-medium">AI Access Unlock</span>
-                        <span className="font-headline font-bold text-white text-[11px]">5 Credits / 7 days</span>
-                      </div>
-                      <div className="flex items-center justify-between text-sm p-5">
-                        <span className="text-slate-300 font-medium">Rate: 1 USDT</span>
-                        <span className="font-headline font-bold text-emerald-400 text-[11px]">= 1,000 Credits</span>
-                      </div>
-                    </div>
-
-                    <div className="mt-auto pt-8 w-full">
-                      <button
-                        onClick={handleConfigureAI}
-                        className={`w-full py-4 border rounded-xl font-bold text-[10px] uppercase tracking-widest transition-all shadow-sm ${sessionActive ? 'bg-green-500/10 border-green-500/50 text-green-500' : 'bg-[#1a1a1a] hover:bg-[#222] border-white/10 text-white/40 hover:text-white'}`}
-                      >
-                        {sessionActive ? 'AI Session Active \u2713' : 'Configure AI Agent'}
-                      </button>
-
-                      {/* Debug: Simulate 30 Days (Sepolia Testing) */}
-                      {isConnected && (stakingHistory.length > 0) && (
-                        <button
-                          onClick={() => {
-                             const past = Date.now() - (31 * 24 * 60 * 60 * 1000);
-                             // Update legacy fallback
-                             localStorage.setItem(`rialo_lock_end_${address}`, past.toString());
-                             
-                             // Update all history positions
-                             const newHistory = stakingHistory.map(p => ({ ...p, lockEnd: past }));
-                             setStakingHistory(newHistory);
-                             if (address) localStorage.setItem(`rialo_staking_history_${address}`, JSON.stringify(newHistory));
-
-                             setToast({ message: "Time Simulation: 31 Days Passed", detail: "All positions mature. You can now unstake and collect yield.", type: 'success', txHash: null });
-                             fetchStakingData();
-                          }}
-                          className="w-full py-4 mt-2 border border-dashed border-white/5 rounded-xl text-[9px] uppercase tracking-[0.2em] text-white/20 hover:text-white/40 transition-all font-bold"
-                        >
-                          Simulate Maturity (All Positions Under 30 Days)
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                {/* RWA Banner Section inside Column */}
-                <div className="mt-6 flex-grow">
-                  <div className="bg-[#0c0c0c] rounded-2xl p-6 shadow-2xl border border-white/5 relative overflow-hidden group text-white h-full flex flex-col justify-center">
-                    <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full -mr-32 -mt-32 blur-[100px] opacity-50"></div>
-
-                    <div className="flex flex-col items-center gap-6 w-full relative z-10">
-                      <div className="space-y-3 text-center">
-                        <h2 className="text-2xl font-headline font-extrabold tracking-tighter text-white leading-tight">
-                          RWA Hub \uD83C\uDF0D
-                        </h2>
-                        <p className="text-white/40 text-xs font-medium max-w-sm mx-auto">
-                          Diversify your yield into Real-World Assets with institutional-grade stability.
-                        </p>
-                      </div>
-
-                      <div className="w-full">
-                        <button
-                          onClick={handleExploreRwa}
-                          disabled={isExploringRwa}
-                          className="w-full bg-white text-black py-4 rounded-xl font-headline font-extrabold text-sm tracking-tight hover:bg-white/90 active:scale-[0.98] transition-all shadow-2xl disabled:opacity-50"
-                        >
-                          {isExploringRwa ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : "Explore RWA"}
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-
-          </>
+            </>
         ) : (
           <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
             {/* Header Section */}
@@ -1124,7 +1024,7 @@ export default function Home() {
                           )}
                         </h3>
                         <div className="flex items-center gap-4 mt-1">
-                          <span className="text-slate-300 font-bold text-[10px] uppercase tracking-wider bg-white/5 px-2 py-0.5 rounded">{vault.apy} APY</span>
+                          <span className="text-slate-300 font-bold text-[9px] uppercase tracking-wider bg-white/5 px-1.5 py-0.5 rounded">{vault.apy} APY</span>
                           <span className="text-slate-300 text-[10px] font-bold uppercase tracking-widest">{vault.risk} Risk</span>
                         </div>
                       </div>

@@ -5,7 +5,7 @@ import { ethers } from 'ethers';
 
 
 export default function AiAgent() {
-  const { isConnected, address, balances, transactions, provider, executeAiTransaction, addTriggerOrder, globalRates, scheduledTxs, addScheduledTx, removeScheduledTx, toast, showToast, sessionActive, sessionExpiry, sessionSigner, activateSession, deactivateSession, seedSession, withdrawSessionBalance, aiMessages: messages, addAiMessage, tickingCredits, deductCredits, aiAccessExpiry, purchaseAiAccess } = useWallet();
+  const { isConnected, address, balances, transactions, provider, executeAiTransaction, addTriggerOrder, globalRates, scheduledTxs, addScheduledTx, removeScheduledTx, toast, showToast, sessionActive, sessionExpiry, sessionSigner, activateSession, deactivateSession, seedSession, withdrawSessionBalance, aiMessages: messages, addAiMessage, tickingCredits, deductCredits } = useWallet();
   const { stakedBalance, stakedEthBalance } = useStaking();
   const [input, setInput] = useState('');
   const [isThinking, setIsThinking] = useState(false);
@@ -25,8 +25,6 @@ export default function AiAgent() {
     timeUnit: 'minutes'
   });
   const [loading, setLoading] = useState(false);
-  const [isUnlocking, setIsUnlocking] = useState(false);
-  const [accessTimeLeft, setAccessTimeLeft] = useState('');
   const messagesEndRef = useRef(null);
 
   const scrollToBottom = () => {
@@ -37,34 +35,7 @@ export default function AiAgent() {
     scrollToBottom();
   }, [messages, scheduledTxs.map(tx => tx.id).join(',')]); 
 
-  // Access Countdown Logic
-  useEffect(() => {
-    if (!aiAccessExpiry || aiAccessExpiry <= Date.now()) {
-      setAccessTimeLeft('');
-      return;
-    }
-
-    const update = () => {
-      const diff = aiAccessExpiry - Date.now();
-      if (diff <= 0) {
-        setAccessTimeLeft('');
-        return;
-      }
-      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-      const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-      const secs = Math.floor((diff % (1000 * 60)) / 1000);
-      
-      let str = "";
-      if (days > 0) str += `${days}d `;
-      str += `${hours}h ${mins}m`;
-      setAccessTimeLeft(str);
-    };
-
-    update();
-    const timer = setInterval(update, 60000); // Update every minute
-    return () => clearInterval(timer);
-  }, [aiAccessExpiry]);
+  // Persistence: Credits are managed globally via useWallet
 
   // PERSISTENT BALANCE TRACKING
   useEffect(() => {
@@ -87,12 +58,19 @@ export default function AiAgent() {
     e.preventDefault();
     if (!input.trim()) return;
 
-    // --- Credit Check: 5 Credits per interaction ---
-    const CREDITS_PER_CHAT = 5;
-    if (tickingCredits < CREDITS_PER_CHAT) {
+    // --- Credit Check: 5 for chat, 10 for automation ---
+    const CREDITS_CHAT = 5;
+    const CREDITS_AUTO = 10;
+    const lowerInput = input.trim().toLowerCase();
+    const isAutomationIntent = lowerInput.includes('schedule') || lowerInput.includes('at ') || lowerInput.includes('limit');
+    const requiredCredits = isAutomationIntent ? CREDITS_AUTO : CREDITS_CHAT;
+
+    if (tickingCredits < requiredCredits) {
       showToast({ 
         message: "Insufficient Credits", 
-        detail: `You need ${CREDITS_PER_CHAT} Credits per message. Top up by staking more or waiting for next cycle.`,
+        detail: isAutomationIntent 
+          ? `You need at least 10 Credits for Automation strategies.`
+          : `You need at least 5 Credits for AI Chat.`,
         type: 'error'
       });
       return;
@@ -153,9 +131,10 @@ export default function AiAgent() {
             condition: condition,
             expiration: '1 Day'
           });
+          deductCredits(5); // Premium Tariff: Auto Buy/Sell costs 10 total
           showToast({
             message: `Limit Order Placed!`,
-            detail: detail
+            detail: `${detail} (10 Credits total used)`
           });
         } else if (response.action?.includes('Scheduled') || Number(response.delaySec) > 0) {
           // SCHEDULE IT (global — persists on navigation)
@@ -167,9 +146,10 @@ export default function AiAgent() {
             remainingSec: delay,
             gasType: response.gas_type || 'ETH'
           });
+          deductCredits(5); // Premium Tariff: Scheduling costs 10 total
           showToast({
             message: `Scheduled ${type}!`,
-            detail: detail
+            detail: `${detail} (10 Credits total used)`
           });
         } else {
           // EXECUTE ON-CHAIN
@@ -215,18 +195,6 @@ export default function AiAgent() {
     setShowSchedulePanel(false);
   };
 
-  const handleUnlockAi = async () => {
-    setIsUnlocking(true);
-    try {
-      await purchaseAiAccess();
-      showToast({ message: "AI Assistant Unlocked!", detail: "7-day premium access granted." });
-    } catch (e) {
-      showToast({ message: "Unlock Failed", detail: e.message, type: 'error' });
-    } finally {
-      setIsUnlocking(false);
-    }
-  };
-
   return (
     <>
 
@@ -236,12 +204,10 @@ export default function AiAgent() {
             <div className="ai-title">
               <span className="ai-status-dot"></span>
               Rialo AI Assistant
-              {accessTimeLeft && (
-                <div className="ai-access-badge">
-                  <span className="material-symbols-outlined" style={{ fontSize: '10px' }}>timer</span>
-                  {accessTimeLeft}
-                </div>
-              )}
+              <div className="ai-access-badge">
+                <span className="material-symbols-outlined" style={{ fontSize: '10px' }}>account_balance_wallet</span>
+                {tickingCredits.toFixed(2)} Credits
+              </div>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
               <div className={`automation-badge ${sessionActive ? 'active' : ''}`}>
@@ -260,51 +226,7 @@ export default function AiAgent() {
             </div>
           </div>
           
-           {(!aiAccessExpiry || aiAccessExpiry <= Date.now()) ? (
             <div className="ai-body relative">
-              <div className="ai-locked-overlay">
-                <div className="ai-locked-content">
-                  <div className="ai-locked-icon-wrapper">
-                    <span className="material-symbols-outlined ai-locked-icon">lock</span>
-                  </div>
-                  <h3 className="ai-locked-title">AI Assistant Locked</h3>
-                  <p className="ai-locked-text">
-                    Unlock premium AI capabilities for smart transactions, 
-                    yield optimization, and automated strategies.
-                  </p>
-                  
-                  <div className="ai-unlock-pricing">
-                    <div className="pricing-badge">
-                      <span className="pricing-value">5.00 ϕ</span>
-                      <span className="pricing-label">Credits</span>
-                    </div>
-                    <div className="pricing-duration">/ 7 Days Access</div>
-                  </div>
-
-                  <button 
-                    className="ai-unlock-btn"
-                    disabled={isUnlocking}
-                    onClick={handleUnlockAi}
-                  >
-                    {isUnlocking ? (
-                      <span className="flex items-center gap-2">
-                        <span className="animate-spin text-sm">↻</span>
-                        Processing...
-                      </span>
-                    ) : (
-                      "Unlock AI Assistant"
-                    )}
-                  </button>
-                  
-                  <div className="ai-unlock-balance">
-                    Available: {tickingCredits.toFixed(2)} Credits
-                  </div>
-                </div>
-              </div>
-            </div>
-          ) : (
-              <>
-              <div className="ai-body relative">
                 {messages.map((m, i) => (
               <div key={i} className={`ai-msg ${m.role}`}>
                 {m.role === 'user' ? (
@@ -628,7 +550,7 @@ export default function AiAgent() {
               <button onClick={() => setInput("swap 1 ETH to USDC at 2500")} className="ai-command-chip">Auto Buy/Sell</button>
             </div>
               {/* Zero Balance Warning */}
-          {tickingCredits < 5 && aiAccessExpiry > Date.now() && (
+          {tickingCredits < 10 && (
             <div style={{
               background: 'rgba(239,68,68,0.08)',
               border: '1px solid rgba(239,68,68,0.2)',
@@ -640,7 +562,7 @@ export default function AiAgent() {
               fontWeight: '700',
               textAlign: 'center'
             }}>
-              ⚡ {Math.floor(tickingCredits)} Credits remaining · 5 Credits per message<br/>
+              ⚡ {Math.floor(tickingCredits)} Credits remaining · 5 per chat / 10 per automation<br/>
               <span style={{ color: 'rgba(255,255,255,0.4)', fontWeight: '500' }}>Top up by staking more USDT or wait for next cycle</span>
             </div>
           )}
@@ -662,9 +584,7 @@ export default function AiAgent() {
                   >Send</button>
                 </form>
               </div>
-            </>
-          )}
-        </div>
+          </div>
       </div>
     </>
   );
