@@ -9,7 +9,7 @@ export default function Footer() {
           
           <div className="w-full md:w-5/12">
             <Link href="/" className="inline-block mb-4 group">
-              <img src="/rialo-text-logo.png" alt="Rialo Logo" className="h-10 w-auto filter brightness-0 invert opacity-80 group-hover:opacity-100 transition-opacity" />
+              <img src="/Animasi/img.18/un-removebg-preview.png" alt="Rialo Logo" className="h-10 w-auto opacity-80 group-hover:opacity-100 transition-opacity" />
             </Link>
             <p className="font-headline text-[11px] text-white/40 leading-relaxed max-w-sm font-medium">
               © 2026 Rialo. The architectural void of Layer 1. Engineered for scalability, precision, and the future of decentralized value exchange.
