@@ -83,7 +83,7 @@ export function WalletProvider({ children }) {
   const [transactions, setTransactions] = useState([]);
   const [triggerOrders, setTriggerOrders] = useState([]);
   const [scheduledTxs, setScheduledTxs] = useState([]);
-  const [aiMessages, setAiMessages] = useState([{ role: 'ai', content: { raw: "Rialo AI is online. How can I optimize your on-chain operations today?" } }]);
+  const [aiMessages, setAiMessages] = useState([{ role: 'ai', content: { raw: "Welcome! To unlock automated swaps, bridges, and staking, please activate a **Secure Session** by clicking the lock icon (🔓) in the top right. This allows me to execute transactions for you without constant popups!" } }]);
   const [toast, setToast] = useState(null);
 
   // SHARED credits state — single source of truth across all pages

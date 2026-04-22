@@ -173,11 +173,17 @@ export default function AiAgent() {
             detail: `${detail} (10 Credits total used)`
           });
         } else {
-          // EXECUTE ON-CHAIN
-          const statusMsg = sessionActive 
-            ? `🤖 **Session Key Active**: Automating **${type}** on-chain without popups...` 
-            : `🔄 Initiating **${type}** on-chain. Please confirm the transaction in your wallet.`;
-          
+          if (!sessionActive) {
+            addAiMessage({ 
+              role: 'ai', 
+              content: { raw: `⚠️ **Session Inactive**: To automate this **${type}** without constant popups, please activate a **Secure Session** first. I've opened the Session Control panel for you below.` } 
+            });
+            setShowAiWalletPanel(true);
+            setIsThinking(false);
+            return;
+          }
+
+          const statusMsg = `🤖 **Session Key Active**: Automating **${type}** on-chain without popups...`;
           addAiMessage({ role: 'ai', content: { raw: statusMsg } });
 
           executeAiTransaction(type, userMsg, detail, true, response.gas_type || 'ETH').then(res => {
@@ -238,7 +244,7 @@ export default function AiAgent() {
                 <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>
                   {sessionActive ? 'bolt' : 'front_hand'}
                 </span>
-                {sessionActive ? 'SESSION ACTIVE' : 'MANUAL APPROVAL'}
+                AUTO APPROVAL
               </div>
               <button 
                 className="ai-settings-btn"
@@ -331,6 +337,12 @@ export default function AiAgent() {
           <div className="ai-footer">
             {showSchedulePanel && (
               <div className="ai-sched-panel">
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                  <h3 className="ai-sched-label" style={{ margin: 0 }}>Configure {schedData.type} Command</h3>
+                  <button onClick={() => setShowSchedulePanel(false)} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.3)', cursor: 'pointer' }} type="button">
+                    <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>close</span>
+                  </button>
+                </div>
                 <form onSubmit={submitScheduledForm}>
                   <div className="ai-sched-grid">
                     <div className="ai-sched-field">
@@ -663,34 +675,42 @@ export default function AiAgent() {
 
               <button 
                 onClick={() => { setSchedData(prev => ({...prev, type: 'Swap'})); setShowSchedulePanel(true); }} 
-                className={`ai-command-chip ${showSchedulePanel && schedData.type === 'Swap' ? 'border-primary text-primary bg-primary/10' : ''}`}
+                disabled={!sessionActive}
+                className={`ai-command-chip ${!sessionActive ? 'opacity-40 cursor-not-allowed grayscale' : ''} ${showSchedulePanel && schedData.type === 'Swap' ? 'border-primary text-primary bg-primary/10' : ''}`}
               >
-                <span className="material-symbols-outlined text-[12px] align-middle mr-1">swap_horiz</span>
+                <span className="material-symbols-outlined text-[12px] align-middle mr-1">{!sessionActive ? 'lock' : 'swap_horiz'}</span>
                 Swap
               </button>
               <button 
                 onClick={() => { setSchedData(prev => ({...prev, type: 'Bridge'})); setShowSchedulePanel(true); }} 
-                className={`ai-command-chip ${showSchedulePanel && schedData.type === 'Bridge' ? 'border-primary text-primary bg-primary/10' : ''}`}
+                disabled={!sessionActive}
+                className={`ai-command-chip ${!sessionActive ? 'opacity-40 cursor-not-allowed grayscale' : ''} ${showSchedulePanel && schedData.type === 'Bridge' ? 'border-primary text-primary bg-primary/10' : ''}`}
               >
-                <span className="material-symbols-outlined text-[12px] align-middle mr-1">lan</span>
+                <span className="material-symbols-outlined text-[12px] align-middle mr-1">{!sessionActive ? 'lock' : 'lan'}</span>
                 Bridge
               </button>
               <button 
                 onClick={() => { setSchedData(prev => ({...prev, type: 'Stake'})); setShowSchedulePanel(true); }} 
-                className={`ai-command-chip ${showSchedulePanel && schedData.type === 'Stake' ? 'border-primary text-primary bg-primary/10' : ''}`}
+                disabled={!sessionActive}
+                className={`ai-command-chip ${!sessionActive ? 'opacity-40 cursor-not-allowed grayscale' : ''} ${showSchedulePanel && schedData.type === 'Stake' ? 'border-primary text-primary bg-primary/10' : ''}`}
               >
-                <span className="material-symbols-outlined text-[12px] align-middle mr-1">account_balance_wallet</span>
+                <span className="material-symbols-outlined text-[12px] align-middle mr-1">{!sessionActive ? 'lock' : 'account_balance_wallet'}</span>
                 Staking
               </button>
               <button 
                 onClick={() => { setSchedData(prev => ({...prev, type: 'Send'})); setShowSchedulePanel(true); }} 
-                className={`ai-command-chip ${showSchedulePanel && schedData.type === 'Send' ? 'border-primary text-primary bg-primary/10' : ''}`}
+                disabled={!sessionActive}
+                className={`ai-command-chip ${!sessionActive ? 'opacity-40 cursor-not-allowed grayscale' : ''} ${showSchedulePanel && schedData.type === 'Send' ? 'border-primary text-primary bg-primary/10' : ''}`}
               >
-                <span className="material-symbols-outlined text-[12px] align-middle mr-1">send</span>
+                <span className="material-symbols-outlined text-[12px] align-middle mr-1">{!sessionActive ? 'lock' : 'send'}</span>
                 Send
               </button>
-              <button onClick={() => setInput("swap 1 ETH to USDC at 2500")} className="ai-command-chip">
-                <span className="material-symbols-outlined text-[12px] align-middle mr-1">trending_up</span>
+              <button 
+                onClick={() => setInput("swap 1 ETH to USDC at 2500")} 
+                disabled={!sessionActive}
+                className={`ai-command-chip ${!sessionActive ? 'opacity-40 cursor-not-allowed grayscale' : ''}`}
+              >
+                <span className="material-symbols-outlined text-[12px] align-middle mr-1">{!sessionActive ? 'lock' : 'trending_up'}</span>
                 Auto Buy/Sell
               </button>
             </div>

@@ -381,7 +381,7 @@ export default function BridgePage() {
             {[
               ['Route',             `${fromNet?.name} → ${toNet?.name}`],
               ['Rate',              `1 ${token} = 1 ${token}`],
-              ['Network Fee',       `0.001 ${token}`],
+              ['Network Fee',       `0.001 ETH`],
               ['Estimated Arrival', '~2 minutes'],
             ].map(([label, value]) => (
               <div key={label} className="flex justify-between items-center text-sm">
