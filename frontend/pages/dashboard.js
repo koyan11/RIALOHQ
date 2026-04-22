@@ -77,7 +77,7 @@ return (
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-16">
           <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
               {[
-                  { symbol: 'RIALO', label: 'Ecosystem Token', color: 'bg-primary', icon: 'currency_exchange' },
+                  { symbol: 'RIALO', label: 'Rialo Token', color: 'bg-primary', icon: 'currency_exchange' },
                   { symbol: 'ETH', label: 'Ethereum Testnet', color: 'bg-[#627EEA]', icon: 'water_drop' },
                   { symbol: 'USDC', label: 'USD Coin', color: 'bg-[#2775CA]', icon: 'attach_money' },
                   { symbol: 'USDT', label: 'Tether USD', color: 'bg-[#26A17B]', icon: 'monetization_on' },

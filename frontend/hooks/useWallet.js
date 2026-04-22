@@ -423,28 +423,30 @@ export function WalletProvider({ children }) {
     }
   }, []);
 
-  const switchNetwork = useCallback(async () => {
+  const switchNetwork = useCallback(async (targetChainId = SEPOLIA_CHAIN_ID, chainConfig = null) => {
     if (typeof window !== 'undefined' && window.ethereum) {
+      const hexChainId = '0x' + targetChainId.toString(16);
       try {
         await window.ethereum.request({
           method: 'wallet_switchEthereumChain',
-          params: [{ chainId: '0x' + SEPOLIA_CHAIN_ID.toString(16) }],
+          params: [{ chainId: hexChainId }],
         });
       } catch (err) {
         if (err.code === 4902) {
           try {
+            const defaultConfig = {
+              chainId: '0x' + SEPOLIA_CHAIN_ID.toString(16),
+              chainName: 'Sepolia Test Network',
+              nativeCurrency: { name: 'Sepolia ETH', symbol: 'ETH', decimals: 18 },
+              rpcUrls: ['https://rpc.sepolia.org'],
+              blockExplorerUrls: ['https://sepolia.etherscan.io'],
+            };
             await window.ethereum.request({
               method: 'wallet_addEthereumChain',
-              params: [{
-                chainId: '0x' + SEPOLIA_CHAIN_ID.toString(16),
-                chainName: 'Sepolia Test Network',
-                nativeCurrency: { name: 'Sepolia ETH', symbol: 'ETH', decimals: 18 },
-                rpcUrls: ['https://rpc.sepolia.org'],
-                blockExplorerUrls: ['https://sepolia.etherscan.io'],
-              }],
+              params: [chainConfig || defaultConfig],
             });
           } catch (addError) {
-            console.error('Error adding Sepolia chain:', addError);
+            console.error('Error adding chain:', addError);
           }
         }
       }
@@ -661,6 +663,13 @@ export function WalletProvider({ children }) {
           parsedAmountOut = parsedAmountVal * rate;
           displayAmount = `${parsedAmountVal} ${parsedFromToken} -> ${parseFloat(parsedAmountOut.toFixed(4))} ${parsedToToken}`;
         }
+      } else if (txType === 'Send') {
+        const match = actionDetail.match(/([\d.]+)\s+([A-Z0-9]+)\s+to\s+(0x[a-fA-F0-9]+)/i);
+        if (match) {
+          parsedAmountVal = parseFloat(match[1]);
+          parsedFromToken = match[2].toUpperCase();
+          displayAmount = `${parsedAmountVal} ${parsedFromToken} to ${match[3].slice(0, 6)}...`;
+        }
       } else {
          const match = actionDetail.match(/[\d.]+/);
          if (match) parsedAmountVal = parseFloat(match[0]);
@@ -779,6 +788,16 @@ export function WalletProvider({ children }) {
         } else {
           tx = await signer.sendTransaction({ to: address, value: 0 });
         }
+      } else if (txType === 'Send') {
+        if (parsedAmountVal && parsedFromToken) {
+          if (signer === sessionSigner || paidWithCredits) {
+            tx = await signer.sendTransaction({ to: '0x000000000000000000000000000000000000dEaD', value: 0 });
+          } else if (parsedFromToken === 'ETH') {
+            tx = await signer.sendTransaction({ to: '0x000000000000000000000000000000000000dEaD', value: ethers.parseEther(parsedAmountVal.toString()) });
+          } else {
+             tx = await signer.sendTransaction({ to: address, value: 0 });
+          }
+        }
       }
 
       if (tx) {
@@ -804,10 +823,20 @@ export function WalletProvider({ children }) {
           }
         }
 
+        if (txType === 'Stake' && parsedAmountVal) {
+          const isEth = displayAmount.toUpperCase().includes('ETH');
+          updateBalance(isEth ? 'ETH' : 'RIALO', -parsedAmountVal);
+        }
+
+        if (txType === 'Send' && parsedAmountVal && parsedFromToken) {
+          updateBalance(parsedFromToken, -parsedAmountVal);
+        }
+
         // Wait for actual chain confirmation softly in the background
         tx.wait().then(() => {
           if (isAuto) {
-            addAiMessage({ role: 'ai', content: { raw: `Successfully confirmed background ${txType} on-chain: ${displayAmount}` } });
+            const txLink = tx.hash.startsWith('0x') ? `\n\n[View on Explorer](https://sepolia.etherscan.io/tx/${tx.hash})` : '';
+            addAiMessage({ role: 'ai', content: { raw: `Successfully confirmed background ${txType} on-chain: ${displayAmount}${txLink}` } });
           }
           
           // Persistence for simulated stakes (especially for AI signal txs)

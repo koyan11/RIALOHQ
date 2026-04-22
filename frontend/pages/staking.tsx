@@ -423,7 +423,7 @@ export default function Home() {
   if (assetType === 'pair') effectivePrincipal = numRlo + (numEth * ethToRloRatio);
   else if (assetType === 'solo_eth') effectivePrincipal = numEth * ethToRloRatio;
 
-  const baseApy = payoutType === 'rwa' ? 0.08 : 0.15;
+  const baseApy = payoutType === 'rwa' ? 0.08 : 0.12;
 
   let assetMultiplier = 1; let creditsMultiplier = 1;
   if (assetType === 'solo_rlo') { assetMultiplier = 1; creditsMultiplier = 1; }
@@ -776,7 +776,7 @@ export default function Home() {
                           </div>
                         </div>
                         <div className="flex justify-between items-center text-white/80">
-                          <span className="text-slate-300 font-medium">Blended APY</span>
+                          <span className="text-slate-300 font-medium">Estimated APY</span>
                           <span className="text-white font-bold bg-white/10 px-2 py-0.5 rounded text-[13px]">{(networkApy * 100).toFixed(2).replace(/\.00$/, '')}%</span>
                         </div>
 
@@ -798,7 +798,7 @@ export default function Home() {
                             ) : (
                               <>
                                 <span className="font-semibold text-white tracking-wide flex items-center">
-                                  {yieldToWallet.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} <span className="text-white/50 text-xs ml-1 mr-1.5">{assetType === 'solo_eth' ? 'ETH' : 'RLO'}</span>
+                                  {yieldToWallet.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} <span className="text-white/50 text-xs ml-1 mr-1.5">{assetType === 'solo_eth' ? 'ETH' : 'stRLO'}</span>
                                   <span className="text-white/50 font-medium text-[11px]">(≈ ${(assetType === 'solo_eth' ? yieldToWallet * liveEthPrice : yieldToWallet * 1).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })})</span>
                                 </span>
                                 {lockDuration === 0 ? (
@@ -840,7 +840,7 @@ export default function Home() {
                         <div className="flex flex-col items-end mr-4">
                           <div className="flex items-baseline gap-1.5 leading-none">
                             <span className="text-white font-headline font-extrabold text-lg">{totalStakedRloValue.toLocaleString()}</span>
-                            <span className="text-[10px] text-white/30 font-bold uppercase tracking-widest">RLO</span>
+                            <span className="text-[10px] text-white/30 font-bold uppercase tracking-widest">stRLO</span>
                           </div>
                           <div className="flex items-baseline gap-1.5 mt-1 leading-none">
                             <span className="text-white font-headline font-extrabold text-lg">{totalStakedEthValue.toLocaleString(undefined, { minimumFractionDigits: 3 })}</span>

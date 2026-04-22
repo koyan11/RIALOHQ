@@ -30,6 +30,7 @@ export default function LearnPage() {
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState('idle'); // idle, loading, success, error
   const [message, setMessage] = useState('');
+  const [videoSrc, setVideoSrc] = useState("/Animasi/img.16/learn-animation.mp4");
 
   const handleSubscribe = async (e) => {
     e.preventDefault();
@@ -86,11 +87,16 @@ export default function LearnPage() {
             <div className="p-10 h-full flex flex-col">
               <div className="mb-10 aspect-[16/7] bg-[#e6e2d1] rounded-xl overflow-hidden shadow-inner relative group flex items-center justify-center">
                 <video
-                  src="/hero-animation.mp4"
+                  src={videoSrc}
                   autoPlay
-                  loop
                   muted
                   playsInline
+                  onEnded={() => {
+                    if (videoSrc.includes("img.16")) {
+                      setVideoSrc("/Animasi/img.17/learn-animation.mp4");
+                    }
+                  }}
+                  loop={videoSrc.includes("img.17")}
                   className="w-full h-full object-contain mix-blend-multiply opacity-90 scale-110"
                 />
               </div>

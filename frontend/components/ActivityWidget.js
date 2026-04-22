@@ -34,8 +34,7 @@ const BalanceCard = ({ title, value, unit, icon: Icon, color, trend }) => {
 };
 
 export default function ActivityWidget() {
-  const { isConnected } = useWallet();
-  const { tickingCredits, tickingRewards } = useStaking();
+  const { isConnected, tickingCredits, tickingRewards, stakedBalance } = useWallet();
 
   return (
     <div className="w-full h-full flex flex-col p-6 bg-[#0c0c0c] border border-white/5 rounded-3xl group transition-all duration-300 hover:bg-[#111111] hover:border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.1)] overflow-hidden min-h-[420px]">
@@ -58,12 +57,12 @@ export default function ActivityWidget() {
         ) : (
           <>
             <BalanceCard 
-              title="Staking Rewards"
-              value={tickingRewards}
+              title="Total stRLO"
+              value={stakedBalance}
               unit="stRLO"
               icon={Coins}
               color="text-emerald-400"
-              trend={tickingRewards > 0}
+              trend={parseFloat(stakedBalance) > 0}
             />
             
             <BalanceCard 
