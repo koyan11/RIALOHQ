@@ -1,9 +1,5 @@
 import { Groq } from 'groq-sdk';
 
-const groq = new Groq({
-  apiKey: process.env.GROQ_API_KEY,
-});
-
 const RIALO_OFFICIAL_KNOWLEDGE = `
 UniFAIR is the high-performance intelligent interface and ultimate frontend layer for the Rialo network, a high-throughput Layer-1 blockchain optimized for AI-agentic workflows and RWA (Real World Asset) tokenization.
 - Strategic Focus: Zero-gas DeFi, AI-driven yield optimization, and institutional-grade RWA liquidity.
@@ -78,11 +74,14 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  // PRODUCTION GUARD: Check if API Key is configured in Vercel/Environment
-  if (!process.env.GROQ_API_KEY) {
-    return res.status(403).json({ error: 'API Key Missing' });
+  const apiKey = process.env.GROQ_API_KEY;
+  if (!apiKey) {
+    return res.status(200).json({ 
+      raw: "⚠️ **Developer Note**: The AI Agent is currently inactive because the `GROQ_API_KEY` is not configured in your Vercel Environment Variables. \n\n**To Fix:** \n1. Go to your Vercel Dashboard. \n2. Navigate to **Settings > Environment Variables**. \n3. Add `GROQ_API_KEY` with your Groq API key. \n4. Redeploy the app." 
+    });
   }
 
+  const groq = new Groq({ apiKey });
   const { message, context } = req.body;
 
   // Fetch live market prices from Massive API
