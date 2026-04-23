@@ -128,7 +128,7 @@ export default function AiAgent() {
 
       if (!resp.ok) {
         const error = new Error(response.error || 'AI Service unavailable');
-        (error as any).details = response.details;
+        error.details = response.details;
         throw error;
       }
       
