@@ -124,7 +124,15 @@ export default function AiAgent() {
         body: JSON.stringify({ message: userMsg, context: ctx })
       });
       
-      const response = await resp.json();
+      const contentType = resp.headers.get('content-type');
+      let response;
+      
+      if (contentType && contentType.includes('application/json')) {
+        response = await resp.json();
+      } else {
+        const text = await resp.text();
+        throw new Error(resp.status === 504 ? 'Request Timeout (AI is taking too long)' : 'Server returned non-JSON response');
+      }
 
       if (!resp.ok) {
         const error = new Error(response.error || 'AI Service unavailable');
