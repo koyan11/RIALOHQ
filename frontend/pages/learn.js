@@ -4,20 +4,16 @@ import Footer from '../components/Footer';
 
 const articles = [
   {
-    category: 'Foundations',
-    title: 'What is Rialo?',
-    desc: 'Dive into the mechanics of our Dual-Engine architecture, ServicePaymaster credits, and how we merge DeFi yields with Real-World Assets (RWA).',
+    category: 'Introduction to UniFAIR',
+    title: 'What is UniFAIR?',
+    desc: 'Dive into how UniFAIR acts as the ultimate frontend layer for the Rialo network. Learn about our AI Agent integration, ServicePaymaster routing, and RWA accumulation.',
     cta: 'READ THE DOCS',
     span: 'md:col-span-8',
     imgUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDMsCt6_s7u6hzeC9Hxw7MFj_lIsVfVYasK6ntTO90wqSsUKOC1rLtMcuoV1lHtzkg1vZaxEh7PkBxYea7irVSu3zdE5BITZ0eRFTuZ4xReV-vdvtC5kwq5vEEYLqqTJk8ccEvPRdA8pzCTmz4qKJ74Kja5v3eVRpf3UqfS0dz-ZAYb8aYSor6Od9Z-4Dh9XLlJgRmPzMuyZBbbuPy1zKbN1BuSMS-Fbrvnn2FqvArZ3uYHFw71TPfMcU70XtDNn0Xc7jSUSXPUi3y4',
   },
 ];
 
-const guides = [
-  { num: '01', label: 'Wallet Setup & Bridging' },
-  { num: '02', label: 'Staking & Earning Credits' },
-  { num: '03', label: 'AI Agent Auto-Routing' },
-];
+
 
 const topics = [
   { icon: 'water_drop', title: 'Zero-Gas Staking', desc: 'Learn how to maximize your RLO yield and generate Service Credits to completely eliminate gas fees.', tag: 'Beginner' },
@@ -74,18 +70,18 @@ export default function LearnPage() {
             <span className="font-label text-xs font-bold tracking-widest uppercase">Knowledge Base</span>
           </div>
           <h1 className="text-6xl text-black mb-8">
-            Dual-Engine Ecosystem.
+            UniFAIR Intelligence Hub.
           </h1>
           <p className="font-body text-xl text-zinc-500 leading-relaxed font-medium">
-            Discover the nuances of the Rialo ecosystem. From zero-gas staking to automated RWA accumulation, explore the mechanics of intelligent yield.
+            Discover how UniFAIR simplifies Web3. From zero-gas SfS mechanics to AI-driven automation, explore the architecture behind intelligent DeFi.
           </p>
         </header>
 
         {/* Featured Bento */}
-        <section className="grid grid-cols-1 md:grid-cols-12 gap-8 mb-32">
-          <div className="md:col-span-8 group relative overflow-hidden rounded-2xl bg-[#0c0c0c] border border-white/5 shadow-2xl transition-transform duration-500 hover:scale-[1.01]">
-            <div className="p-10 h-full flex flex-col">
-              <div className="mb-10 aspect-[16/7] bg-[#e6e2d1] rounded-xl overflow-hidden shadow-inner relative group flex items-center justify-center">
+        <section className="flex justify-center mb-32">
+          <div className="w-full md:w-[75%] group relative overflow-hidden rounded-2xl bg-[#0c0c0c] border border-white/5 shadow-2xl transition-transform duration-500 hover:scale-[1.01]">
+            <div className="p-6 h-full flex flex-col">
+              <div className="mb-6 h-72 bg-[#e6e2d1] rounded-xl overflow-hidden shadow-inner relative group flex items-center justify-center">
                 <video
                   src={videoSrc}
                   autoPlay
@@ -101,31 +97,15 @@ export default function LearnPage() {
                 />
               </div>
               <div className="mt-auto">
-                <span className="font-label text-xs font-bold tracking-[0.2em] uppercase text-white/40 mb-3 block">Foundations</span>
-                <h2 className="font-headline text-3xl font-bold mb-4 text-white">What is Rialo?</h2>
-                <p className="font-body text-white/50 mb-8 max-w-xl leading-relaxed">Dive into the mechanics of our Dual-Engine architecture, ServicePaymaster credits, and how we merge DeFi yields with Real-World Assets (RWA).</p>
+                <span className="font-label text-xs font-bold tracking-[0.2em] uppercase text-white/40 mb-2 block">Introduction to UniFAIR</span>
+                <h2 className="font-headline text-2xl font-bold mb-3 text-white">What is UniFAIR?</h2>
+                <p className="font-body text-white/50 mb-6 max-w-xl leading-relaxed text-sm">Dive into how UniFAIR acts as the ultimate frontend layer for the Rialo network. Learn about our AI Agent integration, ServicePaymaster routing, and RWA accumulation.</p>
                 <a href="https://www.rialo.io/docs" target="_blank" rel="noopener noreferrer" className="inline-flex items-center font-label text-sm font-bold uppercase tracking-wider group/link text-white hover:text-white/80 transition-colors">
                   READ THE DOCS
                   <span className="material-symbols-outlined ml-2 transition-transform group-hover/link:translate-x-1">arrow_forward</span>
                 </a>
               </div>
             </div>
-          </div>
-
-          <div className="md:col-span-4 bg-black text-white rounded-3xl p-10 flex flex-col justify-between shadow-2xl transition-transform duration-500 hover:scale-[1.01] border border-white/5">
-            <div>
-              <span className="material-symbols-outlined text-4xl mb-8 block opacity-90">speed</span>
-              <h2 className="font-headline text-2xl font-bold mb-4">Getting Started</h2>
-              <p className="font-body text-white/70 text-sm leading-relaxed mb-8">Set up your first wallet, secure your keys, and bridge your first assets to Rialo in under five minutes.</p>
-            </div>
-            <ul className="space-y-4">
-              {guides.map(({ num, label }) => (
-                <li key={num} className="flex items-center text-sm font-medium border-t border-white/10 pt-4 hover:pl-2 transition-all cursor-pointer group">
-                  <span className="text-white/40 mr-4 font-headline group-hover:text-white transition-colors">{num}</span> 
-                  <span className="group-hover:text-primary transition-colors">{label}</span>
-                </li>
-              ))}
-            </ul>
           </div>
         </section>
 
@@ -212,10 +192,10 @@ export default function LearnPage() {
           </div>
         </section>
 
-        <section className="bg-black text-white rounded-3xl p-12 md:p-24 text-center shadow-2xl relative overflow-hidden">
+        <section className="bg-black text-white rounded-3xl p-8 md:p-12 text-center shadow-2xl relative overflow-hidden">
           <div className="relative z-10">
-            <h2 className="font-headline text-4xl font-extrabold mb-6 tracking-tight">Stay at the Frontier.</h2>
-            <p className="text-white/60 max-w-lg mx-auto mb-10 text-lg leading-relaxed">Get weekly protocol updates, ecosystem reports, and deep-dive technical articles delivered directly to your inbox.</p>
+            <h2 className="font-headline text-2xl font-extrabold mb-3 tracking-tight">Stay at the Frontier.</h2>
+            <p className="text-white/60 max-w-lg mx-auto mb-6 text-sm leading-relaxed">Get weekly protocol updates, ecosystem reports, and deep-dive technical articles delivered directly to your inbox.</p>
             
             {status === 'success' ? (
               <div className="bg-white/10 border border-white/20 rounded-2xl p-8 max-w-md mx-auto animate-in fade-in zoom-in duration-500">

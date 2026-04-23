@@ -30,8 +30,35 @@ CURRENT WEB APP STRUCTURE (rialohq.vercel.app):
     * Ecosystem Balances Dashboard: Located on the dashboard, shows live-updating Staking Rewards (RLO) and Service Credits (ϕ).
     * Service Credit System: A persistent credit balance used to automate gas fees for users.
     * Session Keys (EIP-7702): Allows the AI to automate transactions securely with one-time authorization.
-    * Real-time Price Oracle: Integrated with CoinGecko for top 10 tokens.
+    * Real-time Price Oracle: Integrated with Massive API for live crypto market data.
 `;
+
+const MASSIVE_API_KEY = 'y3XfNAmNBr9i5z6BqgiqpHwTefrTsuMo';
+
+async function fetchMarketPrices() {
+  try {
+    const tickers = 'X:BTCUSD,X:ETHUSD,X:SOLUSD,X:BNBUSD,X:MATICUSD';
+    const url = `https://api.massive.com/v2/snapshot/locale/global/markets/crypto/tickers?tickers=${tickers}&apiKey=${MASSIVE_API_KEY}`;
+    const response = await fetch(url);
+    if (!response.ok) return null;
+    const data = await response.json();
+    if (!data?.tickers) return null;
+
+    const prices = {};
+    for (const item of data.tickers) {
+      const symbol = item.ticker?.replace('X:', '').replace('USD', '');
+      if (symbol && item.day?.c) {
+        prices[symbol] = item.day.c;
+      } else if (symbol && item.lastTrade?.p) {
+        prices[symbol] = item.lastTrade.p;
+      }
+    }
+    return prices;
+  } catch (e) {
+    console.error('Massive API fetch error:', e);
+    return null;
+  }
+}
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -49,9 +76,15 @@ export default async function handler(req, res) {
 
   const { message, context } = req.body;
 
+  // Fetch live market prices from Massive API
+  const marketPrices = await fetchMarketPrices();
+  const marketPriceBlock = marketPrices
+    ? Object.entries(marketPrices).map(([sym, price]) => `- ${sym}: $${Number(price).toLocaleString('en-US', { maximumFractionDigits: 2 })}`).join('\n')
+    : '- (Price data temporarily unavailable)';
+
   try {
     const systemPrompt = `
-You are Rialo AI Assistant, a powerful DeFi agent for the Rialo Layer-1 blockchain.
+You are UniFAIR AI Assistant, a powerful DeFi agent for the Rialo Layer-1 blockchain.
 Your goal is to help users manage their assets (RIALO, ETH, USDC, USDT) with precision and professional insight.
 
 RIALO ECOSYSTEM KNOWLEDGE:
@@ -72,6 +105,9 @@ USER CONTEXT:
 
 REAL-TIME RATES (vs USDC):
 ${JSON.stringify(context.globalRates)}
+
+LIVE MARKET PRICES (via Massive API):
+${marketPriceBlock}
 
 CAPABILITIES:
 1. Swapping tokens.
@@ -102,7 +138,7 @@ Example for 'price of btc':
   "action": "Price Checked: 1 BTC is $X USDC",
   "gas_type": "ETH",
   "delaySec": 0,
-  "raw": "Bitcoin is currently trading at $X according to the CoinGecko Oracle."
+  "raw": "Bitcoin is currently trading at $X according to the Massive Market Oracle."
 }
 
 Example for 'swap 10 USDC to RIALO in 1 minute using CREDIT gas':
@@ -122,8 +158,8 @@ Example for 'swap 10 USDC to RIALO in 1 minute using CREDIT gas':
         { role: 'system', content: systemPrompt },
         { role: 'user', content: message },
       ],
-      model: 'llama-3.3-70b-versatile', // High-performance supported Groq model
-      temperature: 0.2, // Keep it precise
+      model: 'llama-3.3-70b-versatile',
+      temperature: 0.2,
     });
 
     const result = chatCompletion.choices[0]?.message?.content;

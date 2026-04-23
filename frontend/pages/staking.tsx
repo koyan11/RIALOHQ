@@ -265,7 +265,13 @@ export default function Home() {
         if (address) localStorage.setItem(`rialo_staking_history_${address}`, JSON.stringify(updatedHistory));
 
         if (payoutType === 'rwa') {
-          setRemainingPortfolio(estimatedRwaYieldUsd);
+          // ✅ FIX: Immediately update global singleton so rewards.tsx RWA PORTFOLIO
+          // card reflects the new value without requiring a manual page refresh.
+          const confirmedRwaYield = estimatedRwaYieldUsd;
+          setGlobalRwaYieldUsd(confirmedRwaYield);
+          // Persist to localStorage so value survives cross-page navigation
+          localStorage.setItem('rialo_rwa_yield_usd', confirmedRwaYield.toString());
+          setRemainingPortfolio(confirmedRwaYield);
           setActiveView('rwa');
         }
         setRloAmount("");

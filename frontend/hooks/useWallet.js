@@ -535,7 +535,7 @@ export function WalletProvider({ children }) {
       
       // 2. Request Authorization Signature (EIP-191)
       const signer = await provider.getSigner();
-      const message = `Authorize Rialo AI Session\n\n` +
+      const message = `Authorize UniFAIR AI Session\n\n` +
                       `Duration: ${durationHours} Hour(s)\n` +
                       `Scope: Swap, Bridge, Stake\n` +
                       `Session Wallet: ${ephemeralWallet.address}\n\n` +

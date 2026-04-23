@@ -233,7 +233,7 @@ export default function AiAgent() {
           <div className="ai-header">
             <div className="ai-title">
               <span className="ai-status-dot"></span>
-              Rialo AI Assistant
+              UniFAIR AI Assistant
               <div className="ai-access-badge">
                 <span className="material-symbols-outlined" style={{ fontSize: '10px' }}>account_balance_wallet</span>
                 {tickingCredits.toFixed(2)} Credits
@@ -326,7 +326,7 @@ export default function AiAgent() {
                   <span className="w-1.5 h-1.5 bg-white/50 rounded-full animate-bounce"></span>
                   <span className="w-1.5 h-1.5 bg-white/50 rounded-full animate-bounce [animation-delay:0.2s]"></span>
                   <span className="w-1.5 h-1.5 bg-white/50 rounded-full animate-bounce [animation-delay:0.4s]"></span>
-                  Rialo AI is thinking...
+                  UniFAIR AI is thinking...
                 </div>
               </div>
             )}

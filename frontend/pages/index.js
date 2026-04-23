@@ -42,7 +42,7 @@ export default function Home() {
                 Unified DeFi Ecosystem.
               </h1>
               <p className="text-white/50 max-w-lg mb-10 leading-relaxed text-lg font-medium">
-                Access native swapping, bridging, and staking from one intuitive command center. We eliminate Web3 fragmentation by delivering a streamlined, zero-friction interface designed specifically for Rialo.
+                Access native swapping, bridging, and staking in one intelligent hub. Stake your assets to auto generate Service Credits, which subsidize your gas fees for a zero friction experience and power the integrated AI Agent to automate your entire DeFi strategy
               </p>
                 <div className="flex flex-wrap gap-5">
                   <button

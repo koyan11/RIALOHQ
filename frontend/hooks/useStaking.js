@@ -7,12 +7,31 @@ import { useWallet } from './useWallet';
 // Module-level singleton for globalRwaYieldUsd
 // Allows the value to be shared across all components using useStaking()
 // without requiring React Context or an external state library.
+// Persisted to localStorage so it survives cross-page navigation.
 // ---------------------------------------------------------------------------
-let _globalRwaYieldUsd = 0;
+const _RWA_STORAGE_KEY = 'rialo_rwa_yield_usd';
+
+// Initialize from localStorage if available (runs once on module load)
+let _globalRwaYieldUsd = (() => {
+  if (typeof window !== 'undefined') {
+    const saved = parseFloat(localStorage.getItem(_RWA_STORAGE_KEY) || '0');
+    return isNaN(saved) ? 0 : saved;
+  }
+  return 0;
+})();
+
 const _rwaYieldSubscribers = new Set();
 
 function _setGlobalRwaYieldUsd(value) {
   _globalRwaYieldUsd = value;
+  // Persist to localStorage so value survives page navigation
+  if (typeof window !== 'undefined') {
+    if (value > 0) {
+      localStorage.setItem(_RWA_STORAGE_KEY, value.toString());
+    } else {
+      localStorage.removeItem(_RWA_STORAGE_KEY);
+    }
+  }
   _rwaYieldSubscribers.forEach((fn) => fn(value));
 }
 

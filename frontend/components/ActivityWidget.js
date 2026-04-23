@@ -86,7 +86,7 @@ export default function ActivityWidget() {
         </Link>
         
         <p className="text-[9px] text-center text-white/20 font-bold uppercase tracking-widest">
-          SFS Allocation: Optimized by Rialo AI
+          SFS Allocation: Optimized by UniFAIR AI
         </p>
       </div>
     </div>
