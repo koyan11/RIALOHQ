@@ -390,7 +390,11 @@ export function WalletProvider({ children }) {
   const setTokenBalance = useCallback((symbol, val) => {
     // Contract sync: base + persistent simulated gains
     const baseBal = parseFloat(val);
-    const delta = simulatedDeltas[symbol] || 0;
+
+    // Read deltas from localStorage to avoid stale closure over simulatedDeltas state
+    const savedDeltas = typeof window !== 'undefined' ? localStorage.getItem('rialo_simulated_deltas') : null;
+    const deltas = savedDeltas ? JSON.parse(savedDeltas) : {};
+    const delta = deltas[symbol] || 0;
     
     // Only allow contract sync to overwrite if it's been more than 30s since manual adjustment
     const lastManual = lastManualUpdates.current[symbol] || 0;
@@ -400,15 +404,18 @@ export function WalletProvider({ children }) {
       ...prev,
       [symbol]: baseBal + delta
     }));
-  }, [simulatedDeltas]);
+  }, []);
 
   const fetchEthBalance = useCallback(async (addr, prov) => {
     try {
       const bal = await prov.getBalance(addr);
-      
+      const baseBal = parseFloat(ethers.formatEther(bal));
+
       setBalances(prev => {
-        const delta = simulatedDeltas['ETH'] || 0;
-        const baseBal = parseFloat(ethers.formatEther(bal));
+        // Read deltas from localStorage to avoid stale closure over simulatedDeltas state
+        const savedDeltas = typeof window !== 'undefined' ? localStorage.getItem('rialo_simulated_deltas') : null;
+        const deltas = savedDeltas ? JSON.parse(savedDeltas) : {};
+        const delta = deltas['ETH'] || 0;
 
         // Only allow ETH contract sync to overwrite if it's been more than 30s since manual adjustment
         const lastManual = lastManualUpdates.current['ETH'] || 0;
@@ -416,7 +423,7 @@ export function WalletProvider({ children }) {
         
         return { 
           ...prev, 
-          'ETH': baseBal + delta
+          'ETH': baseBal + delta  // base chain balance + persistent simulated gains
         };
       });
     } catch (err) {
