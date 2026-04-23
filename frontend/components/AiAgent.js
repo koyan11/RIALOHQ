@@ -205,8 +205,7 @@ export default function AiAgent() {
               detail: `${type}: ${res.detail}`,
               txHash: res.hash
             });
-             const txLink = res.hash.startsWith('0x') ? `\n\n[View on Explorer](https://sepolia.etherscan.io/tx/${res.hash})` : '';
-             addAiMessage({ role: 'ai', content: { raw: `✅ **${type}** execution successful!${txLink}` } });
+             addAiMessage({ role: 'ai', content: { raw: `✅ **${type}** execution successful!`, hash: res.hash } });
           }).catch(err => {
             const errorMsg = err.reason || err.message || 'Transaction failed';
             showToast({ message: `${type} failed`, detail: errorMsg, type: 'error' });
@@ -279,7 +278,19 @@ export default function AiAgent() {
                 {m.role === 'user' ? (
                   m.content.raw
                 ) : m.content.raw ? (
-                  <div className="ai-raw">{m.content.raw}</div>
+                  <div className="ai-raw">
+                    <div>{m.content.raw}</div>
+                    {m.content.hash && (
+                      <a 
+                        href={`https://sepolia.etherscan.io/tx/${m.content.hash}`} 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        className="ai-tx-button"
+                      >
+                        SCAN <span className="material-symbols-outlined" style={{ fontSize: '12px' }}>open_in_new</span>
+                      </a>
+                    )}
+                  </div>
                 ) : (
                   <div className="ai-structured">
                     {m.content.insight && (

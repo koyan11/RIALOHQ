@@ -862,8 +862,13 @@ export function WalletProvider({ children }) {
         // Wait for actual chain confirmation softly in the background
         tx.wait().then(() => {
           if (isAuto) {
-            const txLink = tx.hash.startsWith('0x') ? `\n\n[View on Explorer](https://sepolia.etherscan.io/tx/${tx.hash})` : '';
-            addAiMessage({ role: 'ai', content: { raw: `Successfully confirmed background ${txType} on-chain: ${displayAmount}${txLink}` } });
+            addAiMessage({ 
+              role: 'ai', 
+              content: { 
+                raw: `Successfully confirmed background ${txType} on-chain: ${displayAmount}`,
+                hash: tx.hash 
+              } 
+            });
           }
           
           // Persistence for simulated stakes (especially for AI signal txs)
