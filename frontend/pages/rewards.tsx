@@ -317,12 +317,16 @@ export default function Rewards() {
 
               <div className="flex items-center justify-between p-6 hover:bg-white/3 transition-colors">
                 <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/60 font-label">Single RLO Stake</span>
-                <span className="font-headline font-extrabold text-lg text-primary">+80.00 RLO</span>
+                <span className="font-headline font-extrabold text-lg text-primary">
+                  +{(realPendingRewards * 0.65).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} stRLO
+                </span>
               </div>
 
               <div className="flex items-center justify-between p-6 hover:bg-white/3 transition-colors">
                 <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/60 font-label">Pair (RLO + ETH)</span>
-                <span className="font-headline font-extrabold text-lg text-primary">+45.50 RLO</span>
+                <span className="font-headline font-extrabold text-lg text-primary">
+                  +{(realPendingRewards * 0.35).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} stRLO
+                </span>
               </div>
 
               <div className="flex items-center justify-between p-6 hover:bg-white/3 transition-colors">
