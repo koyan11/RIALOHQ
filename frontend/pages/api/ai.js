@@ -36,7 +36,7 @@ CURRENT WEB APP STRUCTURE (rialohq.vercel.app):
 const MASSIVE_API_KEY = 'y3XfNAmNBr9i5z6BqgiqpHwTefrTsuMo';
 
 async function fetchMarketPrices() {
-  const COINGECKO_API_KEY = 'CG-vg5m6nnVU6EsxaAwAKy7TQPv';
+  const COINGECKO_API_KEY = process.env.COINGECKO_API_KEY || 'CG-vg5m6nnVU6EsxaAwAKy7TQPv';
   const ids = 'bitcoin,ethereum,solana,ripple,cardano';
   const url = `https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd&include_24hr_change=true&x_cg_demo_api_key=${COINGECKO_API_KEY}`;
 
