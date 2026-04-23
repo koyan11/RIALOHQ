@@ -1,10 +1,12 @@
-import Spline from '@splinetool/react-spline';
+import dynamic from 'next/dynamic';
+const Spline = dynamic(() => import('@splinetool/react-spline').then(mod => mod.default), { ssr: false });
+
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { useWallet } from '../hooks/useWallet';
 import { useRouter } from 'next/router';
 
-export default function Home() {
+export default function LandingPage() {
   const { connect, isConnected } = useWallet();
   const router = useRouter();
 
@@ -104,7 +106,7 @@ export default function Home() {
               {[
                 { icon: 'swap_horiz', title: 'Frictionless Swapping', desc: 'Experience a fluid and intuitive trading interface. We removed the visual clutter, allowing you to execute swaps seamlessly within a single, unified environment.' },
                 { icon: 'hub', title: 'Seamless Asset Bridging', desc: 'Visualize cross-network transfers through a simplified dashboard. Our design aims to eliminate the complex steps usually associated with third-party bridges' },
-                { icon: 'database', title: 'Unified Staking Hub', desc: 'Monitor and manage your entire portfolio from one intuitive command center. Say goodbye to fragmented Web3 experiences and confusing protocol navigation.' },
+                { icon: 'database', title: 'Unified Stake Hub', desc: 'Monitor and manage your entire portfolio from one intuitive command center. Say goodbye to fragmented Web3 experiences and confusing protocol navigation.' },
                 { icon: 'speed', title: 'Frictionless User Journey', desc: 'Interact with advanced DeFi concepts confidently. The interface is purposefully designed with a clean, modern aesthetic to make complex financial activities accessible to everyone.' },
               ].map(({ icon, title, desc }) => (
                 <div key={title} className="bg-[#0c0c0c] text-white p-10 rounded-3xl transition-all duration-300 hover:-translate-y-2 border border-white/5 shadow-[0_20px_50px_rgba(0,0,0,0.1)] group">

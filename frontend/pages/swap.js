@@ -491,23 +491,7 @@ export default function SwapPage() {
             </button>
           </div>
 
-          {/* Contextual Info */}
-          <div className="mt-8 grid grid-cols-2 gap-4">
-            <div className="bg-[#0c0c0c] p-4 rounded-xl border border-white/5 shadow-2xl">
-              <p className="font-label text-xs uppercase text-white/20 mb-1">Network Status</p>
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-                <span className="font-headline font-bold text-sm text-white">Testnet Node Active</span>
-              </div>
-            </div>
-            <div className="bg-[#0c0c0c] p-4 rounded-xl border border-white/5 shadow-2xl">
-              <p className="font-label text-xs uppercase text-white/20 mb-1">Gas Estimation</p>
-              <div className="flex items-center gap-2">
-                <span className="material-symbols-outlined text-sm text-white/20">local_gas_station</span>
-                <span className="font-headline font-bold text-sm text-white">$4.12 USD</span>
-              </div>
-            </div>
-          </div>
+
         </div>
       </main>
       <Footer />

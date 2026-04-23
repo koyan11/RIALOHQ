@@ -35,6 +35,15 @@ const BalanceCard = ({ title, value, unit, icon: Icon, color, trend }) => {
 
 export default function ActivityWidget() {
   const { isConnected, tickingCredits, tickingRewards, stakedBalance } = useWallet();
+  const { totalStaked } = useStaking();
+
+  const tvl = parseFloat(totalStaked || '0') * 3;
+  const formattedTvl = new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  }).format(tvl);
 
   return (
     <div className="w-full h-full flex flex-col p-6 bg-[#0c0c0c] border border-white/5 rounded-3xl group transition-all duration-300 hover:bg-[#111111] hover:border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.1)] overflow-hidden min-h-[420px]">
@@ -57,12 +66,12 @@ export default function ActivityWidget() {
         ) : (
           <>
             <BalanceCard 
-              title="Total stRLO"
-              value={stakedBalance}
-              unit="stRLO"
+              title="TVL"
+              value={formattedTvl}
+              unit=""
               icon={Coins}
               color="text-emerald-400"
-              trend={parseFloat(stakedBalance) > 0}
+              trend={tvl > 0}
             />
             
             <BalanceCard 
@@ -81,7 +90,7 @@ export default function ActivityWidget() {
         <Link href="/staking" className="block w-full">
           <button className="w-full py-4 rounded-2xl bg-white text-black text-[11px] font-black uppercase tracking-[0.15em] hover:bg-zinc-200 transition-all shadow-xl shadow-white/5 flex items-center justify-center gap-2">
             <MousePointer2 className="w-3.5 h-3.5" />
-            Manage Staking
+            Manage Stake
           </button>
         </Link>
         

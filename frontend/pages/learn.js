@@ -16,7 +16,7 @@ const articles = [
 
 
 const topics = [
-  { icon: 'water_drop', title: 'Zero-Gas Staking', desc: 'Learn how to maximize your RLO yield and generate Service Credits to completely eliminate gas fees.', tag: 'Beginner' },
+  { icon: 'water_drop', title: 'Zero-Gas Stake', desc: 'Learn how to maximize your RLO yield and generate Service Credits to completely eliminate gas fees.', tag: 'Beginner' },
   { icon: 'swap_horiz', title: 'The RWA Hub', desc: 'Understand how to automatically diversify your crypto yield directly into stable assets like US Treasuries and Gold.', tag: 'Intermediate' },
   { icon: 'hub', title: 'The AI Agent', desc: 'Discover how our AI Agent works 24/7 to auto-compound your yield and execute smart swaps using your Credits.', tag: 'Advanced' },
   { icon: 'code', title: 'Developer SDK', desc: "Integrate the ServicePaymaster and Rialo's routing logic into your own dApp with our open-source tools.", tag: 'Developer' },

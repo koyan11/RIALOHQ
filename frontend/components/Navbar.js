@@ -62,7 +62,7 @@ export default function Navbar() {
     { href: '/', label: 'Home' },
     { href: '/swap', label: 'Swap' },
     { href: '/bridge', label: 'Bridge' },
-    { href: '/staking', label: 'Staking' },
+    { href: '/staking', label: 'Stake' },
     { href: '/rewards', label: 'Reward' },
     { href: '/dashboard', label: 'Dashboard' },
     { href: '/ai', label: 'AI Agent' },
@@ -88,7 +88,7 @@ export default function Navbar() {
           <Link href="/" className="logo-link">
             <img
               src="/Animasi/img.18/un-removebg-preview.png"
-              alt="Rialo Logo"
+              alt="UniFAIR Logo"
               className={`logo-img ${isDark ? 'on-dark' : 'on-light'}`}
             />
           </Link>

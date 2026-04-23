@@ -38,7 +38,7 @@ interface StakingPosition {
 }
 
 
-export default function Home() {
+export default function StakingPage() {
   const router = useRouter();
   const { isConnected, address, provider, connect, balances: walletBalances, addTransaction, fetchEthBalance, updateBalance, addCredits, addPendingCredits } = useWallet();
   const { balance: rloBal, fetchBalance: fetchRloBalance } = useRLO();
@@ -290,7 +290,7 @@ export default function Home() {
           const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
           walletToast({
             message: `Locked! Assets mature in ${days} days.`,
-            detail: "Use individual Unstake buttons in Staking History for granular withdrawal.",
+            detail: "Use individual Unstake buttons in Stake History for granular withdrawal.",
             type: "error"
           });
           setIsSimulating(false);
@@ -531,7 +531,7 @@ export default function Home() {
               <p className="text-slate-500 max-w-xl mx-auto font-medium">Stake RLO or ETH to mint yield-bearing assets and auto-generate credits for a completely gasless experience.</p>
             </div>
 
-            {/* Main Staking Card */}
+            {/* Main Stake Card */}
             <div className="animate-in fade-in slide-in-from-bottom-2 duration-300 delay-150">
               <div className="bg-[#0c0c0c] rounded-2xl p-4 md:p-5 shadow-2xl border border-white/5 relative overflow-hidden group/card transition-all duration-500 h-full flex flex-col text-white">
                   <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -mr-16 -mt-16 blur-3xl opacity-50"></div>
@@ -760,7 +760,7 @@ export default function Home() {
                           ) : payoutType === 'rwa' ? (
                             "Stake & Claim Upfront Yield"
                           ) : (
-                            "Staking"
+                            "Stake"
                           )}
                         </button>
                       </div>
@@ -840,7 +840,7 @@ export default function Home() {
                       <div className="flex items-center justify-between mb-5 px-2">
                         <div className="flex flex-col">
                           <h3 className="text-white font-headline font-extrabold text-xl tracking-tight">Active Positions</h3>
-                          <p className="text-white/40 text-[11px] font-medium uppercase tracking-widest mt-1">Staking History</p>
+                          <p className="text-white/40 text-[11px] font-medium uppercase tracking-widest mt-1">Stake History</p>
                         </div>
 
                         <div className="flex flex-col items-end mr-4">
@@ -976,7 +976,7 @@ export default function Home() {
                 className="mt-6 inline-flex items-center gap-2 bg-slate-900 text-white px-5 py-2.5 rounded-xl font-bold text-sm hover:bg-slate-700 transition-all shadow-md"
               >
                 <ArrowRight className="w-4 h-4 rotate-180" />
-                Return to Staking
+                Return to Stake
               </button>
             </div>
 
@@ -1011,22 +1011,24 @@ export default function Home() {
                   { id: 'treasuries', name: 'US Treasuries', symbol: 'TBILL', apy: '5.2%', risk: 'Low', icon: Landmark, comingSoon: true },
                   { id: 'realEstate', name: 'Real Estate', symbol: 'REST', apy: '8.0%', risk: 'Medium', icon: Building2, comingSoon: true },
                   { id: 'gold', name: 'Tokenized Gold', symbol: 'XAUT', apy: 'Safe Haven', risk: 'Hedge', icon: CreditCard, comingSoon: false }
-                ].map((vault) => (
-                  <div
-                    key={vault.id}
-                    onClick={() => !vault.comingSoon && setSelectedRwaTarget(vault.id)}
-                    className={`transition-all duration-300 bg-[#0c0c0c] rounded-2xl p-6 border flex items-center justify-between gap-4 text-white ${
-                      vault.comingSoon
-                        ? 'opacity-50 cursor-not-allowed border-white/5'
-                        : selectedRwaTarget === vault.id
-                          ? 'cursor-pointer border-white px-8'
-                          : 'cursor-pointer border-white/5 hover:border-white/10'
-                    }`}
-                  >
-                    <div className="flex items-center gap-6">
-                      <div className="w-12 h-12 rounded-full border border-white/10 flex items-center justify-center text-white/40">
-                        <vault.icon className="w-6 h-6" />
-                      </div>
+                ].map((vault) => {
+                  const IconComponent = vault.icon;
+                  return (
+                    <div
+                      key={vault.id}
+                      onClick={() => !vault.comingSoon && setSelectedRwaTarget(vault.id)}
+                      className={`transition-all duration-300 bg-[#0c0c0c] rounded-2xl p-6 border flex items-center justify-between gap-4 text-white ${
+                        vault.comingSoon
+                          ? 'opacity-50 cursor-not-allowed border-white/5'
+                          : selectedRwaTarget === vault.id
+                            ? 'cursor-pointer border-white px-8'
+                            : 'cursor-pointer border-white/5 hover:border-white/10'
+                      }`}
+                    >
+                      <div className="flex items-center gap-6">
+                        <div className="w-12 h-12 rounded-full border border-white/10 flex items-center justify-center text-white/40">
+                          <IconComponent className="w-6 h-6" />
+                        </div>
                       <div>
                         <h3 className="font-headline font-bold text-white text-lg tracking-tight flex items-center">
                           {vault.name} <span className="text-[10px] text-slate-300 ml-2 uppercase tracking-widest">{vault.symbol}</span>
@@ -1046,8 +1048,9 @@ export default function Home() {
                       </div>
                     )}
                   </div>
-                ))}
-              </div>
+                );
+              })}
+            </div>
 
               {/* Partial Allocation Slider */}
               <div className="mt-8 bg-[#0c0c0c] border border-white/5 rounded-2xl p-6 text-white">

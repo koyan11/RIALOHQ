@@ -37,7 +37,7 @@ export default function Rewards() {
     }
     try {
       const hash = await claimAction();
-      addTransaction({ type: 'Claim', amount: `${realPendingRewards.toFixed(2)} RLO`, details: 'Claimed Staking Rewards', txHash: hash });
+      addTransaction({ type: 'Claim', amount: `${realPendingRewards.toFixed(2)} RLO`, details: 'Claimed Stake Rewards', txHash: hash });
       showToast({ message: "Rewards claimed successfully!", type: "success", txHash: hash });
       if (address && provider) {
         fetchStakingData();
@@ -314,7 +314,7 @@ export default function Rewards() {
             <div className="flex flex-col divide-y divide-white/5">
 
               <div className="flex items-center justify-between p-6 hover:bg-white/3 transition-colors">
-                <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/60 font-label">Single RLO Staking</span>
+                <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/60 font-label">Single RLO Stake</span>
                 <span className="font-headline font-extrabold text-lg text-primary">+80.00 RLO</span>
               </div>
 
