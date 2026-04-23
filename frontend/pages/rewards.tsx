@@ -164,7 +164,7 @@ export default function Rewards() {
                   {realPendingRewards.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} <span className="text-xl md:text-2xl text-white/20 font-bold">stRLO</span>
                 </div>
                 <div className="text-white/20 font-bold uppercase tracking-widest text-[10px] mt-4">
-                  \u2248 ${(realPendingRewards * 3).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USD
+                  ${(realPendingRewards * 3).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USD
                 </div>
               </div>
               <button
@@ -192,7 +192,7 @@ export default function Rewards() {
                   <span className="text-xl md:text-2xl text-white/20 font-bold">USD</span>
                 </div>
                 <div className="text-emerald-500/40 font-bold uppercase tracking-widest text-[10px] mt-4">
-                  Upfront Payout \u00B7 USDC
+                  Upfront Payout USDC
                 </div>
               </div>
 
