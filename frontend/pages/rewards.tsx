@@ -160,8 +160,8 @@ export default function Rewards() {
                 Available Yield
               </h3>
               <div className="flex flex-col mt-auto mb-8">
-                <div className="text-5xl md:text-6xl font-headline font-extrabold text-white leading-none tracking-tighter flex items-baseline gap-2">
-                  {realPendingRewards.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} <span className="text-xl md:text-2xl text-white/20 font-bold">stRLO</span>
+                <div className="text-5xl md:text-6xl font-headline font-extrabold text-white leading-none tracking-tight flex items-baseline gap-2">
+                  {realPendingRewards.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} <span className="text-xl md:text-2xl text-white/20 font-bold ml-3 tracking-normal">stRLO</span>
                 </div>
                 <div className="text-white/20 font-bold uppercase tracking-widest text-[10px] mt-4">
                   ${(realPendingRewards * 3).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USD
@@ -187,9 +187,9 @@ export default function Rewards() {
 
               {/* Main number */}
               <div className="flex flex-col mt-auto mb-8">
-                <div className="text-5xl md:text-6xl font-headline font-extrabold text-white leading-none tracking-tighter flex items-baseline gap-2">
+                <div className="text-5xl md:text-6xl font-headline font-extrabold text-white leading-none tracking-tight flex items-baseline gap-2">
                   ${globalRwaYieldUsd.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                  <span className="text-xl md:text-2xl text-white/20 font-bold">USD</span>
+                  <span className="text-xl md:text-2xl text-white/20 font-bold ml-3 tracking-normal">USD</span>
                 </div>
                 <div className="text-emerald-500/40 font-bold uppercase tracking-widest text-[10px] mt-4">
                   Upfront Payout USDC
@@ -231,8 +231,8 @@ export default function Rewards() {
               </h3>
 
               <div className="flex flex-col mt-auto mb-6">
-                <div className="text-5xl md:text-6xl font-headline font-extrabold text-white leading-none tracking-tighter flex items-baseline gap-2">
-                  {Math.floor(tickingCredits).toLocaleString('en-US')} <span className="text-xl md:text-2xl text-white/20 font-bold">Credits</span>
+                <div className="text-5xl md:text-6xl font-headline font-extrabold text-white leading-none tracking-tight flex items-baseline gap-2">
+                  {Math.floor(tickingCredits).toLocaleString('en-US')} <span className="text-xl md:text-2xl text-white/20 font-bold ml-3 tracking-normal">Credits</span>
                 </div>
                 
                 {pendingCredits > 0 && !isFueling && (
