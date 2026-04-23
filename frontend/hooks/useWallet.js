@@ -357,15 +357,28 @@ export function WalletProvider({ children }) {
     const d = Number(delta);
     lastManualUpdates.current[symbol] = Date.now();
     
-    setSimulatedDeltas(prev => ({
-      ...prev,
-      [symbol]: (prev[symbol] || 0) + d
-    }));
+    setSimulatedDeltas(prev => {
+      const next = {
+        ...prev,
+        [symbol]: (prev[symbol] || 0) + d
+      };
+      // Synchronously update localStorage to avoid race conditions with fetchEthBalance
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('rialo_simulated_deltas', JSON.stringify(next));
+      }
+      return next;
+    });
 
-    setBalances(prev => ({
-      ...prev,
-      [symbol]: Math.max(0, Number(prev[symbol] || 0) + d)
-    }));
+    setBalances(prev => {
+      const next = {
+        ...prev,
+        [symbol]: Math.max(0, Number(prev[symbol] || 0) + d)
+      };
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('rialo_balances', JSON.stringify(next));
+      }
+      return next;
+    });
   }, []);
 
   const updateBalances = useCallback((deltas) => {
@@ -373,6 +386,9 @@ export function WalletProvider({ children }) {
         const next = { ...prev };
         for (const [symbol, delta] of Object.entries(deltas)) {
             next[symbol] = (next[symbol] || 0) + Number(delta);
+        }
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('rialo_simulated_deltas', JSON.stringify(next));
         }
         return next;
     });
@@ -382,6 +398,9 @@ export function WalletProvider({ children }) {
       for (const [symbol, delta] of Object.entries(deltas)) {
         lastManualUpdates.current[symbol] = Date.now();
         next[symbol] = Math.max(0, Number(prev[symbol] || 0) + Number(delta));
+      }
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('rialo_balances', JSON.stringify(next));
       }
       return next;
     });
