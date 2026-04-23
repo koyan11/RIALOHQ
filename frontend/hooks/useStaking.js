@@ -85,33 +85,57 @@ export function useStaking() {
       const savedEth = localStorage.getItem('rialo_staked_eth') || '0';
       setStakedEthBalance(savedEth);
 
-      if (address) {
-        const checksummed = ethers.getAddress(address);
-        
+        let currentTotalStakedVal = 0;
         try {
+          const checksummed = ethers.getAddress(address);
           const stakeInfo = await contract.stakes(checksummed);
-          if (stakeInfo) {
-            const rawAmount = (stakeInfo.amount !== undefined ? stakeInfo.amount : stakeInfo[0]) ?? 0n;
-            const rawSfsFraction = (stakeInfo.sfsFraction !== undefined ? stakeInfo.sfsFraction : stakeInfo[3]) ?? 0n;
-            
-            // Combine real on-chain RLO with simulated RLO
-            const realBal = parseFloat(ethers.formatEther(rawAmount));
-            const simBal = parseFloat(localStorage.getItem('rialo_staked_rlo') || '0');
-            setStakedBalance((realBal + simBal).toString());
-            
-            setSfsFraction(Number(rawSfsFraction) / 100);
-          }
+          const rawAmount = (stakeInfo.amount !== undefined ? stakeInfo.amount : stakeInfo[0]) ?? 0n;
+          const simBal = parseFloat(localStorage.getItem('rialo_staked_rlo') || '0');
+          const realBal = parseFloat(ethers.formatEther(rawAmount));
+          const totalRLO = realBal + simBal;
+          setStakedBalance(totalRLO.toString());
+          
+          const rawSfsFraction = (stakeInfo.sfsFraction !== undefined ? stakeInfo.sfsFraction : stakeInfo[3]) ?? 0n;
+          setSfsFraction(Number(rawSfsFraction) / 100);
+
+          const savedEth = parseFloat(localStorage.getItem('rialo_staked_eth') || '0');
+          setStakedEthBalance(savedEth.toString());
+          
+          // Use these for immediate yield calculation
+          currentTotalStakedVal = totalRLO + (savedEth * 2300);
         } catch (e) {
           console.warn('Failed to fetch stake info:', e);
           const simBal = parseFloat(localStorage.getItem('rialo_staked_rlo') || '0');
+          const savedEth = parseFloat(localStorage.getItem('rialo_staked_eth') || '0');
           setStakedBalance(simBal.toString());
+          setStakedEthBalance(savedEth.toString());
+          currentTotalStakedVal = simBal + (savedEth * 2300);
         }
         
         try {
-          const rewards = await contract.calculateRewards(checksummed);
-          setPendingRewards(ethers.formatEther(rewards));
+          const rewards = await contract.calculateRewards(ethers.getAddress(address));
+          const realRewards = parseFloat(ethers.formatEther(rewards));
+          
+          // Yield Simulation for snappy UX / AI strategy visualization
+          const now = Date.now();
+          const lastUpdate = parseInt(localStorage.getItem('rialo_last_yield_time') || now.toString());
+          const elapsedSec = (now - lastUpdate) / 1000;
+          
+          if (elapsedSec > 0 && currentTotalStakedVal > 0) {
+            const apy = 0.12; // 12% APY as shown in UI
+            const yieldPerSec = (currentTotalStakedVal * apy) / (365 * 24 * 3600);
+            const addedYield = yieldPerSec * elapsedSec;
+            
+            const currentSim = parseFloat(localStorage.getItem('rialo_sim_rewards') || '0');
+            localStorage.setItem('rialo_sim_rewards', (currentSim + addedYield).toString());
+          }
+          localStorage.setItem('rialo_last_yield_time', now.toString());
+
+          const simRewards = parseFloat(localStorage.getItem('rialo_sim_rewards') || '0');
+          setPendingRewards((realRewards + simRewards).toString());
         } catch (e) {
-          setPendingRewards('0');
+          const simRewards = parseFloat(localStorage.getItem('rialo_sim_rewards') || '0');
+          setPendingRewards(simRewards.toString());
         }
 
         try {
@@ -396,6 +420,11 @@ export function useStaking() {
       const staking = getContract('Staking', signer);
       const tx = await staking.claimRewards();
       await tx.wait();
+      
+      // Clear simulated rewards on successful claim
+      localStorage.removeItem('rialo_sim_rewards');
+      localStorage.setItem('rialo_last_yield_time', Date.now().toString());
+      
       await fetchStakingData();
       return tx.hash;
     } catch (error) {
